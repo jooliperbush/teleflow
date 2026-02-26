@@ -17,7 +17,7 @@ interface CompanyResult {
 }
 
 interface Product {
-  type: 'broadband' | 'lease_line' | 'voip' | 'mobile'
+  type: 'fttp' | 'fttc' | 'sogea' | 'gfast' | 'adsl' | 'lease_line' | 'voip' | 'mobile'
   name: string
   downloadMbps?: number
   uploadMbps?: number
@@ -52,6 +52,7 @@ interface OrderState {
   // Step 2
   selectedProducts: SelectedProduct[]
   requiresCallback: boolean
+  zenAvailabilityRef?: string
   // Step 3
   quoteReference: string
   quoteTerm: number
@@ -279,24 +280,60 @@ function Step1({ order, setOrder, onNext }: {
 
 // ─── Step 2: Availability ─────────────────────────────────────────────────────
 
+interface ZenAddress {
+  goldAddressKey: string
+  districtCode: string
+  displayAddress: string
+}
+
 function Step2({ order, setOrder, onNext, onBack }: {
   order: OrderState
   setOrder: (o: Partial<OrderState>) => void
   onNext: () => void
   onBack: () => void
 }) {
+  const [addresses, setAddresses] = useState<ZenAddress[]>([])
+  const [selectedAddress, setSelectedAddress] = useState<ZenAddress | null>(null)
   const [products, setProducts] = useState<Product[]>([])
+  const [availRef, setAvailRef] = useState<string | null>(null)
+  const [phase, setPhase] = useState<'address' | 'products'>('address')
   const [loading, setLoading] = useState(true)
   const [voipSeats, setVoipSeats] = useState(1)
   const [mobileSims, setMobileSims] = useState(1)
   const [selected, setSelected] = useState<Record<string, boolean>>({})
 
+  // Phase 1: load addresses for postcode
   useEffect(() => {
-    fetch(`/api/zen/availability?postcode=${encodeURIComponent(order.sitePostcode)}`)
+    setLoading(true)
+    fetch(`/api/zen/address?postcode=${encodeURIComponent(order.sitePostcode)}`)
       .then(r => r.json())
-      .then(d => { setProducts(d.products || []); setLoading(false) })
+      .then(d => { setAddresses(d.addresses || []); setLoading(false) })
       .catch(() => setLoading(false))
   }, [order.sitePostcode])
+
+  // Phase 2: run availability check when address selected
+  async function handleAddressSelect(addr: ZenAddress) {
+    setSelectedAddress(addr)
+    setLoading(true)
+    setPhase('products')
+    try {
+      const res = await fetch(
+        `/api/zen/availability?goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}&districtCode=${encodeURIComponent(addr.districtCode)}`
+      )
+      const data = await res.json()
+      // Merge Zen broadband products with fixed ITC products (VoIP + Mobile)
+      const zenProducts: Product[] = (data.products || []).map((p: Product) => ({ ...p, monthlyCost: p.monthlyCost }))
+      const allProducts: Product[] = [
+        ...zenProducts,
+        { type: 'lease_line', name: 'Managed Fibre 200/1000', downloadMbps: 200, uploadMbps: 1000, monthlyCost: null, setupFee: null, available: true, requiresCallback: true },
+        { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
+        { type: 'mobile', name: 'O2 Unlimited SIM', monthlyCost: 15.00 * MARGIN, setupFee: 0, available: true },
+      ]
+      setProducts(allProducts)
+      setAvailRef(data.availabilityReference || null)
+    } catch { /* keep loading false */ }
+    setLoading(false)
+  }
 
   function toggle(type: string) {
     setSelected(s => ({ ...s, [type]: !s[type] }))
@@ -307,7 +344,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
       .filter(p => selected[p.type])
       .map(p => {
         const qty = p.type === 'voip' ? voipSeats : p.type === 'mobile' ? mobileSims : 1
-        const unitMonthly = p.monthlyCost ? p.monthlyCost * MARGIN : 0
+        const unitMonthly = p.monthlyCost || 0
         return {
           type: p.type,
           name: p.name,
@@ -322,7 +359,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
   function handleNext() {
     const sel = buildSelected()
     const requiresCallback = sel.some(p => p.requiresCallback)
-    setOrder({ selectedProducts: sel, requiresCallback })
+    setOrder({ selectedProducts: sel, requiresCallback, zenAvailabilityRef: availRef || undefined })
     onNext()
   }
 
@@ -331,24 +368,63 @@ function Step2({ order, setOrder, onNext, onBack }: {
   if (loading) {
     return (
       <div className="text-center py-12">
-        <div className="inline-block w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-3" style={{ borderTopColor: NAVY }} />
-        <p className="text-gray-500">Checking availability for {order.sitePostcode}...</p>
+        <div className="inline-block w-8 h-8 border-4 border-gray-200 rounded-full animate-spin mb-3" style={{ borderTopColor: NAVY }} />
+        <p className="text-gray-500 text-sm">
+          {phase === 'address'
+            ? `Finding addresses for ${order.sitePostcode}...`
+            : `Checking availability at ${selectedAddress?.displayAddress}...`}
+        </p>
       </div>
     )
   }
 
+  // Address picker
+  if (phase === 'address') {
+    return (
+      <div>
+        <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Select Installation Address</h2>
+        <p className="text-gray-500 text-sm mb-5">
+          Addresses found for <strong>{order.sitePostcode}</strong>. Select the exact installation address.
+        </p>
+        <div className="space-y-2 mb-6 max-h-80 overflow-y-auto">
+          {addresses.length === 0 ? (
+            <p className="text-gray-400 text-sm text-center py-8">No addresses found for this postcode.</p>
+          ) : (
+            addresses.map(a => (
+              <button
+                key={a.goldAddressKey}
+                onClick={() => handleAddressSelect(a)}
+                className="w-full text-left border-2 rounded-xl px-4 py-3 hover:border-blue-700 transition-all text-sm"
+                style={{ borderColor: '#E5E7EB' }}
+                onMouseOver={e => (e.currentTarget.style.borderColor = NAVY)}
+                onMouseOut={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
+              >
+                {a.displayAddress}
+              </button>
+            ))
+          )}
+        </div>
+        <button onClick={onBack} className="w-full py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm">← Back</button>
+      </div>
+    )
+  }
+
+  // Product picker
   return (
     <div>
       <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Available Products</h2>
-      <p className="text-gray-500 text-sm mb-6">Showing best available options for <strong>{order.sitePostcode}</strong></p>
+      <p className="text-gray-500 text-sm mb-1">{selectedAddress?.displayAddress}</p>
+      <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }} className="text-xs mb-5 underline" style={{ color: NAVY }}>
+        ← Change address
+      </button>
 
       <div className="space-y-3 mb-6">
         {products.map(p => (
           <div
             key={p.type}
             onClick={() => toggle(p.type)}
-            className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${selected[p.type] ? 'border-blue-700 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
-            style={selected[p.type] ? { borderColor: NAVY, background: '#f0f4ff' } : {}}
+            className="border-2 rounded-xl p-4 cursor-pointer transition-all"
+            style={selected[p.type] ? { borderColor: NAVY, background: '#f0f4ff' } : { borderColor: '#E5E7EB' }}
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -357,7 +433,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
                     className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0"
                     style={{ borderColor: selected[p.type] ? NAVY : '#D1D5DB', background: selected[p.type] ? NAVY : 'white' }}
                   >
-                    {selected[p.type] && <span className="text-white text-xs">✓</span>}
+                    {selected[p.type] && <span className="text-white text-xs leading-none">✓</span>}
                   </div>
                   <span className="font-semibold text-sm">{p.name}</span>
                   {p.requiresCallback && (
@@ -365,46 +441,30 @@ function Step2({ order, setOrder, onNext, onBack }: {
                   )}
                 </div>
 
-                {p.type === 'broadband' && (
-                  <p className="text-xs text-gray-500 mt-1 ml-6">{p.downloadMbps}/{p.uploadMbps} Mbps · Full Fibre</p>
+                {(p.type === 'fttp' || p.type === 'fttc' || p.type === 'sogea' || p.type === 'gfast' || p.type === 'adsl') && (
+                  <p className="text-xs text-gray-500 mt-1 ml-6">{p.downloadMbps}/{p.uploadMbps} Mbps</p>
                 )}
                 {p.type === 'lease_line' && (
                   <p className="text-xs text-gray-500 mt-1 ml-6">Our team will call to confirm pricing and installation date</p>
                 )}
-
                 {p.type === 'voip' && selected['voip'] && (
-                  <div className="ml-6 mt-2 flex items-center gap-2">
+                  <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
                     <label className="text-xs text-gray-600">Seats:</label>
-                    <input
-                      type="number"
-                      min={1} max={100}
-                      value={voipSeats}
-                      onClick={e => e.stopPropagation()}
-                      onChange={e => setVoipSeats(Number(e.target.value))}
-                      className="w-16 border rounded px-2 py-1 text-sm"
-                    />
+                    <input type="number" min={1} max={100} value={voipSeats} onChange={e => setVoipSeats(Number(e.target.value))} className="w-16 border rounded px-2 py-1 text-sm" />
                   </div>
                 )}
-
                 {p.type === 'mobile' && selected['mobile'] && (
-                  <div className="ml-6 mt-2 flex items-center gap-2">
+                  <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
                     <label className="text-xs text-gray-600">SIMs:</label>
-                    <input
-                      type="number"
-                      min={1} max={500}
-                      value={mobileSims}
-                      onClick={e => e.stopPropagation()}
-                      onChange={e => setMobileSims(Number(e.target.value))}
-                      className="w-16 border rounded px-2 py-1 text-sm"
-                    />
+                    <input type="number" min={1} max={500} value={mobileSims} onChange={e => setMobileSims(Number(e.target.value))} className="w-16 border rounded px-2 py-1 text-sm" />
                   </div>
                 )}
               </div>
 
-              <div className="text-right ml-4">
+              <div className="text-right ml-4 flex-shrink-0">
                 {p.monthlyCost ? (
                   <>
-                    <div className="font-bold text-sm" style={{ color: NAVY }}>£{(p.monthlyCost * MARGIN).toFixed(2)}</div>
+                    <div className="font-bold text-sm" style={{ color: NAVY }}>£{p.monthlyCost.toFixed(2)}</div>
                     <div className="text-xs text-gray-400">/ month</div>
                   </>
                 ) : (
@@ -417,11 +477,11 @@ function Step2({ order, setOrder, onNext, onBack }: {
       </div>
 
       <div className="flex gap-3">
-        <button onClick={onBack} className="flex-1 py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm">← Back</button>
+        <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }} className="flex-1 py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm">← Back</button>
         <button
           onClick={handleNext}
           disabled={!hasSelection}
-          className="flex-1 py-3 rounded-lg font-semibold text-white transition-opacity disabled:opacity-40"
+          className="flex-1 py-3 rounded-lg font-semibold text-white disabled:opacity-40"
           style={{ background: NAVY }}
         >
           Get Quote →

@@ -1,89 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server'
+import type { ZenProduct } from '@/lib/zen'
 
-// MOCK — swap for real Zen API when credentials available
-// Real: GET ${ZEN_API_BASE_URL}/availability?postcode={postcode}
-// Auth: Bearer ${ZEN_API_KEY}
+const ZEN_CONFIGURED = !!(process.env.ZEN_CLIENT_ID && process.env.ZEN_CLIENT_SECRET)
+const MARGIN = 1.25 // 25% ITC markup
 
-interface Product {
-  type: 'broadband' | 'lease_line' | 'voip' | 'mobile'
-  name: string
-  downloadMbps?: number
-  uploadMbps?: number
-  monthlyCost: number | null
-  setupFee: number | null
-  available: boolean
-  requiresCallback?: boolean
-}
-
-function getMockProducts(postcode: string): Product[] {
-  // Simulate different availability by postcode prefix
-  const prefix = postcode.replace(/\s+/g, '').toUpperCase().slice(0, 2)
-  const hasFibre = !['HS', 'ZE', 'KW'].includes(prefix) // remote Scottish isles
-
-  const allBroadband: Product[] = hasFibre
-    ? [
-        { type: 'broadband', name: 'Full Fibre 900', downloadMbps: 900, uploadMbps: 900, monthlyCost: 45.00, setupFee: 0, available: true },
-        { type: 'broadband', name: 'Full Fibre 150', downloadMbps: 150, uploadMbps: 150, monthlyCost: 28.00, setupFee: 0, available: true },
-      ]
-    : [
-        { type: 'broadband', name: 'FTTC 80/20', downloadMbps: 80, uploadMbps: 20, monthlyCost: 22.00, setupFee: 0, available: true },
-      ]
-
-  // Rule: only return BEST broadband (highest downloadMbps)
-  const bestBroadband = allBroadband.reduce((best, curr) =>
-    (curr.downloadMbps ?? 0) > (best.downloadMbps ?? 0) ? curr : best
-  )
-
+// Mock for testing without credentials
+function getMockProducts(): ZenProduct[] {
   return [
-    bestBroadband,
-    {
-      type: 'lease_line',
-      name: 'Managed Fibre 200/1000',
-      downloadMbps: 200,
-      uploadMbps: 1000,
-      monthlyCost: null,
-      setupFee: null,
-      available: true,
-      requiresCallback: true,
-    },
-    {
-      type: 'voip',
-      name: 'VoIP Seat',
-      monthlyCost: 8.00,
-      setupFee: 25.00,
-      available: true,
-    },
-    {
-      type: 'mobile',
-      name: 'O2 Unlimited SIM',
-      monthlyCost: 15.00,
-      setupFee: 0,
-      available: true,
-    },
+    { type: 'fttp', name: 'Full Fibre 900', downloadMbps: 900, uploadMbps: 900, monthlyCost: 36.00, setupFee: 0, available: true },
+    { type: 'fttc', name: 'FTTC 80/20', downloadMbps: 80, uploadMbps: 20, monthlyCost: 17.60, setupFee: 0, available: true },
   ]
 }
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
+  // Support both legacy postcode-only AND address key mode
   const postcode = searchParams.get('postcode')
+  const goldAddressKey = searchParams.get('goldAddressKey')
+  const districtCode = searchParams.get('districtCode') || ''
+  const cli = searchParams.get('cli') || undefined
 
-  if (!postcode) {
-    return NextResponse.json({ error: 'postcode required' }, { status: 400 })
+  if (!goldAddressKey && !postcode) {
+    return NextResponse.json({ error: 'goldAddressKey or postcode required' }, { status: 400 })
   }
 
-  // TODO: replace with real Zen API call when credentials received
-  // const zenKey = process.env.ZEN_API_KEY
-  // const zenBase = process.env.ZEN_API_BASE_URL
-  // const res = await fetch(`${zenBase}/availability?postcode=${postcode}`, {
-  //   headers: { Authorization: `Bearer ${zenKey}` }
-  // })
-  // const data = await res.json()
+  if (!ZEN_CONFIGURED || !goldAddressKey) {
+    // Fall back to mock if not configured or no address key yet
+    await new Promise(r => setTimeout(r, 600))
+    const products = getMockProducts()
+    // Apply ITC rule: only best broadband
+    const broadband = products.filter(p => ['fttp', 'fttc', 'sogea', 'gfast', 'adsl'].includes(p.type))
+    const best = broadband.length ? [broadband[0]] : [] // already sorted best-first
+    return NextResponse.json({
+      products: best.map(p => ({ ...p, monthlyCost: p.monthlyCost ? p.monthlyCost * MARGIN : null })),
+      source: 'mock',
+      availabilityReference: null,
+    })
+  }
 
-  await new Promise(r => setTimeout(r, 600)) // simulate API latency
+  try {
+    const { checkAvailability } = await import('@/lib/zen')
+    const result = await checkAvailability(goldAddressKey, districtCode, cli)
 
-  return NextResponse.json({
-    postcode: postcode.toUpperCase(),
-    products: getMockProducts(postcode),
-    source: 'mock', // remove when live
-  })
+    // ITC rule: only best broadband product (already sorted by speed desc)
+    const broadband = result.products.filter(p => p.type !== 'ethernet')
+    const best = broadband.length ? [broadband[0]] : []
+
+    const products = best.map(p => ({
+      ...p,
+      monthlyCost: p.monthlyCost ? p.monthlyCost * MARGIN : null,
+      setupFee: p.setupFee ? p.setupFee * MARGIN : 0,
+    }))
+
+    return NextResponse.json({
+      products,
+      availabilityReference: result.availabilityReference,
+      remainingChecks: result.remainingChecks,
+      source: 'zen',
+    })
+  } catch (err) {
+    console.error('Zen availability error:', err)
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
 }
