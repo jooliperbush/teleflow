@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     const { Resend } = await import('resend')
     const resend = new Resend(resendKey)
     const { data, error } = await resend.emails.send({
-      from: 'ITC Telecoms <quotes@itctelecoms.co.uk>',
+      from: 'ITC Telecoms <onboarding@resend.dev>',
       to: [toEmail],
       subject: `Your ITC Telecoms Quote — ${order.quote_reference}`,
       html,
