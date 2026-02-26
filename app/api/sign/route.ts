@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
-  const { orderId, signedName } = await req.json()
+  const { orderId, signedName, order } = await req.json()
 
   if (!orderId || !signedName) {
     return NextResponse.json({ error: 'orderId and signedName required' }, { status: 400 })
@@ -24,10 +24,29 @@ export async function POST(req: NextRequest) {
     try {
       const { getServiceClient } = await import('@/lib/supabase')
       const db = getServiceClient()
-      await db.from('orders').update({ ...signatureRecord, updated_at: signedAt }).eq('id', orderId)
+      await db.from('orders')
+        .update({ ...signatureRecord, updated_at: signedAt })
+        .eq('id', orderId)
     } catch (err) {
       console.error('Sign persist error:', err)
     }
+  }
+
+  // Send signed PDF email (non-blocking — don't fail the sign request if email fails)
+  if (order && process.env.RESEND_API_KEY) {
+    const enrichedOrder = {
+      ...order,
+      signed_name: signedName,
+      signed_at: signedAt,
+      signed_ip: ip,
+    }
+    // Fire and forget
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    fetch(`${baseUrl}/api/quote/email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, order: enrichedOrder, signed: true }),
+    }).catch(err => console.error('Signed email error:', err))
   }
 
   return NextResponse.json({ success: true, signedAt, signedName, ip })

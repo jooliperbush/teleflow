@@ -633,7 +633,25 @@ function Step4({ order, setOrder, onNext, onBack }: {
       const res = await fetch('/api/sign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: order.id || 'preview', signedName }),
+        body: JSON.stringify({
+          orderId: order.id || 'preview',
+          signedName,
+          order: {
+            quote_reference: order.quoteReference,
+            quote_term_months: order.quoteTerm,
+            company_name: order.companyName,
+            company_number: order.companyNumber,
+            company_reference: order.companyReference,
+            registered_address: order.registeredAddress,
+            contact_name: order.contactName,
+            contact_email: order.contactEmail,
+            contact_phone: order.contactPhone,
+            site_postcode: order.sitePostcode,
+            selected_products: order.selectedProducts,
+            monthly_total: order.monthlyTotal,
+            annual_total: order.annualTotal,
+          },
+        }),
       })
       const data = await res.json()
       setOrder({ signedName, signedAt: data.signedAt })
