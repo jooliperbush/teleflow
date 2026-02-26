@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -139,9 +139,12 @@ function Step1({ order, setOrder, onNext }: {
   const [results, setResults] = useState<CompanyResult[]>([])
   const [searching, setSearching] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
+  const justSelected = useRef(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const search = useCallback(async (q: string) => {
-    if (q.length < 2) { setResults([]); return }
+    if (justSelected.current) { justSelected.current = false; return }
+    if (q.length < 2) { setResults([]); setShowDropdown(false); return }
     setSearching(true)
     try {
       const res = await fetch(`/api/companies-house?q=${encodeURIComponent(q)}`)
@@ -157,6 +160,17 @@ function Step1({ order, setOrder, onNext }: {
     return () => clearTimeout(t)
   }, [query, search])
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   function selectCompany(c: CompanyResult) {
     const ref = generateCompanyRef(c.title, c.date_of_creation || '')
     setOrder({
@@ -167,8 +181,10 @@ function Step1({ order, setOrder, onNext }: {
       incorporatedDate: c.date_of_creation || '',
       companyStatus: c.company_status || '',
     })
+    justSelected.current = true
     setQuery(c.title)
     setShowDropdown(false)
+    setResults([])
   }
 
   const canContinue = order.companyName && order.companyNumber && order.contactName && order.contactEmail && order.sitePostcode
@@ -178,7 +194,7 @@ function Step1({ order, setOrder, onNext }: {
       <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Company Details</h2>
       <p className="text-gray-500 text-sm mb-6">We&apos;ll verify your company using Companies House.</p>
 
-      <div className="relative mb-4">
+      <div className="relative mb-4" ref={dropdownRef}>
         <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
         <input
           value={query}
