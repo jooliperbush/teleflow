@@ -283,13 +283,6 @@ function Step1({ order, setOrder, onNext }: {
 
 // ─── Step 2: Availability (3 sub-phases) ────────────────────────────────────
 
-interface EthernetQuote {
-  term: number
-  bandwidth: number
-  monthlyPrice: number
-  setupFee: number
-}
-
 interface AppointmentSlot {
   date: string
   startTime: string
@@ -321,10 +314,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
   const [selected, setSelected] = useState<Record<string, boolean>>(
     Object.fromEntries((order.selectedProducts || []).map(p => [p.type, true]))
   )
-  // Lease line / ethernet quote state
-  const [ethernetQuotes, setEthernetQuotes] = useState<EthernetQuote[]>([])
-  const [ethernetLoading, setEthernetLoading] = useState(false)
-  const [selectedBandwidth, setSelectedBandwidth] = useState(order.leaseLine?.bandwidth || 200)
+  // Lease line — no live pricing (requires indirect-quote scope not yet enabled)
   const [selectedTerm, setSelectedTerm] = useState(order.leaseLine?.term || 36)
   // Appointment state
   const [slots, setSlots] = useState<AppointmentSlot[]>([])
@@ -341,19 +331,6 @@ function Step2({ order, setOrder, onNext, onBack }: {
       .catch(() => setLoading(false))
   }, [order.sitePostcode, order.selectedAddress])
 
-  // Fetch ethernet quotes when lease_line selected
-  useEffect(() => {
-    if (!selected['lease_line']) { setEthernetQuotes([]); return }
-    setEthernetLoading(true)
-    fetch('/api/zen/ethernet-quote', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ postCode: order.sitePostcode }),
-    })
-      .then(r => r.json())
-      .then(d => { setEthernetQuotes(d.quotes || []); setEthernetLoading(false) })
-      .catch(() => setEthernetLoading(false))
-  }, [selected['lease_line'], order.sitePostcode])
 
   // Load appointment slots when entering appointment phase
   useEffect(() => {
@@ -393,23 +370,19 @@ function Step2({ order, setOrder, onNext, onBack }: {
     setSelected(s => ({ ...s, [type]: !s[type] }))
   }
 
-  // Get selected ethernet quote based on bandwidth + term
-  function getSelectedEthernetQuote(): EthernetQuote | null {
-    return ethernetQuotes.find(q => q.bandwidth === selectedBandwidth && q.term === selectedTerm) || null
-  }
 
   function buildSelected(): SelectedProduct[] {
     return products
       .filter(p => selected[p.type])
       .map(p => {
         if (p.type === 'lease_line') {
-          const eq = getSelectedEthernetQuote()
           return {
             type: p.type,
-            name: `Managed Fibre ${selectedBandwidth}/1000`,
+            name: 'Managed Fibre (Leased Line)',
             quantity: 1,
-            unitMonthly: eq ? eq.monthlyPrice : 0,
-            monthlyTotal: eq ? eq.monthlyPrice : 0,
+            unitMonthly: 0,
+            monthlyTotal: 0,
+            requiresCallback: true,
           }
         }
         const qty = p.type === 'voip' ? voipSeats : p.type === 'mobile' ? mobileSims : 1
@@ -420,11 +393,10 @@ function Step2({ order, setOrder, onNext, onBack }: {
 
   function handleProductsNext() {
     const sel = buildSelected()
-    const eq = selected['lease_line'] ? getSelectedEthernetQuote() : null
     setOrder({
       selectedProducts: sel,
-      requiresCallback: false,
-      leaseLine: eq ? { bandwidth: selectedBandwidth, term: selectedTerm, monthlyPrice: eq.monthlyPrice, setupFee: eq.setupFee } : undefined,
+      requiresCallback: selected['lease_line'] || false,
+      leaseLine: undefined,
     })
     // Show appointment picker if broadband or lease line selected
     const needsInstall = sel.some(p => ['fttp','fttc','sogea','gfast','adsl','lease_line'].includes(p.type))
@@ -441,7 +413,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
   }
 
   const hasSelection = Object.values(selected).some(Boolean)
-  const leaseLineReady = !selected['lease_line'] || (ethernetQuotes.length > 0 && !!getSelectedEthernetQuote())
+  const leaseLineReady = true // lease line goes to callback, no quote needed
 
   // ── Loading spinner ─────────────────────────────────────────────────────────
   if (loading) {
@@ -514,66 +486,12 @@ function Step2({ order, setOrder, onNext, onBack }: {
                     <p className="text-xs text-gray-500 mt-1 ml-6">{p.downloadMbps}/{p.uploadMbps} Mbps · Engineer installation required</p>
                   )}
 
-                  {/* Lease line — real ethernet quotes */}
+                  {/* Lease line — callback required for quote */}
                   {p.type === 'lease_line' && selected['lease_line'] && (
-                    <div className="ml-6 mt-3 space-y-3" onClick={e => e.stopPropagation()}>
-                      {ethernetLoading ? (
-                        <p className="text-xs text-gray-400">Fetching live pricing...</p>
-                      ) : (
-                        <>
-                          <div className="flex items-center gap-3 flex-wrap">
-                            <div>
-                              <p className="text-xs text-gray-500 mb-1">Bandwidth</p>
-                              <div className="flex gap-2">
-                                {[100, 200, 500, 1000].map(bw => {
-                                  const hasQuote = ethernetQuotes.some(q => q.bandwidth === bw && q.term === selectedTerm)
-                                  return (
-                                    <button key={bw} onClick={() => setSelectedBandwidth(bw)}
-                                      disabled={!hasQuote}
-                                      className="px-3 py-1 rounded text-xs font-medium border-2 transition-all disabled:opacity-30"
-                                      style={selectedBandwidth === bw ? { background: NAVY, borderColor: NAVY, color: 'white' } : { borderColor: '#E5E7EB', color: '#6B7280' }}>
-                                      {bw >= 1000 ? '1Gbps' : `${bw}M`}
-                                    </button>
-                                  )
-                                })}
-                              </div>
-                            </div>
-                            <div>
-                              <p className="text-xs text-gray-500 mb-1">Contract</p>
-                              <div className="flex gap-2">
-                                {[12, 24, 36, 60].map(t => {
-                                  const hasQuote = ethernetQuotes.some(q => q.bandwidth === selectedBandwidth && q.term === t)
-                                  return (
-                                    <button key={t} onClick={() => setSelectedTerm(t)}
-                                      disabled={!hasQuote}
-                                      className="px-3 py-1 rounded text-xs font-medium border-2 transition-all disabled:opacity-30"
-                                      style={selectedTerm === t ? { background: NAVY, borderColor: NAVY, color: 'white' } : { borderColor: '#E5E7EB', color: '#6B7280' }}>
-                                      {t}m
-                                    </button>
-                                  )
-                                })}
-                              </div>
-                            </div>
-                          </div>
-                          {getSelectedEthernetQuote() && (
-                            <div className="bg-white border rounded-lg p-3 flex items-center justify-between">
-                              <div>
-                                <p className="text-xs text-gray-500">Managed Fibre {selectedBandwidth}/1000 · {selectedTerm} months</p>
-                                {getSelectedEthernetQuote()!.setupFee > 0 && (
-                                  <p className="text-xs text-amber-600">+ £{getSelectedEthernetQuote()!.setupFee} installation fee</p>
-                                )}
-                              </div>
-                              <div className="text-right">
-                                <p className="font-bold" style={{ color: NAVY }}>£{getSelectedEthernetQuote()!.monthlyPrice.toFixed(2)}</p>
-                                <p className="text-xs text-gray-400">/month</p>
-                              </div>
-                            </div>
-                          )}
-                          {ethernetQuotes.length === 0 && !ethernetLoading && (
-                            <p className="text-xs text-gray-400">No pricing available for this postcode. Our team will contact you.</p>
-                          )}
-                        </>
-                      )}
+                    <div className="ml-6 mt-2" onClick={e => e.stopPropagation()}>
+                      <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                        📞 An ITC advisor will call you within 1 business day to discuss bandwidth options and pricing.
+                      </p>
                     </div>
                   )}
 
@@ -603,9 +521,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
                 {/* Price column */}
                 <div className="text-right ml-4 flex-shrink-0">
                   {p.type === 'lease_line' ? (
-                    selected['lease_line'] && getSelectedEthernetQuote() ? null : (
-                      <div className="text-xs text-gray-400">Select options</div>
-                    )
+                    <div className="text-xs text-gray-400">POA</div>
                   ) : p.monthlyCost ? (
                     <>
                       <div className="font-bold text-sm" style={{ color: NAVY }}>£{p.monthlyCost.toFixed(2)}</div>
