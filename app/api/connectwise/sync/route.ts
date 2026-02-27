@@ -52,10 +52,11 @@ export async function POST(req: NextRequest) {
         name: order.companyName,
         identifier: (order.companyReference || order.companyNumber || order.companyName || 'UNKNOWN').replace(/[^a-zA-Z0-9]/g,'').slice(0, 8).toUpperCase(),
         status: { name: 'Active' },
-        types: [{ name: 'Client' }],
+        types: [{ id: 1, name: 'Client' }],
+        site: { name: 'Main' },
         addressLine1: order.registeredAddress?.address_line_1 || '',
         city: order.registeredAddress?.locality || '',
-        zip: order.sitePostcode,
+        zip: order.sitePostcode || '',
         country: { name: 'United Kingdom' },
       })
       companyId = company.id
