@@ -49,3 +49,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 .itc-gradient-btn:hover:not(:disabled) { opacity: 0.88; }
 .itc-gradient-btn:disabled { opacity: 0.35 !important; cursor: not-allowed; }
+
+/* Global dark input override — no white fields */
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+textarea,
+select {
+  background-color: hsl(252, 60%, 18%) !important;
+  border-color: hsl(252, 50%, 30%) !important;
+  color: white !important;
+}
+input::placeholder, textarea::placeholder {
+  color: hsl(260, 20%, 60%) !important;
+}

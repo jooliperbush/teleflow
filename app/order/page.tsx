@@ -204,8 +204,8 @@ function Step1({ order, setOrder, onNext }: {
           value={query}
           onChange={e => { setQuery(e.target.value); setShowDropdown(true) }}
           placeholder="Start typing company name..."
-          className="w-full rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 text-white placeholder-purple-300"
-          style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)", '--tw-ring-color': '#591bff' } as React.CSSProperties}
+          className="w-full rounded-lg px-4 py-3 text-base focus:outline-none text-white placeholder-purple-300"
+          style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }}
         />
         {searching && <div className="absolute right-3 top-9 text-gray-400 text-xs">Searching...</div>}
         {showDropdown && results.length > 0 && (
@@ -502,7 +502,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
                       <label className="text-xs text-purple-200">Seats:</label>
                       <input type="number" min={1} max={100} value={voipSeats}
                         onChange={e => setVoipSeats(Number(e.target.value))}
-                        className="w-16 border rounded px-2 py-1 text-sm" />
+                        className="w-16 rounded px-2 py-1 text-sm text-white" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }} />
                       <span className="text-xs text-purple-400">× £{(8 * MARGIN).toFixed(2)}/mo</span>
                     </div>
                   )}
@@ -513,7 +513,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
                       <label className="text-xs text-purple-200">SIMs:</label>
                       <input type="number" min={1} max={500} value={mobileSims}
                         onChange={e => setMobileSims(Number(e.target.value))}
-                        className="w-16 border rounded px-2 py-1 text-sm" />
+                        className="w-16 rounded px-2 py-1 text-sm text-white" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }} />
                       <span className="text-xs text-purple-400">× £{(15 * MARGIN).toFixed(2)}/mo</span>
                     </div>
                   )}
