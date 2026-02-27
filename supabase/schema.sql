@@ -42,3 +42,14 @@ create table if not exists orders (
   -- Status
   status text default 'draft'
 );
+
+-- Zen order fields (added Phase 1.5)
+alter table orders add column if not exists zen_availability_ref text;
+alter table orders add column if not exists zen_reference text;
+alter table orders add column if not exists zen_order_status text;
+alter table orders add column if not exists zen_estimated_completion date;
+alter table orders add column if not exists selected_address jsonb;
+alter table orders add column if not exists appointment_date date;
+alter table orders add column if not exists appointment_slot text;
+alter table orders add column if not exists number_port_reference text;
+alter table orders add column if not exists number_port_numbers jsonb;
