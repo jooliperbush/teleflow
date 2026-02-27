@@ -93,8 +93,9 @@ export async function zenPost<T>(path: string, scope: string, body: object): Pro
 // ── Address Search ────────────────────────────────────────────────────────────
 
 export interface ZenAddress {
-  goldAddressKey: string
+  goldAddressKey: string  // addressReferenceNumber
   districtCode: string
+  uprn?: string           // used for availability check
   subPremises?: string
   premises: string
   thoroughfare?: string
@@ -102,48 +103,61 @@ export interface ZenAddress {
   postTown: string
   county?: string
   postCode: string
-  displayAddress: string // formatted for dropdown
+  displayAddress: string
 }
 
 export async function searchAddresses(postcode: string): Promise<ZenAddress[]> {
-  const data = await zenGet<{ addresses: RawZenAddress[] }>(
+  // Zen returns a flat array, not { addresses: [] }
+  const data = await zenGet<RawZenItem[]>(
     '/api/address/search',
     'indirect-availability',
     { postCode: postcode.replace(/\s/g, '').toUpperCase() }
   )
 
-  return (data.addresses || []).map(normaliseAddress)
+  const items = Array.isArray(data) ? data : (data as unknown as { addresses?: RawZenItem[] }).addresses || []
+  return items.map(normaliseAddress).filter(a => a.goldAddressKey)
 }
 
-interface RawZenAddress {
-  goldAddressKey: string
-  districtCode?: string
-  subPremises?: string
-  premises?: string
-  thoroughfare?: string
-  locality?: string
-  postTown?: string
-  county?: string
-  postCode?: string
+interface RawZenItem {
+  address?: {
+    organisationName?: string
+    subPremises?: string
+    premisesName?: string
+    thoroughfareNumber?: string
+    thoroughfareName?: string
+    locality?: string
+    postTown?: string
+    postCode?: string
+  }
   addressReference?: {
-    goldAddressKey?: string
+    addressReferenceNumber?: string
     districtCode?: string
+    qualifier?: string
   }
 }
 
-function normaliseAddress(a: RawZenAddress): ZenAddress {
-  const parts = [a.subPremises, a.premises, a.thoroughfare, a.locality, a.postTown]
-    .filter(Boolean)
+function normaliseAddress(a: RawZenItem): ZenAddress {
+  const addr = a.address || {}
+  const ref = a.addressReference || {}
+  const parts = [
+    addr.organisationName,
+    addr.subPremises,
+    addr.premisesName,
+    addr.thoroughfareNumber ? `${addr.thoroughfareNumber} ${addr.thoroughfareName || ''}`.trim() : addr.thoroughfareName,
+    addr.locality,
+    addr.postTown,
+    addr.postCode,
+  ].filter(Boolean)
   return {
-    goldAddressKey: a.goldAddressKey || a.addressReference?.goldAddressKey || '',
-    districtCode: a.districtCode || a.addressReference?.districtCode || '',
-    subPremises: a.subPremises,
-    premises: a.premises || '',
-    thoroughfare: a.thoroughfare,
-    locality: a.locality,
-    postTown: a.postTown || '',
-    county: a.county,
-    postCode: a.postCode || '',
+    goldAddressKey: ref.addressReferenceNumber || '',
+    districtCode: ref.districtCode || '',
+    uprn: (a as Record<string, Record<string, string>>).addressReference?.uprn || undefined,
+    subPremises: addr.subPremises,
+    premises: addr.premisesName || '',
+    thoroughfare: addr.thoroughfareName,
+    locality: addr.locality,
+    postTown: addr.postTown || '',
+    postCode: addr.postCode || '',
     displayAddress: parts.join(', '),
   }
 }
@@ -169,14 +183,11 @@ export interface ZenAvailabilityResult {
 }
 
 export async function checkAvailability(
-  goldAddressKey: string,
-  districtCode: string,
+  uprn: string,
   cli?: string
 ): Promise<ZenAvailabilityResult> {
-  const body: Record<string, string> = {
-    goldAddressKey,
-    districtCode,
-  }
+  const body: Record<string, string> = {}
+  if (uprn) body.uprn = uprn
   if (cli) body.cli = cli
 
   const data = await zenPost<RawAvailabilityResponse>(
@@ -269,19 +280,63 @@ function extractProducts(
   }]
 }
 
+// Speed lookup from product code e.g. FTTP9009 = 900/900, FTTC8020 = 80/20
+function speedFromCode(code: string): { dl: number; ul: number } {
+  const m = code.match(/(\d+)(\d{2})$/)
+  if (m) {
+    const dl = parseInt(m[1])
+    const ul = parseInt(m[2])
+    return { dl: dl >= 10 ? dl : dl * 10, ul: ul >= 10 ? ul : ul * 10 }
+  }
+  return { dl: 0, ul: 0 }
+}
+
 function parseAvailabilityResponse(data: RawAvailabilityResponse): ZenAvailabilityResult {
   const availRef = data.availabilityReference || ''
   const allProducts: ZenProduct[] = []
 
-  // Handle grouped or flat response structure
-  const groups = data.broadbandGroups?.length ? data.broadbandGroups : [data as RawBroadbandGroup]
+  // Real Zen structure: broadbandGroups[].{broadbandType, products[].{productCode, productName}}
+  const groups = (data as unknown as {
+    broadbandGroups?: Array<{
+      broadbandType?: string
+      products?: Array<{ productCode?: string; productName?: string }>
+    }>
+  }).broadbandGroups
 
-  for (const group of groups) {
-    allProducts.push(...extractProducts('fttp', group.fttp, availRef))
-    allProducts.push(...extractProducts('fttc', group.fttc, availRef))
-    allProducts.push(...extractProducts('sogea', group.sogea, availRef))
-    allProducts.push(...extractProducts('gfast', group.gfast, availRef))
-    allProducts.push(...extractProducts('adsl', group.adsl2Plus || group.adsl2PlusAnnexM, availRef))
+  if (groups?.length) {
+    for (const group of groups) {
+      const type = (group.broadbandType || '').toLowerCase() as ZenProduct['type']
+      const prods = group.products || []
+      for (const p of prods) {
+        const code = p.productCode || ''
+        const name = p.productName || code
+        const speeds = speedFromCode(code)
+        // Extract Mbps from name e.g. "FTTP 900/900" or "FTTC 80/20"
+        const nameMatch = name.match(/(\d+)\/(\d+)/)
+        const dl = nameMatch ? parseInt(nameMatch[1]) : speeds.dl
+        const ul = nameMatch ? parseInt(nameMatch[2]) : speeds.ul
+        allProducts.push({
+          type: type || 'fttp',
+          name: name,
+          downloadMbps: dl,
+          uploadMbps: ul,
+          monthlyCost: null, // pricing via separate endpoint
+          setupFee: 0,
+          available: true,
+          availabilityRef: availRef,
+        })
+      }
+    }
+  } else {
+    // Fallback to old flat structure
+    const groups2 = data.broadbandGroups?.length ? data.broadbandGroups : [data as RawBroadbandGroup]
+    for (const group of groups2) {
+      allProducts.push(...extractProducts('fttp', group.fttp, availRef))
+      allProducts.push(...extractProducts('fttc', group.fttc, availRef))
+      allProducts.push(...extractProducts('sogea', group.sogea, availRef))
+      allProducts.push(...extractProducts('gfast', group.gfast, availRef))
+      allProducts.push(...extractProducts('adsl', group.adsl2Plus || group.adsl2PlusAnnexM, availRef))
+    }
   }
 
   // Sort by download speed descending — best first

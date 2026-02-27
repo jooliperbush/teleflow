@@ -300,6 +300,7 @@ interface AppointmentSlot {
 interface ZenAddress {
   goldAddressKey: string
   districtCode: string
+  uprn?: string
   displayAddress: string
 }
 
@@ -373,9 +374,8 @@ function Step2({ order, setOrder, onNext, onBack }: {
     setLoading(true)
     setPhase('products')
     try {
-      const res = await fetch(
-        `/api/zen/availability?goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}&districtCode=${encodeURIComponent(addr.districtCode)}`
-      )
+      const uprnParam = addr.uprn ? `uprn=${encodeURIComponent(addr.uprn)}` : `postcode=${encodeURIComponent(order.sitePostcode)}`
+      const res = await fetch(`/api/zen/availability?${uprnParam}`)
       const data = await res.json()
       const zenProducts: Product[] = (data.products || [])
       const allProducts: Product[] = [
