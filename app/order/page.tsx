@@ -209,12 +209,15 @@ function Step1({ order, setOrder, onNext }: {
         />
         {searching && <div className="absolute right-3 top-9 text-gray-400 text-xs">Searching...</div>}
         {showDropdown && results.length > 0 && (
-          <div className="absolute z-10 w-full bg-white border rounded-lg shadow-lg mt-1 max-h-52 overflow-y-auto">
+          <div className="absolute z-10 w-full rounded-xl shadow-2xl mt-1 max-h-52 overflow-y-auto" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 30%)" }}>
             {results.map(c => (
               <button
                 key={c.company_number}
                 onClick={() => selectCompany(c)}
-                className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b last:border-0"
+                className="w-full text-left px-4 py-3 transition-colors border-b last:border-0 text-white"
+                style={{ borderColor: "hsl(252, 50%, 25%)" }}
+                onMouseOver={e => (e.currentTarget.style.background = "hsl(260, 80%, 22%)")}
+                onMouseOut={e => (e.currentTarget.style.background = "transparent")}
               >
                 <div className="font-medium text-sm">{c.title}</div>
                 <div className="text-xs text-purple-400">{c.company_number} · {c.registered_office_address?.postal_code}</div>
@@ -227,15 +230,15 @@ function Step1({ order, setOrder, onNext }: {
       {order.companyNumber && (
         <div className="rounded-lg p-4 mb-4 text-sm" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 28%)" }}>
           <div className="grid grid-cols-2 gap-2">
-            <div><span className="text-gray-500">Number</span><br /><strong>{order.companyNumber}</strong></div>
-            <div><span className="text-gray-500">Reference</span><br /><strong>{order.companyReference}</strong></div>
+            <div><span className="text-purple-300">Number</span><br /><strong>{order.companyNumber}</strong></div>
+            <div><span className="text-purple-300">Reference</span><br /><strong>{order.companyReference}</strong></div>
             <div className="col-span-2">
-              <span className="text-gray-500">Registered Address</span><br />
+              <span className="text-purple-300">Registered Address</span><br />
               <strong>{[order.registeredAddress?.address_line_1, order.registeredAddress?.locality, order.registeredAddress?.postal_code].filter(Boolean).join(', ')}</strong>
             </div>
-            <div><span className="text-gray-500">Incorporated</span><br /><strong>{order.incorporatedDate}</strong></div>
+            <div><span className="text-purple-300">Incorporated</span><br /><strong>{order.incorporatedDate}</strong></div>
             <div>
-              <span className="text-gray-500">Status</span><br />
+              <span className="text-purple-300">Status</span><br />
               <strong className={order.companyStatus === 'active' ? 'text-green-600' : 'text-red-600'}>
                 {order.companyStatus?.toUpperCase()}
               </strong>
@@ -803,10 +806,10 @@ function Step4({ order, setOrder, onNext, onBack }: {
 
       <div className="rounded-lg p-4 mb-4 text-sm" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 28%)" }}>
         <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-          <div><span className="text-gray-500">Company</span><br /><strong>{order.companyName}</strong></div>
-          <div><span className="text-gray-500">Quote Ref</span><br /><strong>{order.quoteReference}</strong></div>
-          <div><span className="text-gray-500">Monthly Total</span><br /><strong>£{order.monthlyTotal?.toFixed(2)}</strong></div>
-          <div><span className="text-gray-500">Contract</span><br /><strong>{order.quoteTerm} months</strong></div>
+          <div><span className="text-purple-300">Company</span><br /><strong>{order.companyName}</strong></div>
+          <div><span className="text-purple-300">Quote Ref</span><br /><strong>{order.quoteReference}</strong></div>
+          <div><span className="text-purple-300">Monthly Total</span><br /><strong>£{order.monthlyTotal?.toFixed(2)}</strong></div>
+          <div><span className="text-purple-300">Contract</span><br /><strong>{order.quoteTerm} months</strong></div>
         </div>
       </div>
 
@@ -1036,10 +1039,10 @@ function Step6({ order }: { order: OrderState }) {
 
       <div className="bg-gray-50 rounded-xl p-4 text-sm text-left mb-6">
         <div className="space-y-2">
-          <div className="flex justify-between"><span className="text-gray-500">Company</span><strong>{order.companyName}</strong></div>
-          <div className="flex justify-between"><span className="text-gray-500">Contact</span><strong>{order.contactEmail}</strong></div>
-          <div className="flex justify-between"><span className="text-gray-500">Monthly</span><strong>£{order.monthlyTotal?.toFixed(2)}</strong></div>
-          <div className="flex justify-between"><span className="text-gray-500">Contract</span><strong>{order.quoteTerm} months</strong></div>
+          <div className="flex justify-between"><span className="text-purple-300">Company</span><strong>{order.companyName}</strong></div>
+          <div className="flex justify-between"><span className="text-purple-300">Contact</span><strong>{order.contactEmail}</strong></div>
+          <div className="flex justify-between"><span className="text-purple-300">Monthly</span><strong>£{order.monthlyTotal?.toFixed(2)}</strong></div>
+          <div className="flex justify-between"><span className="text-purple-300">Contract</span><strong>{order.quoteTerm} months</strong></div>
         </div>
 
         <div className="mt-3 pt-3 border-t space-y-1">
@@ -1115,7 +1118,7 @@ export default function OrderPage() {
         <StepIndicator current={step} />
 
         {/* Step Card */}
-        <div className="bg-white rounded-2xl shadow-sm border p-6 sm:p-8">
+        <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
           {step === 0 && <Step1 order={order} setOrder={setOrder} onNext={next} />}
           {step === 1 && <Step2 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
           {step === 2 && <Step3 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
