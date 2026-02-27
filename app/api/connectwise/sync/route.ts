@@ -62,13 +62,9 @@ export async function POST(req: NextRequest) {
       companyId = company.id
     }
 
-    // 2. Find or create contact
-    const existingContacts = await cw('GET', `/company/contacts?conditions=emailAddress="${encodeURIComponent(order.contactEmail)}"&pageSize=1`)
+    // 2. Create contact (always create — CW email search unreliable via conditions)
     let contactId: number
-
-    if (existingContacts?.length > 0) {
-      contactId = existingContacts[0].id
-    } else {
+    try {
       const [firstName, ...rest] = (order.contactName || 'Contact').split(' ')
       const contact = await cw('POST', '/company/contacts', {
         firstName,
@@ -80,8 +76,8 @@ export async function POST(req: NextRequest) {
         ],
       })
       contactId = contact.id
-    } catch(e) {
-      // Contact may already exist — try searching by company
+    } catch {
+      // Fallback: use first contact under this company
       const contacts = await cw('GET', `/company/contacts?conditions=company/id=${companyId}&pageSize=1`)
       contactId = contacts?.[0]?.id || companyId
     }
@@ -110,7 +106,7 @@ export async function POST(req: NextRequest) {
       status: { name: 'New' },
       priority: { name: 'Priority 2 - High' },
       serviceLocation: { name: 'Remote' },
-      initialDescription: `New customer onboarding via TeleFlow.\n\nRef: ${order.quoteReference}\nSite postcode: ${order.sitePostcode}\nProducts: ${productSummary}\nTerm: ${order.quoteTerm} months\nMonthly: £${order.monthlyTotal?.toFixed(2)}\nSigned by: ${order.signedName}\nDD account: ${order.ddAccountHolder} ****${order.ddAccountNumberLast4}${order.appointment ? `\nInstallation: ${order.appointment.date} ${order.appointment.type}` : ''}`,
+      initialDescription: `New customer onboarding via TeleFlow.\n\nRef: ${order.quoteReference}\nSite postcode: ${order.sitePostcode}\nProducts: ${productSummary}\nTerm: ${order.quoteTerm} months\nMonthly: £${order.monthlyTotal?.toFixed(2)}\nSigned by: ${order.signedName}\nDD: ${order.ddAccountHolder} ****${order.ddAccountNumberLast4}${order.appointment ? `\nInstallation: ${order.appointment.date} ${order.appointment.type}` : ''}`,
     })
 
     return NextResponse.json({
