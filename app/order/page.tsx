@@ -1018,7 +1018,7 @@ function Step6({ order }: { order: OrderState }) {
     fetch('/api/connectwise/sync', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId: order.id || 'preview', order }),
+      body: JSON.stringify(order),
     })
       .then(r => r.json())
       .then(d => { if (d.success) setSynced(true) })

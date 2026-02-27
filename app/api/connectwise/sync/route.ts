@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     } else {
       const company = await cw('POST', '/company/companies', {
         name: order.companyName,
-        identifier: order.companyReference || order.companyNumber?.slice(0, 8) || order.companyName.slice(0, 8).toUpperCase(),
+        identifier: (order.companyReference || order.companyNumber || order.companyName || 'UNKNOWN').replace(/[^a-zA-Z0-9]/g,'').slice(0, 8).toUpperCase(),
         status: { name: 'Active' },
         types: [{ name: 'Client' }],
         addressLine1: order.registeredAddress?.address_line_1 || '',
