@@ -80,6 +80,10 @@ export async function POST(req: NextRequest) {
         ],
       })
       contactId = contact.id
+    } catch(e) {
+      // Contact may already exist — try searching by company
+      const contacts = await cw('GET', `/company/contacts?conditions=company/id=${companyId}&pageSize=1`)
+      contactId = contacts?.[0]?.id || companyId
     }
 
     // 3. Create opportunity
