@@ -53,6 +53,9 @@ interface OrderState {
   selectedProducts: SelectedProduct[]
   requiresCallback: boolean
   zenAvailabilityRef?: string
+  selectedAddress?: { goldAddressKey: string; districtCode: string; displayAddress: string }
+  appointment?: { date: string; startTime: string; endTime: string; type: string }
+  leaseLine?: { bandwidth: number; term: number; monthlyPrice: number; setupFee: number }
   // Step 3
   quoteReference: string
   quoteTerm: number
@@ -278,7 +281,21 @@ function Step1({ order, setOrder, onNext }: {
   )
 }
 
-// ─── Step 2: Availability ─────────────────────────────────────────────────────
+// ─── Step 2: Availability (3 sub-phases) ────────────────────────────────────
+
+interface EthernetQuote {
+  term: number
+  bandwidth: number
+  monthlyPrice: number
+  setupFee: number
+}
+
+interface AppointmentSlot {
+  date: string
+  startTime: string
+  endTime: string
+  type: string
+}
 
 interface ZenAddress {
   goldAddressKey: string
@@ -293,27 +310,66 @@ function Step2({ order, setOrder, onNext, onBack }: {
   onBack: () => void
 }) {
   const [addresses, setAddresses] = useState<ZenAddress[]>([])
-  const [selectedAddress, setSelectedAddress] = useState<ZenAddress | null>(null)
+  const [selectedAddress, setSelectedAddress] = useState<ZenAddress | null>(order.selectedAddress || null)
   const [products, setProducts] = useState<Product[]>([])
-  const [availRef, setAvailRef] = useState<string | null>(null)
-  const [phase, setPhase] = useState<'address' | 'products'>('address')
-  const [loading, setLoading] = useState(true)
+  const [availRef, setAvailRef] = useState<string | null>(order.zenAvailabilityRef || null)
+  const [phase, setPhase] = useState<'address' | 'products' | 'appointment'>(
+    order.selectedAddress ? (order.appointment ? 'appointment' : 'products') : 'address'
+  )
+  const [loading, setLoading] = useState(false)
   const [voipSeats, setVoipSeats] = useState(1)
   const [mobileSims, setMobileSims] = useState(1)
-  const [selected, setSelected] = useState<Record<string, boolean>>({})
+  const [selected, setSelected] = useState<Record<string, boolean>>(
+    Object.fromEntries((order.selectedProducts || []).map(p => [p.type, true]))
+  )
+  // Lease line / ethernet quote state
+  const [ethernetQuotes, setEthernetQuotes] = useState<EthernetQuote[]>([])
+  const [ethernetLoading, setEthernetLoading] = useState(false)
+  const [selectedBandwidth, setSelectedBandwidth] = useState(order.leaseLine?.bandwidth || 200)
+  const [selectedTerm, setSelectedTerm] = useState(order.leaseLine?.term || 36)
+  // Appointment state
+  const [slots, setSlots] = useState<AppointmentSlot[]>([])
+  const [slotsLoading, setSlotsLoading] = useState(false)
+  const [selectedSlot, setSelectedSlot] = useState<AppointmentSlot | null>(order.appointment || null)
 
-  // Phase 1: load addresses for postcode
+  // Load addresses on mount
   useEffect(() => {
+    if (order.selectedAddress) return // already have address
     setLoading(true)
     fetch(`/api/zen/address?postcode=${encodeURIComponent(order.sitePostcode)}`)
       .then(r => r.json())
       .then(d => { setAddresses(d.addresses || []); setLoading(false) })
       .catch(() => setLoading(false))
-  }, [order.sitePostcode])
+  }, [order.sitePostcode, order.selectedAddress])
 
-  // Phase 2: run availability check when address selected
+  // Fetch ethernet quotes when lease_line selected
+  useEffect(() => {
+    if (!selected['lease_line']) { setEthernetQuotes([]); return }
+    setEthernetLoading(true)
+    fetch('/api/zen/ethernet-quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postCode: order.sitePostcode }),
+    })
+      .then(r => r.json())
+      .then(d => { setEthernetQuotes(d.quotes || []); setEthernetLoading(false) })
+      .catch(() => setEthernetLoading(false))
+  }, [selected['lease_line'], order.sitePostcode])
+
+  // Load appointment slots when entering appointment phase
+  useEffect(() => {
+    if (phase !== 'appointment' || slots.length > 0) return
+    setSlotsLoading(true)
+    const ref = availRef || 'MOCK'
+    fetch(`/api/zen/appointments?availabilityReference=${encodeURIComponent(ref)}`)
+      .then(r => r.json())
+      .then(d => { setSlots(d.slots || []); setSlotsLoading(false) })
+      .catch(() => setSlotsLoading(false))
+  }, [phase, availRef, slots.length])
+
   async function handleAddressSelect(addr: ZenAddress) {
     setSelectedAddress(addr)
+    setOrder({ selectedAddress: addr })
     setLoading(true)
     setPhase('products')
     try {
@@ -321,17 +377,17 @@ function Step2({ order, setOrder, onNext, onBack }: {
         `/api/zen/availability?goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}&districtCode=${encodeURIComponent(addr.districtCode)}`
       )
       const data = await res.json()
-      // Merge Zen broadband products with fixed ITC products (VoIP + Mobile)
-      const zenProducts: Product[] = (data.products || []).map((p: Product) => ({ ...p, monthlyCost: p.monthlyCost }))
+      const zenProducts: Product[] = (data.products || [])
       const allProducts: Product[] = [
         ...zenProducts,
-        { type: 'lease_line', name: 'Managed Fibre 200/1000', downloadMbps: 200, uploadMbps: 1000, monthlyCost: null, setupFee: null, available: true, requiresCallback: true },
+        { type: 'lease_line', name: 'Managed Fibre', downloadMbps: 200, uploadMbps: 1000, monthlyCost: null, setupFee: null, available: true },
         { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
         { type: 'mobile', name: 'O2 Unlimited SIM', monthlyCost: 15.00 * MARGIN, setupFee: 0, available: true },
       ]
       setProducts(allProducts)
       setAvailRef(data.availabilityReference || null)
-    } catch { /* keep loading false */ }
+      setOrder({ zenAvailabilityRef: data.availabilityReference || undefined })
+    } catch { /* keep going */ }
     setLoading(false)
   }
 
@@ -339,32 +395,57 @@ function Step2({ order, setOrder, onNext, onBack }: {
     setSelected(s => ({ ...s, [type]: !s[type] }))
   }
 
+  // Get selected ethernet quote based on bandwidth + term
+  function getSelectedEthernetQuote(): EthernetQuote | null {
+    return ethernetQuotes.find(q => q.bandwidth === selectedBandwidth && q.term === selectedTerm) || null
+  }
+
   function buildSelected(): SelectedProduct[] {
     return products
       .filter(p => selected[p.type])
       .map(p => {
+        if (p.type === 'lease_line') {
+          const eq = getSelectedEthernetQuote()
+          return {
+            type: p.type,
+            name: `Managed Fibre ${selectedBandwidth}/1000`,
+            quantity: 1,
+            unitMonthly: eq ? eq.monthlyPrice : 0,
+            monthlyTotal: eq ? eq.monthlyPrice : 0,
+          }
+        }
         const qty = p.type === 'voip' ? voipSeats : p.type === 'mobile' ? mobileSims : 1
         const unitMonthly = p.monthlyCost || 0
-        return {
-          type: p.type,
-          name: p.name,
-          quantity: qty,
-          unitMonthly,
-          monthlyTotal: unitMonthly * qty,
-          requiresCallback: p.requiresCallback,
-        }
+        return { type: p.type, name: p.name, quantity: qty, unitMonthly, monthlyTotal: unitMonthly * qty }
       })
   }
 
-  function handleNext() {
+  function handleProductsNext() {
     const sel = buildSelected()
-    const requiresCallback = sel.some(p => p.requiresCallback)
-    setOrder({ selectedProducts: sel, requiresCallback, zenAvailabilityRef: availRef || undefined })
+    const eq = selected['lease_line'] ? getSelectedEthernetQuote() : null
+    setOrder({
+      selectedProducts: sel,
+      requiresCallback: false,
+      leaseLine: eq ? { bandwidth: selectedBandwidth, term: selectedTerm, monthlyPrice: eq.monthlyPrice, setupFee: eq.setupFee } : undefined,
+    })
+    // Show appointment picker if broadband or lease line selected
+    const needsInstall = sel.some(p => ['fttp','fttc','sogea','gfast','adsl','lease_line'].includes(p.type))
+    if (needsInstall) {
+      setPhase('appointment')
+    } else {
+      onNext()
+    }
+  }
+
+  function handleAppointmentNext() {
+    setOrder({ appointment: selectedSlot || undefined })
     onNext()
   }
 
   const hasSelection = Object.values(selected).some(Boolean)
+  const leaseLineReady = !selected['lease_line'] || (ethernetQuotes.length > 0 && !!getSelectedEthernetQuote())
 
+  // ── Loading spinner ─────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="text-center py-12">
@@ -378,7 +459,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
     )
   }
 
-  // Address picker
+  // ── Phase 1: Address picker ──────────────────────────────────────────────────
   if (phase === 'address') {
     return (
       <div>
@@ -389,102 +470,238 @@ function Step2({ order, setOrder, onNext, onBack }: {
         <div className="space-y-2 mb-6 max-h-80 overflow-y-auto">
           {addresses.length === 0 ? (
             <p className="text-gray-400 text-sm text-center py-8">No addresses found for this postcode.</p>
-          ) : (
-            addresses.map(a => (
-              <button
-                key={a.goldAddressKey}
-                onClick={() => handleAddressSelect(a)}
-                className="w-full text-left border-2 rounded-xl px-4 py-3 hover:border-blue-700 transition-all text-sm"
-                style={{ borderColor: '#E5E7EB' }}
-                onMouseOver={e => (e.currentTarget.style.borderColor = NAVY)}
-                onMouseOut={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
-              >
-                {a.displayAddress}
-              </button>
-            ))
-          )}
+          ) : addresses.map(a => (
+            <button key={a.goldAddressKey} onClick={() => handleAddressSelect(a)}
+              className="w-full text-left border-2 rounded-xl px-4 py-3 hover:border-blue-700 transition-all text-sm"
+              style={{ borderColor: '#E5E7EB' }}
+              onMouseOver={e => (e.currentTarget.style.borderColor = NAVY)}
+              onMouseOut={e => (e.currentTarget.style.borderColor = '#E5E7EB')}>
+              {a.displayAddress}
+            </button>
+          ))}
         </div>
         <button onClick={onBack} className="w-full py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm">← Back</button>
       </div>
     )
   }
 
-  // Product picker
-  return (
-    <div>
-      <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Available Products</h2>
-      <p className="text-gray-500 text-sm mb-1">{selectedAddress?.displayAddress}</p>
-      <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }} className="text-xs mb-5 underline" style={{ color: NAVY }}>
-        ← Change address
-      </button>
+  // ── Phase 2: Product picker ──────────────────────────────────────────────────
+  if (phase === 'products') {
+    return (
+      <div>
+        <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Available Products</h2>
+        <p className="text-gray-500 text-sm mb-1">{selectedAddress?.displayAddress}</p>
+        <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
+          className="text-xs mb-5 underline" style={{ color: NAVY }}>
+          ← Change address
+        </button>
 
-      <div className="space-y-3 mb-6">
-        {products.map(p => (
-          <div
-            key={p.type}
-            onClick={() => toggle(p.type)}
-            className="border-2 rounded-xl p-4 cursor-pointer transition-all"
-            style={selected[p.type] ? { borderColor: NAVY, background: '#f0f4ff' } : { borderColor: '#E5E7EB' }}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0"
-                    style={{ borderColor: selected[p.type] ? NAVY : '#D1D5DB', background: selected[p.type] ? NAVY : 'white' }}
-                  >
-                    {selected[p.type] && <span className="text-white text-xs leading-none">✓</span>}
+        <div className="space-y-3 mb-6">
+          {products.map(p => (
+            <div key={p.type} onClick={() => toggle(p.type)}
+              className="border-2 rounded-xl p-4 cursor-pointer transition-all"
+              style={selected[p.type] ? { borderColor: NAVY, background: '#f0f4ff' } : { borderColor: '#E5E7EB' }}>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0"
+                      style={{ borderColor: selected[p.type] ? NAVY : '#D1D5DB', background: selected[p.type] ? NAVY : 'white' }}>
+                      {selected[p.type] && <span className="text-white text-xs leading-none">✓</span>}
+                    </div>
+                    <span className="font-semibold text-sm">{p.name}</span>
                   </div>
-                  <span className="font-semibold text-sm">{p.name}</span>
-                  {p.requiresCallback && (
-                    <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Callback required</span>
+
+                  {/* Broadband speed info */}
+                  {['fttp','fttc','sogea','gfast','adsl'].includes(p.type) && (
+                    <p className="text-xs text-gray-500 mt-1 ml-6">{p.downloadMbps}/{p.uploadMbps} Mbps · Engineer installation required</p>
+                  )}
+
+                  {/* Lease line — real ethernet quotes */}
+                  {p.type === 'lease_line' && selected['lease_line'] && (
+                    <div className="ml-6 mt-3 space-y-3" onClick={e => e.stopPropagation()}>
+                      {ethernetLoading ? (
+                        <p className="text-xs text-gray-400">Fetching live pricing...</p>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <div>
+                              <p className="text-xs text-gray-500 mb-1">Bandwidth</p>
+                              <div className="flex gap-2">
+                                {[100, 200, 500, 1000].map(bw => {
+                                  const hasQuote = ethernetQuotes.some(q => q.bandwidth === bw && q.term === selectedTerm)
+                                  return (
+                                    <button key={bw} onClick={() => setSelectedBandwidth(bw)}
+                                      disabled={!hasQuote}
+                                      className="px-3 py-1 rounded text-xs font-medium border-2 transition-all disabled:opacity-30"
+                                      style={selectedBandwidth === bw ? { background: NAVY, borderColor: NAVY, color: 'white' } : { borderColor: '#E5E7EB', color: '#6B7280' }}>
+                                      {bw >= 1000 ? '1Gbps' : `${bw}M`}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500 mb-1">Contract</p>
+                              <div className="flex gap-2">
+                                {[12, 24, 36, 60].map(t => {
+                                  const hasQuote = ethernetQuotes.some(q => q.bandwidth === selectedBandwidth && q.term === t)
+                                  return (
+                                    <button key={t} onClick={() => setSelectedTerm(t)}
+                                      disabled={!hasQuote}
+                                      className="px-3 py-1 rounded text-xs font-medium border-2 transition-all disabled:opacity-30"
+                                      style={selectedTerm === t ? { background: NAVY, borderColor: NAVY, color: 'white' } : { borderColor: '#E5E7EB', color: '#6B7280' }}>
+                                      {t}m
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                          {getSelectedEthernetQuote() && (
+                            <div className="bg-white border rounded-lg p-3 flex items-center justify-between">
+                              <div>
+                                <p className="text-xs text-gray-500">Managed Fibre {selectedBandwidth}/1000 · {selectedTerm} months</p>
+                                {getSelectedEthernetQuote()!.setupFee > 0 && (
+                                  <p className="text-xs text-amber-600">+ £{getSelectedEthernetQuote()!.setupFee} installation fee</p>
+                                )}
+                              </div>
+                              <div className="text-right">
+                                <p className="font-bold" style={{ color: NAVY }}>£{getSelectedEthernetQuote()!.monthlyPrice.toFixed(2)}</p>
+                                <p className="text-xs text-gray-400">/month</p>
+                              </div>
+                            </div>
+                          )}
+                          {ethernetQuotes.length === 0 && !ethernetLoading && (
+                            <p className="text-xs text-gray-400">No pricing available for this postcode. Our team will contact you.</p>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {/* VoIP seats */}
+                  {p.type === 'voip' && selected['voip'] && (
+                    <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                      <label className="text-xs text-gray-600">Seats:</label>
+                      <input type="number" min={1} max={100} value={voipSeats}
+                        onChange={e => setVoipSeats(Number(e.target.value))}
+                        className="w-16 border rounded px-2 py-1 text-sm" />
+                      <span className="text-xs text-gray-400">× £{(8 * MARGIN).toFixed(2)}/mo</span>
+                    </div>
+                  )}
+
+                  {/* Mobile SIMs */}
+                  {p.type === 'mobile' && selected['mobile'] && (
+                    <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                      <label className="text-xs text-gray-600">SIMs:</label>
+                      <input type="number" min={1} max={500} value={mobileSims}
+                        onChange={e => setMobileSims(Number(e.target.value))}
+                        className="w-16 border rounded px-2 py-1 text-sm" />
+                      <span className="text-xs text-gray-400">× £{(15 * MARGIN).toFixed(2)}/mo</span>
+                    </div>
                   )}
                 </div>
 
-                {(p.type === 'fttp' || p.type === 'fttc' || p.type === 'sogea' || p.type === 'gfast' || p.type === 'adsl') && (
-                  <p className="text-xs text-gray-500 mt-1 ml-6">{p.downloadMbps}/{p.uploadMbps} Mbps</p>
-                )}
-                {p.type === 'lease_line' && (
-                  <p className="text-xs text-gray-500 mt-1 ml-6">Our team will call to confirm pricing and installation date</p>
-                )}
-                {p.type === 'voip' && selected['voip'] && (
-                  <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                    <label className="text-xs text-gray-600">Seats:</label>
-                    <input type="number" min={1} max={100} value={voipSeats} onChange={e => setVoipSeats(Number(e.target.value))} className="w-16 border rounded px-2 py-1 text-sm" />
-                  </div>
-                )}
-                {p.type === 'mobile' && selected['mobile'] && (
-                  <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                    <label className="text-xs text-gray-600">SIMs:</label>
-                    <input type="number" min={1} max={500} value={mobileSims} onChange={e => setMobileSims(Number(e.target.value))} className="w-16 border rounded px-2 py-1 text-sm" />
-                  </div>
-                )}
-              </div>
-
-              <div className="text-right ml-4 flex-shrink-0">
-                {p.monthlyCost ? (
-                  <>
-                    <div className="font-bold text-sm" style={{ color: NAVY }}>£{p.monthlyCost.toFixed(2)}</div>
-                    <div className="text-xs text-gray-400">/ month</div>
-                  </>
-                ) : (
-                  <div className="text-xs text-gray-400">POA</div>
-                )}
+                {/* Price column */}
+                <div className="text-right ml-4 flex-shrink-0">
+                  {p.type === 'lease_line' ? (
+                    selected['lease_line'] && getSelectedEthernetQuote() ? null : (
+                      <div className="text-xs text-gray-400">Select options</div>
+                    )
+                  ) : p.monthlyCost ? (
+                    <>
+                      <div className="font-bold text-sm" style={{ color: NAVY }}>£{p.monthlyCost.toFixed(2)}</div>
+                      <div className="text-xs text-gray-400">/ month</div>
+                    </>
+                  ) : (
+                    <div className="text-xs text-gray-400">—</div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        <div className="flex gap-3">
+          <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
+            className="flex-1 py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm">← Back</button>
+          <button onClick={handleProductsNext}
+            disabled={!hasSelection || !leaseLineReady}
+            className="flex-1 py-3 rounded-lg font-semibold text-white disabled:opacity-40"
+            style={{ background: NAVY }}>
+            {(() => {
+              const sel = products.filter(p => selected[p.type])
+              const needsInstall = sel.some(p => ['fttp','fttc','sogea','gfast','adsl','lease_line'].includes(p.type))
+              return needsInstall ? 'Book Installation →' : 'Get Quote →'
+            })()}
+          </button>
+        </div>
       </div>
+    )
+  }
+
+  // ── Phase 3: Appointment picker ──────────────────────────────────────────────
+  return (
+    <div>
+      <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Book Installation</h2>
+      <p className="text-gray-500 text-sm mb-6">
+        Select an engineer appointment for <strong>{selectedAddress?.displayAddress}</strong>.
+        Half-day slots available — engineer will arrive within the window.
+      </p>
+
+      {slotsLoading ? (
+        <div className="text-center py-10">
+          <div className="inline-block w-7 h-7 border-4 border-gray-200 rounded-full animate-spin" style={{ borderTopColor: NAVY }} />
+          <p className="text-gray-400 text-sm mt-3">Fetching available slots from Zen...</p>
+        </div>
+      ) : slots.length === 0 ? (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6 text-sm text-amber-800">
+          No appointment slots are currently available. Our team will contact you to arrange installation.
+        </div>
+      ) : (
+        <div className="space-y-2 mb-6 max-h-80 overflow-y-auto pr-1">
+          {(() => {
+            // Group slots by date
+            const byDate: Record<string, AppointmentSlot[]> = {}
+            slots.forEach(s => { byDate[s.date] = byDate[s.date] || []; byDate[s.date].push(s) })
+            return Object.entries(byDate).map(([date, daySlots]) => (
+              <div key={date}>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 mt-3">
+                  {new Date(date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
+                </p>
+                <div className="flex gap-2 flex-wrap">
+                  {daySlots.map((slot, i) => {
+                    const isSelected = selectedSlot?.date === slot.date && selectedSlot?.startTime === slot.startTime
+                    return (
+                      <button key={i} onClick={() => setSelectedSlot(slot)}
+                        className="flex-1 min-w-[130px] border-2 rounded-xl px-4 py-3 text-sm font-medium transition-all"
+                        style={isSelected ? { borderColor: NAVY, background: '#f0f4ff', color: NAVY } : { borderColor: '#E5E7EB', color: '#374151' }}>
+                        {slot.type === 'AM' ? '🌅' : '☀️'} {slot.type}
+                        <span className="block text-xs font-normal text-gray-400">{slot.startTime}–{slot.endTime}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ))
+          })()}
+        </div>
+      )}
+
+      {selectedSlot && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 text-sm text-green-800">
+          ✓ {new Date(selectedSlot.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })} — {selectedSlot.type} ({selectedSlot.startTime}–{selectedSlot.endTime})
+        </div>
+      )}
 
       <div className="flex gap-3">
-        <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }} className="flex-1 py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm">← Back</button>
-        <button
-          onClick={handleNext}
-          disabled={!hasSelection}
+        <button onClick={() => { setPhase('products'); setSelectedSlot(null) }}
+          className="flex-1 py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm">← Back</button>
+        <button onClick={handleAppointmentNext}
+          disabled={slots.length > 0 && !selectedSlot}
           className="flex-1 py-3 rounded-lg font-semibold text-white disabled:opacity-40"
-          style={{ background: NAVY }}
-        >
-          Get Quote →
+          style={{ background: NAVY }}>
+          {selectedSlot ? 'Get Quote →' : 'Skip — team will contact me'}
         </button>
       </div>
     </div>
