@@ -204,8 +204,8 @@ function Step1({ order, setOrder, onNext }: {
           value={query}
           onChange={e => { setQuery(e.target.value); setShowDropdown(true) }}
           placeholder="Start typing company name..."
-          className="w-full rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 text-white placeholder-purple-300" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }}
-          style={{ '--tw-ring-color': NAVY } as React.CSSProperties}
+          className="w-full rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 text-white placeholder-purple-300"
+          style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)", '--tw-ring-color': '#591bff' } as React.CSSProperties}
         />
         {searching && <div className="absolute right-3 top-9 text-gray-400 text-xs">Searching...</div>}
         {showDropdown && results.length > 0 && (
@@ -442,10 +442,10 @@ function Step2({ order, setOrder, onNext, onBack }: {
             <p className="text-purple-400 text-sm text-center py-8">No addresses found for this postcode.</p>
           ) : addresses.map(a => (
             <button key={a.goldAddressKey} onClick={() => handleAddressSelect(a)}
-              className="w-full text-left rounded-xl px-5 py-4 transition-all text-base text-white" style={{ background: "hsl(252, 60%, 16%)", border: "1.5px solid hsl(252, 50%, 28%)" }} onMouseOver={(e) => (e.currentTarget.style.borderColor = "#f94580")} onMouseOut={(e) => (e.currentTarget.style.borderColor = "hsl(252, 50%, 28%)")}
-              style={{ borderColor: '#E5E7EB' }}
-              onMouseOver={e => (e.currentTarget.style.borderColor = NAVY)}
-              onMouseOut={e => (e.currentTarget.style.borderColor = '#E5E7EB')}>
+              className="w-full text-left rounded-xl px-5 py-4 transition-all text-base text-white"
+              style={{ background: "hsl(252, 60%, 16%)", border: "1.5px solid hsl(252, 50%, 28%)" }}
+              onMouseOver={e => (e.currentTarget.style.borderColor = "#f94580")}
+              onMouseOut={e => (e.currentTarget.style.borderColor = "hsl(252, 50%, 28%)")}>
               {a.displayAddress}
             </button>
           ))}
