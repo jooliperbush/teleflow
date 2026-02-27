@@ -199,7 +199,7 @@ function Step1({ order, setOrder, onNext }: {
       <p className="text-purple-300 text-sm mb-6">We&apos;ll verify your company using Companies House.</p>
 
       <div className="relative mb-4" ref={dropdownRef}>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+        <label className="block text-sm font-medium text-purple-200 mb-1">Company Name</label>
         <input
           value={query}
           onChange={e => { setQuery(e.target.value); setShowDropdown(true) }}
@@ -260,7 +260,7 @@ function Step1({ order, setOrder, onNext }: {
           { label: 'Site Postcode', key: 'sitePostcode', type: 'text', placeholder: 'BD1 1AA' },
         ].map(({ label, key, type, placeholder }) => (
           <div key={key}>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+            <label className="block text-sm font-medium text-purple-200 mb-1">{label}</label>
             <input
               type={type}
               value={(order as unknown as Record<string, string>)[key] || ''}
@@ -672,7 +672,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
       <p className="text-purple-300 text-sm mb-2">Ref: <strong>{quoteRef}</strong> · Valid 30 days</p>
 
       <div className="mb-4 flex items-center gap-3">
-        <label className="text-sm font-medium text-gray-700">Contract Term:</label>
+        <label className="text-sm font-medium text-purple-200">Contract Term:</label>
         {[12, 24, 36].map(t => (
           <button
             key={t}
@@ -714,8 +714,8 @@ function Step3({ order, setOrder, onNext, onBack }: {
               <td className="px-4 py-3 font-bold text-right" >£{monthly.toFixed(2)}</td>
             </tr>
             <tr className="border-t bg-gray-50">
-              <td colSpan={3} className="px-4 py-2 text-right text-gray-500 text-xs">Annual ({term} months)</td>
-              <td className="px-4 py-2 text-right text-gray-500 text-xs">£{annual.toFixed(2)}</td>
+              <td colSpan={3} className="px-4 py-2 text-right text-purple-400 text-xs">Annual ({term} months)</td>
+              <td className="px-4 py-2 text-right text-purple-400 text-xs">£{annual.toFixed(2)}</td>
             </tr>
           </tfoot>
         </table>
@@ -800,7 +800,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-2" >Sign Agreement</h2>
-      <p className="text-gray-500 text-sm mb-4">Please review and sign the service agreement below.</p>
+      <p className="text-purple-300 text-sm mb-4">Please review and sign the service agreement below.</p>
 
       <div className="rounded-lg p-4 mb-4 text-sm" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 28%)" }}>
         <div className="grid grid-cols-2 gap-2 text-xs mb-3">
@@ -811,8 +811,8 @@ function Step4({ order, setOrder, onNext, onBack }: {
         </div>
       </div>
 
-      <div className="border rounded-lg p-4 mb-4 text-xs text-gray-600 max-h-40 overflow-y-auto leading-relaxed">
-        <strong className="text-gray-800">Telecoms Service Agreement — Terms & Conditions</strong><br /><br />
+      <div className="rounded-lg p-4 mb-4 text-xs text-purple-200 max-h-40 overflow-y-auto leading-relaxed" style={{ background: "hsl(252, 60%, 16%)", border: "1px solid hsl(252, 50%, 28%)" }}>
+        <strong className="text-white">Telecoms Service Agreement — Terms & Conditions</strong><br /><br />
         1. <strong>Service Provision.</strong> ITC Telecoms Ltd (&ldquo;the Provider&rdquo;) agrees to provide the telecommunications services specified in the quote (&ldquo;Services&rdquo;) to the customer named above (&ldquo;the Customer&rdquo;) subject to these terms.<br /><br />
         2. <strong>Contract Term & Billing.</strong> The minimum contract term is as specified in the quote. Monthly charges are invoiced in advance and collected via Direct Debit on the 1st of each month. Early termination fees apply equal to the remaining monthly charges in the contract term.<br /><br />
         3. <strong>Service Levels.</strong> The Provider will use reasonable endeavours to maintain service availability. Planned maintenance will be notified 48 hours in advance. The Provider&rsquo;s liability for service interruptions is limited to service credits as defined in the SLA.<br /><br />
@@ -822,7 +822,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
       </div>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Type your full name to sign</label>
+        <label className="block text-sm font-medium text-purple-200 mb-1">Type your full name to sign</label>
         <input
           value={signedName}
           onChange={e => setSignedName(e.target.value)}
@@ -841,7 +841,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
           disabled={signed}
           className="mt-0.5"
         />
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-purple-200">
           I confirm I am authorised to sign on behalf of <strong>{order.companyName}</strong> and agree to the terms above.
         </span>
       </label>
@@ -854,7 +854,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
       )}
 
       <div className="flex gap-3">
-        <button onClick={onBack} disabled={signed} className="flex-1 py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm disabled:opacity-40">← Back</button>
+        <button onClick={onBack} disabled={signed} className="flex-1 py-3 rounded-xl font-medium text-base text-purple-200 disabled:opacity-40" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         {!signed ? (
           <button
             onClick={handleSign}
@@ -929,13 +929,13 @@ function Step5({ order, setOrder, onNext, onBack }: {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-2" >Direct Debit Setup</h2>
-      <p className="text-gray-500 text-sm mb-4">
+      <p className="text-purple-300 text-sm mb-4">
         Monthly payment of <strong>£{order.monthlyTotal?.toFixed(2)}</strong> will be collected on the 1st of each month.
       </p>
 
       <div className="space-y-3 mb-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Account Holder Name</label>
+          <label className="block text-sm font-medium text-purple-200 mb-1">Account Holder Name</label>
           <input
             value={accountHolder}
             onChange={e => setAccountHolder(e.target.value)}
@@ -946,7 +946,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sort Code</label>
+            <label className="block text-sm font-medium text-purple-200 mb-1">Sort Code</label>
             <input
               value={sortCode}
               onChange={e => setSortCode(formatSortCode(e.target.value))}
@@ -956,7 +956,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+            <label className="block text-sm font-medium text-purple-200 mb-1">Account Number</label>
             <input
               value={accountNumber}
               onChange={e => setAccountNumber(e.target.value.replace(/\D/g, '').slice(0, 8))}
@@ -970,7 +970,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
 
       <label className="flex items-start gap-2 mb-4 cursor-pointer">
         <input type="checkbox" checked={authorised} onChange={e => setAuthorised(e.target.checked)} disabled={confirmed} className="mt-0.5" />
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-purple-200">
           I authorise <strong>ITC Telecoms</strong> to collect payments of <strong>£{order.monthlyTotal?.toFixed(2)}/month</strong> by Direct Debit from my account.
         </span>
       </label>
@@ -988,7 +988,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
       )}
 
       <div className="flex gap-3">
-        <button onClick={onBack} disabled={confirmed} className="flex-1 py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm disabled:opacity-40">← Back</button>
+        <button onClick={onBack} disabled={confirmed} className="flex-1 py-3 rounded-xl font-medium text-base text-purple-200 disabled:opacity-40" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         {!confirmed ? (
           <button
             onClick={handleSetup}
@@ -1027,7 +1027,7 @@ function Step6({ order }: { order: OrderState }) {
 
   return (
     <div className="text-center">
-      <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#d1fae5' }}>
+      <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(123,231,255,0.15)' }}>
         <span className="text-4xl">✓</span>
       </div>
 
@@ -1035,7 +1035,7 @@ function Step6({ order }: { order: OrderState }) {
       <p className="text-gray-500 mb-1">Reference: <strong>{order.quoteReference}</strong></p>
       {synced && <p className="text-xs text-green-600 mb-4">✓ Provisioning ticket created in ConnectWise</p>}
 
-      <div className="bg-gray-50 rounded-xl p-4 text-sm text-left mb-6">
+      <div className="rounded-xl p-4 text-sm text-left mb-6" style={{ background: "hsl(252, 60%, 16%)", border: "1px solid hsl(252, 50%, 28%)" }}>
         <div className="space-y-2">
           <div className="flex justify-between"><span className="text-purple-300">Company</span><strong>{order.companyName}</strong></div>
           <div className="flex justify-between"><span className="text-purple-300">Contact</span><strong>{order.contactEmail}</strong></div>
@@ -1043,9 +1043,9 @@ function Step6({ order }: { order: OrderState }) {
           <div className="flex justify-between"><span className="text-purple-300">Contract</span><strong>{order.quoteTerm} months</strong></div>
         </div>
 
-        <div className="mt-3 pt-3 border-t space-y-1">
+        <div className="mt-3 pt-3 space-y-1" style={{ borderTop: "1px solid hsl(252, 50%, 28%)" }}>
           {order.selectedProducts.map((p, i) => (
-            <div key={i} className="flex justify-between text-xs text-gray-600">
+            <div key={i} className="flex justify-between text-xs text-purple-200">
               <span>{p.name} ×{p.quantity}</span>
               <span>{p.monthlyTotal ? `£${p.monthlyTotal.toFixed(2)}/mo` : 'POA'}</span>
             </div>
@@ -1054,7 +1054,7 @@ function Step6({ order }: { order: OrderState }) {
       </div>
 
       {order.requiresCallback && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-sm text-amber-800">
+        <div className="rounded-lg p-3 mb-4 text-sm" style={{ background: "rgba(249,69,128,0.1)", border: "1px solid rgba(249,69,128,0.4)", color: "#f94580" }}>
           📞 Our team will call you within 4 hours to confirm your managed fibre installation date and pricing.
         </div>
       )}
@@ -1110,7 +1110,7 @@ export default function OrderPage() {
           <div className="inline-block px-4 py-2 rounded-full text-white text-sm font-bold mb-2" style={{ background: NAVY }}>
             ITC Telecoms
           </div>
-          <h1 className="text-lg font-semibold text-gray-700">Customer Onboarding Portal</h1>
+          <h1 className="text-lg font-semibold text-white">Customer Onboarding Portal</h1>
         </div>
 
         <StepIndicator current={step} />
