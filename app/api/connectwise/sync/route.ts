@@ -1,134 +1,119 @@
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
 
-// MOCK ConnectWise sync — real API structure, swap credentials when ready
-// Docs: https://developer.connectwise.com/Products/ConnectWise_PSA/REST
+const CW_SITE    = process.env.CONNECTWISE_SITE    || 'eu.myconnectwise.net'
+const CW_COMPANY = process.env.CONNECTWISE_COMPANY_ID || 'itc'
+const CW_PUB     = process.env.CONNECTWISE_PUBLIC_KEY
+const CW_PRIV    = process.env.CONNECTWISE_PRIVATE_KEY
+const CW_CLIENT  = process.env.CONNECTWISE_CLIENT_ID
 
-interface CWCompany {
-  identifier: string
-  name: string
-  addressLine1?: string
-  city?: string
-  zip?: string
-  country?: { id: number }
+const CW_CONFIGURED = !!(CW_PUB && CW_PRIV && CW_CLIENT)
+const BASE = `https://${CW_SITE}/v4_6_release/apis/3.0`
+
+function cwHeaders() {
+  const token = Buffer.from(`${CW_COMPANY}+${CW_PUB}:${CW_PRIV}`).toString('base64')
+  return {
+    'Authorization': `Basic ${token}`,
+    'clientId': CW_CLIENT!,
+    'Content-Type': 'application/json',
+  }
 }
 
-async function cwRequest(path: string, method: string, body?: object) {
-  // TODO: replace with real CW credentials
-  const company = process.env.CONNECTWISE_COMPANY
-  const pubKey = process.env.CONNECTWISE_PUBLIC_KEY
-  const privKey = process.env.CONNECTWISE_PRIVATE_KEY
-  const clientId = process.env.CONNECTWISE_CLIENT_ID
-
-  if (!company || !pubKey || !privKey || !clientId) {
-    // Mock response
-    console.log(`[CW MOCK] ${method} /v4_6_release/apis/3.0${path}`, body)
-    return { id: Math.floor(Math.random() * 90000) + 10000 }
-  }
-
-  const auth = Buffer.from(`${company}+${pubKey}:${privKey}`).toString('base64')
-  const res = await fetch(`https://na.myconnectwise.net/v4_6_release/apis/3.0${path}`, {
+async function cw(method: string, path: string, body?: object) {
+  const res = await fetch(`${BASE}${path}`, {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Basic ${auth}`,
-      clientId: clientId,
-    },
+    headers: cwHeaders(),
     body: body ? JSON.stringify(body) : undefined,
   })
-  return res.json()
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`CW ${method} ${path} → ${res.status}: ${err}`)
+  }
+  return res.status === 204 ? null : res.json()
 }
 
 export async function POST(req: NextRequest) {
-  const { orderId, order } = await req.json()
+  const order = await req.json()
 
-  if (!orderId) {
-    return NextResponse.json({ error: 'orderId required' }, { status: 400 })
+  if (!CW_CONFIGURED) {
+    return NextResponse.json({ success: false, reason: 'ConnectWise not configured' })
   }
 
   try {
-    // 1. Create company
-    const cwCompany = await cwRequest('/company/companies', 'POST', {
-      identifier: order.company_reference || `CUS${Date.now()}`,
-      name: order.company_name,
-      addressLine1: order.registered_address?.address_line_1,
-      city: order.registered_address?.locality,
-      zip: order.registered_address?.postal_code,
-      country: { id: 1 }, // UK
-      status: { id: 1 },
-      types: [{ id: 1 }],
-    } as CWCompany)
+    // 1. Find or create company
+    const existingCompanies = await cw('GET', `/company/companies?conditions=name="${encodeURIComponent(order.companyName)}"&pageSize=1`)
+    let companyId: number
 
-    // 2. Create contact
-    const cwContact = await cwRequest('/company/contacts', 'POST', {
-      firstName: (order.contact_name || '').split(' ')[0],
-      lastName: (order.contact_name || '').split(' ').slice(1).join(' ') || '-',
-      company: { id: cwCompany.id },
-      communicationItems: [
-        { type: { id: 1 }, value: order.contact_email, defaultFlag: true },
-        { type: { id: 2 }, value: order.contact_phone },
-      ],
-    })
+    if (existingCompanies?.length > 0) {
+      companyId = existingCompanies[0].id
+    } else {
+      const company = await cw('POST', '/company/companies', {
+        name: order.companyName,
+        identifier: order.companyReference || order.companyNumber?.slice(0, 8) || order.companyName.slice(0, 8).toUpperCase(),
+        status: { name: 'Active' },
+        types: [{ name: 'Client' }],
+        addressLine1: order.registeredAddress?.address_line_1 || '',
+        city: order.registeredAddress?.locality || '',
+        zip: order.sitePostcode,
+        country: { name: 'United Kingdom' },
+      })
+      companyId = company.id
+    }
+
+    // 2. Find or create contact
+    const existingContacts = await cw('GET', `/company/contacts?conditions=emailAddress="${encodeURIComponent(order.contactEmail)}"&pageSize=1`)
+    let contactId: number
+
+    if (existingContacts?.length > 0) {
+      contactId = existingContacts[0].id
+    } else {
+      const [firstName, ...rest] = (order.contactName || 'Contact').split(' ')
+      const contact = await cw('POST', '/company/contacts', {
+        firstName,
+        lastName: rest.join(' ') || '-',
+        company: { id: companyId },
+        communicationItems: [
+          { type: { name: 'Email' }, value: order.contactEmail, defaultFlag: true },
+          ...(order.contactPhone ? [{ type: { name: 'Direct' }, value: order.contactPhone }] : []),
+        ],
+      })
+      contactId = contact.id
+    }
 
     // 3. Create opportunity
-    const cwOpportunity = await cwRequest('/sales/opportunities', 'POST', {
-      name: `${order.company_name} — ${order.quote_reference}`,
-      company: { id: cwCompany.id },
-      contact: { id: cwContact.id },
-      expectedCloseDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      status: { name: 'Won' },
+    const productSummary = (order.selectedProducts || [])
+      .map((p: { name: string; quantity: number }) => `${p.name} ×${p.quantity}`)
+      .join(', ')
+
+    const opportunity = await cw('POST', '/sales/opportunities', {
+      name: `${order.companyName} — TeleFlow Onboarding`,
+      type: { name: 'New Business' },
+      stage: { name: 'Proposal' },
+      status: { name: 'Open' },
+      company: { id: companyId },
+      contact: { id: contactId },
+      estimatedRevenue: order.monthlyTotal || 0,
+      notes: `Products: ${productSummary}\nTerm: ${order.quoteTerm} months\nSite: ${order.sitePostcode}\nRef: ${order.quoteReference}\nSigned: ${order.signedName} at ${order.signedAt}`,
     })
 
-    // 4. Create provision ticket
-    const productSummary = (order.selected_products || [])
-      .map((p: { name: string; quantity: number; monthlyTotal: number }) =>
-        `• ${p.name} x${p.quantity} — £${p.monthlyTotal.toFixed(2)}/mo`)
-      .join('\n')
-
-    const cwTicket = await cwRequest('/service/tickets', 'POST', {
-      summary: `New Order: ${order.company_name} — ${order.quote_reference}`,
-      board: { name: 'Admin Provision' },
-      company: { id: cwCompany.id },
-      contact: { id: cwContact.id },
-      opportunity: { id: cwOpportunity.id },
-      initialDescription: `
-Customer: ${order.company_name} (${order.company_number})
-Contact: ${order.contact_name} — ${order.contact_email} — ${order.contact_phone}
-Site Postcode: ${order.site_postcode}
-Quote Ref: ${order.quote_reference}
-Contract: ${order.quote_term_months} months
-Monthly Total: £${order.monthly_total?.toFixed(2)}
-
-Products:
-${productSummary}
-
-Direct Debit: ${order.dd_account_holder} — **** **** ${order.dd_account_number_last4}
-Signed by: ${order.signed_name} at ${order.signed_at}
-${order.requires_callback ? '\n⚠️ CALLBACK REQUIRED — Lease line order, call customer to confirm managed fibre pricing.' : ''}
-      `.trim(),
-      statusName: 'New',
-      priorityName: order.requires_callback ? 'High' : 'Medium',
+    // 4. Create provisioning service ticket
+    const ticket = await cw('POST', '/service/tickets', {
+      summary: `Provision: ${order.companyName} — ${productSummary}`,
+      company: { id: companyId },
+      contact: { id: contactId },
+      status: { name: 'New' },
+      priority: { name: 'Priority 2 - High' },
+      serviceLocation: { name: 'Remote' },
+      initialDescription: `New customer onboarding via TeleFlow.\n\nRef: ${order.quoteReference}\nSite postcode: ${order.sitePostcode}\nProducts: ${productSummary}\nTerm: ${order.quoteTerm} months\nMonthly: £${order.monthlyTotal?.toFixed(2)}\nSigned by: ${order.signedName}\nDD account: ${order.ddAccountHolder} ****${order.ddAccountNumberLast4}${order.appointment ? `\nInstallation: ${order.appointment.date} ${order.appointment.type}` : ''}`,
     })
-
-    // Persist sync result
-    const syncedAt = new Date().toISOString()
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      const { getServiceClient } = await import('@/lib/supabase')
-      const db = getServiceClient()
-      await db.from('orders').update({
-        cw_synced: true,
-        cw_synced_at: syncedAt,
-        cw_company_id: String(cwCompany.id),
-        cw_ticket_id: String(cwTicket.id),
-        updated_at: syncedAt,
-      }).eq('id', orderId)
-    }
 
     return NextResponse.json({
       success: true,
-      cwCompanyId: cwCompany.id,
-      cwContactId: cwContact.id,
-      cwOpportunityId: cwOpportunity.id,
-      cwTicketId: cwTicket.id,
+      companyId,
+      contactId,
+      opportunityId: opportunity?.id,
+      ticketId: ticket?.id,
     })
   } catch (err) {
     console.error('ConnectWise sync error:', err)

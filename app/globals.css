@@ -61,3 +61,6 @@ select {
 input::placeholder, textarea::placeholder {
   color: hsl(260, 20%, 60%) !important;
 }
+
+/* Force dark bg on all table cells */
+td, th { background-color: inherit; color: inherit; }
