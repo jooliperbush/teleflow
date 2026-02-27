@@ -1,26 +1,61 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@font-face {
+  font-family: 'Visby CF';
+  src: url('/fonts/visby-cf-bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 252 92% 14%;
+  --foreground: 0 0% 100%;
+  --card: 252 92% 11%;
+  --card-foreground: 0 0% 100%;
+  --primary: 342 95% 62%;
+  --secondary: 260 100% 55%;
+  --accent: 190 100% 74%;
+  --accent-foreground: 252 92% 14%;
+  --muted: 252 60% 22%;
+  --muted-foreground: 260 20% 72%;
+  --border: 252 50% 25%;
+  --input: 252 50% 22%;
+  --ring: 342 95% 62%;
+  --radius: 1rem;
+  --itc-pink: #f94580;
+  --itc-purple: #591bff;
+  --itc-cyan: #7be7ff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+* { border-color: hsl(var(--border)); }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Visby CF', 'Poppins', ui-sans-serif, system-ui, sans-serif;
+}
+
+.itc-gradient-text {
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, #f94580, #591bff, #7be7ff);
+}
+
+.itc-gradient-btn {
+  background: linear-gradient(135deg, #f94580, #591bff);
+  transition: opacity 0.2s ease;
+}
+.itc-gradient-btn:hover { opacity: 0.9; }
+.itc-gradient-btn:disabled { opacity: 0.4; }

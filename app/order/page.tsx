@@ -74,7 +74,7 @@ interface OrderState {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const NAVY = '#1B2A6B'
+const NAVY = '#591bff'
 
 function generateCompanyRef(name: string, incorporatedDate: string): string {
   const prefix = name.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 3)
@@ -111,19 +111,19 @@ function StepIndicator({ current }: { current: number }) {
               <div
                 className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-all"
                 style={{
-                  background: isDone || isActive ? NAVY : 'white',
-                  borderColor: isDone || isActive ? NAVY : '#D1D5DB',
-                  color: isDone || isActive ? 'white' : '#9CA3AF',
+                  background: isDone ? '#f94580' : isActive ? '#591bff' : 'hsl(252, 60%, 18%)',
+                  borderColor: isDone ? '#f94580' : isActive ? '#591bff' : 'hsl(252, 50%, 30%)',
+                  color: isDone || isActive ? 'white' : 'hsl(260, 20%, 55%)',
                 }}
               >
                 {isDone ? '✓' : i + 1}
               </div>
-              <span className="text-xs mt-1 hidden sm:block" style={{ color: isActive ? NAVY : '#9CA3AF', fontWeight: isActive ? 600 : 400 }}>
+              <span className="text-xs mt-1 hidden sm:block" style={{ color: isActive ? '#f94580' : 'hsl(260, 20%, 55%)', fontWeight: isActive ? 600 : 400 }}>
                 {label}
               </span>
             </div>
             {i < STEPS.length - 1 && (
-              <div className="w-10 sm:w-16 h-0.5 mx-1 mb-5" style={{ background: i < current ? NAVY : '#E5E7EB' }} />
+              <div className="w-10 sm:w-16 h-0.5 mx-1 mb-5" style={{ background: i < current ? "#f94580" : "hsl(252, 50%, 28%)" }} />
             )}
           </div>
         )
@@ -195,8 +195,8 @@ function Step1({ order, setOrder, onNext }: {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Company Details</h2>
-      <p className="text-gray-500 text-sm mb-6">We&apos;ll verify your company using Companies House.</p>
+      <h2 className="text-2xl font-bold mb-2" >Company Details</h2>
+      <p className="text-purple-300 text-sm mb-6">We&apos;ll verify your company using Companies House.</p>
 
       <div className="relative mb-4" ref={dropdownRef}>
         <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
@@ -204,7 +204,7 @@ function Step1({ order, setOrder, onNext }: {
           value={query}
           onChange={e => { setQuery(e.target.value); setShowDropdown(true) }}
           placeholder="Start typing company name..."
-          className="w-full border rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2"
+          className="w-full rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 text-white placeholder-purple-300" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }}
           style={{ '--tw-ring-color': NAVY } as React.CSSProperties}
         />
         {searching && <div className="absolute right-3 top-9 text-gray-400 text-xs">Searching...</div>}
@@ -217,7 +217,7 @@ function Step1({ order, setOrder, onNext }: {
                 className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b last:border-0"
               >
                 <div className="font-medium text-sm">{c.title}</div>
-                <div className="text-xs text-gray-400">{c.company_number} · {c.registered_office_address?.postal_code}</div>
+                <div className="text-xs text-purple-400">{c.company_number} · {c.registered_office_address?.postal_code}</div>
               </button>
             ))}
           </div>
@@ -225,7 +225,7 @@ function Step1({ order, setOrder, onNext }: {
       </div>
 
       {order.companyNumber && (
-        <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm">
+        <div className="rounded-lg p-4 mb-4 text-sm" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 28%)" }}>
           <div className="grid grid-cols-2 gap-2">
             <div><span className="text-gray-500">Number</span><br /><strong>{order.companyNumber}</strong></div>
             <div><span className="text-gray-500">Reference</span><br /><strong>{order.companyReference}</strong></div>
@@ -263,7 +263,7 @@ function Step1({ order, setOrder, onNext }: {
               value={(order as unknown as Record<string, string>)[key] || ''}
               onChange={e => setOrder({ [key]: e.target.value })}
               placeholder={placeholder}
-              className="w-full border rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2"
+              className="w-full rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 text-white placeholder-purple-300" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }}
             />
           </div>
         ))}
@@ -272,7 +272,7 @@ function Step1({ order, setOrder, onNext }: {
       <button
         onClick={onNext}
         disabled={!canContinue}
-        className="w-full py-4 rounded-xl font-semibold text-white text-base transition-opacity disabled:opacity-40"
+        className="w-full py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn"
         style={{ background: NAVY }}
       >
         Check Availability →
@@ -419,8 +419,8 @@ function Step2({ order, setOrder, onNext, onBack }: {
   if (loading) {
     return (
       <div className="text-center py-12">
-        <div className="inline-block w-8 h-8 border-4 border-gray-200 rounded-full animate-spin mb-3" style={{ borderTopColor: NAVY }} />
-        <p className="text-gray-500 text-sm">
+        <div className="inline-block w-8 h-8 border-4 rounded-full animate-spin mb-3" style={{ borderColor: "hsl(252, 50%, 28%)", borderTopColor: "#f94580" }} />
+        <p className="text-purple-300 text-sm">
           {phase === 'address'
             ? `Finding addresses for ${order.sitePostcode}...`
             : `Checking availability at ${selectedAddress?.displayAddress}...`}
@@ -433,16 +433,16 @@ function Step2({ order, setOrder, onNext, onBack }: {
   if (phase === 'address') {
     return (
       <div>
-        <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Select Installation Address</h2>
-        <p className="text-gray-500 text-sm mb-5">
+        <h2 className="text-2xl font-bold mb-2" >Select Installation Address</h2>
+        <p className="text-purple-300 text-sm mb-5">
           Addresses found for <strong>{order.sitePostcode}</strong>. Select the exact installation address.
         </p>
         <div className="space-y-2 mb-6 max-h-80 overflow-y-auto">
           {addresses.length === 0 ? (
-            <p className="text-gray-400 text-sm text-center py-8">No addresses found for this postcode.</p>
+            <p className="text-purple-400 text-sm text-center py-8">No addresses found for this postcode.</p>
           ) : addresses.map(a => (
             <button key={a.goldAddressKey} onClick={() => handleAddressSelect(a)}
-              className="w-full text-left border-2 rounded-xl px-5 py-4 hover:border-blue-700 transition-all text-base"
+              className="w-full text-left rounded-xl px-5 py-4 transition-all text-base text-white" style={{ background: "hsl(252, 60%, 16%)", border: "1.5px solid hsl(252, 50%, 28%)" }} onMouseOver={(e) => (e.currentTarget.style.borderColor = "#f94580")} onMouseOut={(e) => (e.currentTarget.style.borderColor = "hsl(252, 50%, 28%)")}
               style={{ borderColor: '#E5E7EB' }}
               onMouseOver={e => (e.currentTarget.style.borderColor = NAVY)}
               onMouseOut={e => (e.currentTarget.style.borderColor = '#E5E7EB')}>
@@ -450,7 +450,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
             </button>
           ))}
         </div>
-        <button onClick={onBack} className="w-full py-4 rounded-xl border border-gray-300 text-gray-600 font-medium text-base">← Back</button>
+        <button onClick={onBack} className="w-full py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
       </div>
     )
   }
@@ -459,10 +459,10 @@ function Step2({ order, setOrder, onNext, onBack }: {
   if (phase === 'products') {
     return (
       <div>
-        <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Available Products</h2>
-        <p className="text-gray-500 text-sm mb-1">{selectedAddress?.displayAddress}</p>
+        <h2 className="text-2xl font-bold mb-2" >Available Products</h2>
+        <p className="text-purple-300 text-sm mb-1">{selectedAddress?.displayAddress}</p>
         <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
-          className="text-xs mb-5 underline" style={{ color: NAVY }}>
+          className="text-xs mb-5 underline" style={{ color: "#7be7ff" }}>
           ← Change address
         </button>
 
@@ -470,7 +470,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
           {products.map(p => (
             <div key={p.type} onClick={() => toggle(p.type)}
               className="border-2 rounded-xl p-5 cursor-pointer transition-all hover:border-blue-400 hover:shadow-sm"
-              style={selected[p.type] ? { borderColor: NAVY, background: '#f0f4ff' } : { borderColor: '#D1D5DB', background: 'white' }}>
+              style={selected[p.type] ? { borderColor: "#f94580", background: "hsl(260, 80%, 20%)" } : { borderColor: "hsl(252, 50%, 28%)", background: "hsl(252, 60%, 16%)" }}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -489,7 +489,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
                   {/* Lease line — callback required for quote */}
                   {p.type === 'lease_line' && selected['lease_line'] && (
                     <div className="ml-6 mt-2" onClick={e => e.stopPropagation()}>
-                      <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                      <p className="text-xs rounded-lg px-3 py-2" style={{ background: "rgba(249, 69, 128, 0.1)", border: "1px solid rgba(249, 69, 128, 0.4)", color: "#f94580" }}>
                         📞 An ITC advisor will call you within 1 business day to discuss bandwidth options and pricing.
                       </p>
                     </div>
@@ -498,22 +498,22 @@ function Step2({ order, setOrder, onNext, onBack }: {
                   {/* VoIP seats */}
                   {p.type === 'voip' && selected['voip'] && (
                     <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                      <label className="text-xs text-gray-600">Seats:</label>
+                      <label className="text-xs text-purple-200">Seats:</label>
                       <input type="number" min={1} max={100} value={voipSeats}
                         onChange={e => setVoipSeats(Number(e.target.value))}
                         className="w-16 border rounded px-2 py-1 text-sm" />
-                      <span className="text-xs text-gray-400">× £{(8 * MARGIN).toFixed(2)}/mo</span>
+                      <span className="text-xs text-purple-400">× £{(8 * MARGIN).toFixed(2)}/mo</span>
                     </div>
                   )}
 
                   {/* Mobile SIMs */}
                   {p.type === 'mobile' && selected['mobile'] && (
                     <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                      <label className="text-xs text-gray-600">SIMs:</label>
+                      <label className="text-xs text-purple-200">SIMs:</label>
                       <input type="number" min={1} max={500} value={mobileSims}
                         onChange={e => setMobileSims(Number(e.target.value))}
                         className="w-16 border rounded px-2 py-1 text-sm" />
-                      <span className="text-xs text-gray-400">× £{(15 * MARGIN).toFixed(2)}/mo</span>
+                      <span className="text-xs text-purple-400">× £{(15 * MARGIN).toFixed(2)}/mo</span>
                     </div>
                   )}
                 </div>
@@ -521,14 +521,14 @@ function Step2({ order, setOrder, onNext, onBack }: {
                 {/* Price column */}
                 <div className="text-right ml-4 flex-shrink-0">
                   {p.type === 'lease_line' ? (
-                    <div className="text-xs text-gray-400">POA</div>
+                    <div className="text-xs text-purple-400">POA</div>
                   ) : p.monthlyCost ? (
                     <>
-                      <div className="font-bold text-sm" style={{ color: NAVY }}>£{p.monthlyCost.toFixed(2)}</div>
-                      <div className="text-xs text-gray-400">/ month</div>
+                      <div className="font-bold text-sm" >£{p.monthlyCost.toFixed(2)}</div>
+                      <div className="text-xs text-purple-400">/ month</div>
                     </>
                   ) : (
-                    <div className="text-xs text-gray-400">—</div>
+                    <div className="text-xs text-purple-400">—</div>
                   )}
                 </div>
               </div>
@@ -538,10 +538,10 @@ function Step2({ order, setOrder, onNext, onBack }: {
 
         <div className="flex gap-3">
           <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
-            className="flex-1 py-4 rounded-xl border border-gray-300 text-gray-600 font-medium text-base">← Back</button>
+            className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
           <button onClick={handleProductsNext}
             disabled={!hasSelection || !leaseLineReady}
-            className="flex-1 py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40"
+            className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40"
             style={{ background: NAVY }}>
             {(() => {
               const sel = products.filter(p => selected[p.type])
@@ -557,15 +557,15 @@ function Step2({ order, setOrder, onNext, onBack }: {
   // ── Phase 3: Appointment picker ──────────────────────────────────────────────
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Book Installation</h2>
-      <p className="text-gray-500 text-sm mb-6">
+      <h2 className="text-2xl font-bold mb-2" >Book Installation</h2>
+      <p className="text-purple-300 text-sm mb-6">
         Select an engineer appointment for <strong>{selectedAddress?.displayAddress}</strong>.
         Half-day slots available — engineer will arrive within the window.
       </p>
 
       {slotsLoading ? (
         <div className="text-center py-10">
-          <div className="inline-block w-7 h-7 border-4 border-gray-200 rounded-full animate-spin" style={{ borderTopColor: NAVY }} />
+          <div className="inline-block w-7 h-7 border-4 rounded-full animate-spin" style={{ borderColor: "hsl(252, 50%, 28%)", borderTopColor: "#f94580" }} />
           <p className="text-gray-400 text-sm mt-3">Fetching available slots from Zen...</p>
         </div>
       ) : slots.length === 0 ? (
@@ -580,7 +580,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
             slots.forEach(s => { byDate[s.date] = byDate[s.date] || []; byDate[s.date].push(s) })
             return Object.entries(byDate).map(([date, daySlots]) => (
               <div key={date}>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 mt-3">
+                <p className="text-xs font-semibold uppercase tracking-wide mb-1 mt-3" style={{ color: "#7be7ff" }}>
                   {new Date(date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </p>
                 <div className="flex gap-2 flex-wrap">
@@ -589,7 +589,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
                     return (
                       <button key={i} onClick={() => setSelectedSlot(slot)}
                         className="flex-1 min-w-[130px] border-2 rounded-xl px-4 py-3 text-sm font-medium transition-all"
-                        style={isSelected ? { borderColor: NAVY, background: '#f0f4ff', color: NAVY } : { borderColor: '#E5E7EB', color: '#374151' }}>
+                        style={isSelected ? { borderColor: "#7be7ff", background: "rgba(123, 231, 255, 0.12)", color: "#7be7ff" } : { borderColor: "hsl(252, 50%, 30%)", color: "#c4b8f0", background: "hsl(252, 60%, 16%)" }}>
                         {slot.type === 'AM' ? '🌅' : '☀️'} {slot.type}
                         <span className="block text-xs font-normal text-gray-400">{slot.startTime}–{slot.endTime}</span>
                       </button>
@@ -603,17 +603,17 @@ function Step2({ order, setOrder, onNext, onBack }: {
       )}
 
       {selectedSlot && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 text-sm text-green-800">
+        <div className="rounded-lg p-3 mb-4 text-sm" style={{ background: "rgba(123, 231, 255, 0.1)", border: "1px solid rgba(123, 231, 255, 0.4)", color: "#7be7ff" }}>
           ✓ {new Date(selectedSlot.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })} — {selectedSlot.type} ({selectedSlot.startTime}–{selectedSlot.endTime})
         </div>
       )}
 
       <div className="flex gap-3">
         <button onClick={() => { setPhase('products'); setSelectedSlot(null) }}
-          className="flex-1 py-4 rounded-xl border border-gray-300 text-gray-600 font-medium text-base">← Back</button>
+          className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         <button onClick={handleAppointmentNext}
           disabled={slots.length > 0 && !selectedSlot}
-          className="flex-1 py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40"
+          className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40"
           style={{ background: NAVY }}>
           {selectedSlot ? 'Get Quote →' : 'Skip — team will contact me'}
         </button>
@@ -667,8 +667,8 @@ function Step3({ order, setOrder, onNext, onBack }: {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Your Quote</h2>
-      <p className="text-gray-500 text-sm mb-2">Ref: <strong>{quoteRef}</strong> · Valid 30 days</p>
+      <h2 className="text-2xl font-bold mb-2" >Your Quote</h2>
+      <p className="text-purple-300 text-sm mb-2">Ref: <strong>{quoteRef}</strong> · Valid 30 days</p>
 
       <div className="mb-4 flex items-center gap-3">
         <label className="text-sm font-medium text-gray-700">Contract Term:</label>
@@ -710,7 +710,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
           <tfoot>
             <tr className="border-t bg-gray-50">
               <td colSpan={3} className="px-4 py-3 font-bold text-right">Monthly Total</td>
-              <td className="px-4 py-3 font-bold text-right" style={{ color: NAVY }}>£{monthly.toFixed(2)}</td>
+              <td className="px-4 py-3 font-bold text-right" >£{monthly.toFixed(2)}</td>
             </tr>
             <tr className="border-t bg-gray-50">
               <td colSpan={3} className="px-4 py-2 text-right text-gray-500 text-xs">Annual ({term} months)</td>
@@ -732,7 +732,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
       </div>
 
       <div className="flex gap-3">
-        <button onClick={onBack} className="flex-1 py-4 rounded-xl border border-gray-300 text-gray-600 font-medium text-base">← Back</button>
+        <button onClick={onBack} className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         <button
           onClick={onNext}
           className="flex-1 py-3 rounded-lg font-semibold text-white"
@@ -798,10 +798,10 @@ function Step4({ order, setOrder, onNext, onBack }: {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Sign Agreement</h2>
+      <h2 className="text-2xl font-bold mb-2" >Sign Agreement</h2>
       <p className="text-gray-500 text-sm mb-4">Please review and sign the service agreement below.</p>
 
-      <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm">
+      <div className="rounded-lg p-4 mb-4 text-sm" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 28%)" }}>
         <div className="grid grid-cols-2 gap-2 text-xs mb-3">
           <div><span className="text-gray-500">Company</span><br /><strong>{order.companyName}</strong></div>
           <div><span className="text-gray-500">Quote Ref</span><br /><strong>{order.quoteReference}</strong></div>
@@ -846,7 +846,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
       </label>
 
       {signed && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 text-sm text-green-800">
+        <div className="rounded-lg p-3 mb-4 text-sm" style={{ background: "rgba(123, 231, 255, 0.1)", border: "1px solid rgba(123, 231, 255, 0.4)", color: "#7be7ff" }}>
           ✓ Signed by <strong>{order.signedName}</strong> on {new Date(order.signedAt).toLocaleDateString('en-GB')} at {new Date(order.signedAt).toLocaleTimeString('en-GB')} UTC<br />
           <span className="text-xs text-green-600">Electronic signature captured per Electronic Communications Act 2000</span>
         </div>
@@ -858,7 +858,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
           <button
             onClick={handleSign}
             disabled={!canSign || signing}
-            className="flex-1 py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40"
+            className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40"
             style={{ background: NAVY }}
           >
             {signing ? 'Signing...' : '✍️ Sign Agreement'}
@@ -927,7 +927,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Direct Debit Setup</h2>
+      <h2 className="text-2xl font-bold mb-2" >Direct Debit Setup</h2>
       <p className="text-gray-500 text-sm mb-4">
         Monthly payment of <strong>£{order.monthlyTotal?.toFixed(2)}</strong> will be collected on the 1st of each month.
       </p>
@@ -981,7 +981,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
       {error && <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 text-sm text-red-700">{error}</div>}
 
       {confirmed && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 text-sm text-green-800">
+        <div className="rounded-lg p-3 mb-4 text-sm" style={{ background: "rgba(123, 231, 255, 0.1)", border: "1px solid rgba(123, 231, 255, 0.4)", color: "#7be7ff" }}>
           ✓ Direct Debit authorised for account ending <strong>****{order.ddAccountNumberLast4}</strong>
         </div>
       )}
@@ -992,7 +992,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
           <button
             onClick={handleSetup}
             disabled={!canSubmit || submitting}
-            className="flex-1 py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40"
+            className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40"
             style={{ background: NAVY }}
           >
             {submitting ? 'Processing...' : 'Set Up Direct Debit'}
@@ -1030,7 +1030,7 @@ function Step6({ order }: { order: OrderState }) {
         <span className="text-4xl">✓</span>
       </div>
 
-      <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Order Confirmed!</h2>
+      <h2 className="text-2xl font-bold mb-2" >Order Confirmed!</h2>
       <p className="text-gray-500 mb-1">Reference: <strong>{order.quoteReference}</strong></p>
       {synced && <p className="text-xs text-green-600 mb-4">✓ Provisioning ticket created in ConnectWise</p>}
 
@@ -1058,7 +1058,7 @@ function Step6({ order }: { order: OrderState }) {
         </div>
       )}
 
-      <p className="text-sm text-gray-500">A confirmation has been sent to <strong>{order.contactEmail}</strong></p>
+      <p className="text-sm text-purple-300">A confirmation has been sent to <strong>{order.contactEmail}</strong></p>
       <p className="text-sm text-gray-500 mt-1">Your account manager will be in touch within 24 hours.</p>
     </div>
   )
@@ -1102,7 +1102,7 @@ export default function OrderPage() {
   function back() { setStep(s => Math.max(s - 1, 0)) }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-6">
+    <div className="min-h-screen py-10 px-6" style={{ background: "hsl(252, 92%, 10%)" }}>
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
