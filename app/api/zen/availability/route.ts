@@ -22,10 +22,7 @@ export async function GET(req: NextRequest) {
     const { checkAvailability } = await import('@/lib/zen')
     const result = await checkAvailability(uprn, cli)
 
-    // ITC rule: only best broadband (sorted desc, take first)
-    const best = result.products.length ? [result.products[0]] : []
-
-    const products = best.map((p: ZenProduct) => {
+    const products = result.products.map((p: ZenProduct) => {
       const base = ITC_PRICING[p.type] || 30
       const monthly = p.monthlyCost ? +(p.monthlyCost * MARGIN).toFixed(2) : +(base * MARGIN).toFixed(2)
       return { ...p, monthlyCost: monthly, setupFee: p.setupFee ? +(p.setupFee * MARGIN).toFixed(2) : 0 }
