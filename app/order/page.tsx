@@ -314,9 +314,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
   const [selectedAddress, setSelectedAddress] = useState<ZenAddress | null>(order.selectedAddress || null)
   const [products, setProducts] = useState<Product[]>([])
   const [availRef, setAvailRef] = useState<string | null>(order.zenAvailabilityRef || null)
-  const [phase, setPhase] = useState<'address' | 'products' | 'appointment'>(
-    order.selectedAddress ? (order.appointment ? 'appointment' : 'products') : 'address'
-  )
+  const [phase, setPhase] = useState<'address' | 'products' | 'appointment'>('address')
   const [loading, setLoading] = useState(false)
   const [voipSeats, setVoipSeats] = useState(1)
   const [mobileSims, setMobileSims] = useState(1)
@@ -1169,7 +1167,22 @@ export default function OrderPage() {
     setOrderState(prev => ({ ...prev, ...partial }))
   }
 
-  function next() { setStep(s => Math.min(s + 1, 5)) }
+  function next() {
+    const current = step
+    setStep(s => Math.min(s + 1, 5))
+    // Leaving Step 1 (postcode entry) — clear all downstream address/availability state
+    // so a changed postcode doesn't carry over stale address/products
+    if (current === 0) {
+      setOrder({
+        selectedAddress: undefined,
+        zenAvailabilityRef: undefined,
+        selectedProducts: [],
+        requiresCallback: false,
+        appointment: undefined,
+        leaseLine: undefined,
+      })
+    }
+  }
   function back() { setStep(s => Math.max(s - 1, 0)) }
 
   return (
