@@ -280,15 +280,20 @@ function extractProducts(
   }]
 }
 
-// Speed lookup from product code e.g. FTTP9009 = 900/900, FTTC8020 = 80/20
-function speedFromCode(code: string): { dl: number; ul: number } {
-  const m = code.match(/(\d+)(\d{2})$/)
-  if (m) {
-    const dl = parseInt(m[1])
-    const ul = parseInt(m[2])
-    return { dl: dl >= 10 ? dl : dl * 10, ul: ul >= 10 ? ul : ul * 10 }
-  }
-  return { dl: 0, ul: 0 }
+// Parse speed from product name — handles multiple formats:
+// "FTTP 1000/115", "CityFibre Residential 2500", "CityFibre Residential 1200 Symmetric"
+function speedFromName(name: string): { dl: number; ul: number } {
+  // Format: "X/Y Mbps" or "X/Y"
+  const slashMatch = name.match(/(\d+)\/(\d+)/)
+  if (slashMatch) return { dl: parseInt(slashMatch[1]), ul: parseInt(slashMatch[2]) }
+  // Format: single number e.g. "2500" or "1200 Symmetric" (symmetric = dl=ul)
+  const nums = name.match(/\d+/g)?.map(Number) || []
+  const big = nums.filter(n => n >= 100) // ignore small numbers like "160" from model names
+  if (big.length === 0) return { dl: 0, ul: 0 }
+  const largest = Math.max(...big)
+  // Symmetric if name contains "symmetric" or "1000"+ and no slash
+  const isSymmetric = /symmetric/i.test(name)
+  return { dl: largest, ul: isSymmetric ? largest : Math.round(largest * 0.115) }
 }
 
 function parseAvailabilityResponse(data: RawAvailabilityResponse): ZenAvailabilityResult {
@@ -310,11 +315,9 @@ function parseAvailabilityResponse(data: RawAvailabilityResponse): ZenAvailabili
       for (const p of prods) {
         const code = p.productCode || ''
         const name = p.productName || code
-        const speeds = speedFromCode(code)
-        // Extract Mbps from name e.g. "FTTP 900/900" or "FTTC 80/20"
-        const nameMatch = name.match(/(\d+)\/(\d+)/)
-        const dl = nameMatch ? parseInt(nameMatch[1]) : speeds.dl
-        const ul = nameMatch ? parseInt(nameMatch[2]) : speeds.ul
+        const speeds = speedFromName(name)
+        const dl = speeds.dl
+        const ul = speeds.ul
         allProducts.push({
           type: type || 'fttp',
           name: name,
