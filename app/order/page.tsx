@@ -367,14 +367,14 @@ function Step2({ order, setOrder, onNext, onBack }: {
     setLoading(false)
   }
 
-  function toggle(type: string) {
-    setSelected(s => ({ ...s, [type]: !s[type] }))
+  function toggle(key: string) {
+    setSelected(s => ({ ...s, [key]: !s[key] }))
   }
 
 
   function buildSelected(): SelectedProduct[] {
     return products
-      .filter(p => selected[p.type])
+      .filter(p => selected[p.name])
       .map(p => {
         if (p.type === 'lease_line') {
           return {
@@ -396,7 +396,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
     const sel = buildSelected()
     setOrder({
       selectedProducts: sel,
-      requiresCallback: selected['lease_line'] || false,
+      requiresCallback: products.some(p => p.type === 'lease_line' && selected[p.name]) || false,
       leaseLine: undefined,
     })
     // Show appointment picker if broadband or lease line selected
@@ -469,15 +469,15 @@ function Step2({ order, setOrder, onNext, onBack }: {
 
         <div className="space-y-3 mb-6">
           {products.map(p => (
-            <div key={p.type} onClick={() => toggle(p.type)}
+            <div key={p.name} onClick={() => toggle(p.name)}
               className="border-2 rounded-xl p-5 cursor-pointer transition-all hover:border-blue-400 hover:shadow-sm"
-              style={selected[p.type] ? { borderColor: "#f94580", background: "rgba(249, 69, 128, 0.08)", boxShadow: "0 0 0 1px #f94580" } : { borderColor: "hsl(252, 50%, 30%)", background: "hsl(252, 60%, 16%)" }}>
+              style={selected[p.name] ? { borderColor: "#f94580", background: "rgba(249, 69, 128, 0.08)", boxShadow: "0 0 0 1px #f94580" } : { borderColor: "hsl(252, 50%, 30%)", background: "hsl(252, 60%, 16%)" }}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0"
-                      style={{ borderColor: selected[p.type] ? NAVY : '#D1D5DB', background: selected[p.type] ? NAVY : 'white' }}>
-                      {selected[p.type] && <span className="text-white text-xs leading-none">✓</span>}
+                      style={{ borderColor: selected[p.name] ? '#f94580' : 'hsl(252,50%,35%)', background: selected[p.name] ? '#f94580' : 'transparent' }}>
+                      {selected[p.name] && <span className="text-white text-xs leading-none">✓</span>}
                     </div>
                     <span className="font-semibold text-sm">{p.name}</span>
                   </div>
@@ -488,7 +488,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
                   )}
 
                   {/* Lease line — callback required for quote */}
-                  {p.type === 'lease_line' && selected['lease_line'] && (
+                  {p.type === 'lease_line' && selected['Managed Fibre (Leased Line)'] && (
                     <div className="ml-6 mt-2" onClick={e => e.stopPropagation()}>
                       <p className="text-xs rounded-lg px-3 py-2" style={{ background: "rgba(249, 69, 128, 0.1)", border: "1px solid rgba(249, 69, 128, 0.4)", color: "#f94580" }}>
                         📞 An ITC advisor will call you within 1 business day to discuss bandwidth options and pricing.
@@ -497,7 +497,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
                   )}
 
                   {/* VoIP seats */}
-                  {p.type === 'voip' && selected['voip'] && (
+                  {p.type === 'voip' && selected[p.name] && (
                     <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
                       <label className="text-xs text-purple-200">Seats:</label>
                       <input type="number" min={1} max={100} value={voipSeats}
@@ -508,7 +508,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
                   )}
 
                   {/* Mobile SIMs */}
-                  {p.type === 'mobile' && selected['mobile'] && (
+                  {p.type === 'mobile' && selected[p.name] && (
                     <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
                       <label className="text-xs text-purple-200">SIMs:</label>
                       <input type="number" min={1} max={500} value={mobileSims}
@@ -545,7 +545,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
             className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40"
             style={{ background: NAVY }}>
             {(() => {
-              const sel = products.filter(p => selected[p.type])
+              const sel = products.filter(p => selected[p.name])
               const needsInstall = sel.some(p => ['fttp','fttc','sogea','gfast','adsl','lease_line'].includes(p.type))
               return needsInstall ? 'Book Installation →' : 'Get Quote →'
             })()}
