@@ -685,8 +685,8 @@ function Step3({ order, setOrder, onNext, onBack }: {
         ))}
       </div>
 
-      <div className="border rounded-xl overflow-hidden mb-4">
-        <table className="w-full text-sm">
+      <div className="rounded-xl overflow-hidden mb-4" style={{ border: "1px solid hsl(252, 50%, 28%)" }}>
+        <table className="w-full text-sm text-white">
           <thead>
             <tr style={{ background: NAVY, color: 'white' }}>
               <th className="px-4 py-3 text-left">Product</th>
@@ -695,9 +695,9 @@ function Step3({ order, setOrder, onNext, onBack }: {
               <th className="px-4 py-3 text-right">Total/mo</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody style={{ background: "hsl(252, 60%, 14%)" }}>
             {order.selectedProducts.map((p, i) => (
-              <tr key={i} className="border-t">
+              <tr key={i} style={{ borderTop: "1px solid hsl(252, 50%, 28%)", background: "hsl(252, 60%, 14%)" }}>
                 <td className="px-4 py-3">
                   {p.name}
                   {p.requiresCallback && <span className="ml-2 text-xs text-amber-600">(callback)</span>}
@@ -709,11 +709,11 @@ function Step3({ order, setOrder, onNext, onBack }: {
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t bg-gray-50">
+            <tr style={{ borderTop: "1px solid hsl(252, 50%, 28%)", background: "hsl(252, 60%, 16%)" }}>
               <td colSpan={3} className="px-4 py-3 font-bold text-right">Monthly Total</td>
               <td className="px-4 py-3 font-bold text-right" >£{monthly.toFixed(2)}</td>
             </tr>
-            <tr className="border-t bg-gray-50">
+            <tr style={{ borderTop: "1px solid hsl(252, 50%, 28%)", background: "hsl(252, 60%, 16%)" }}>
               <td colSpan={3} className="px-4 py-2 text-right text-purple-400 text-xs">Annual ({term} months)</td>
               <td className="px-4 py-2 text-right text-purple-400 text-xs">£{annual.toFixed(2)}</td>
             </tr>
@@ -725,8 +725,8 @@ function Step3({ order, setOrder, onNext, onBack }: {
         <button
           onClick={emailQuote}
           disabled={sending || emailSent}
-          className="w-full py-2.5 rounded-lg border-2 font-medium text-sm transition-all disabled:opacity-50"
-          style={{ borderColor: NAVY, color: emailSent ? 'white' : NAVY, background: emailSent ? NAVY : 'transparent' }}
+          className="w-full py-2.5 rounded-xl font-medium text-sm transition-all disabled:opacity-50"
+          style={{ border: "1.5px solid #591bff", color: emailSent ? 'white' : '#7be7ff', background: emailSent ? '#591bff' : 'transparent' }}
         >
           {emailSent ? `✓ Quote sent to ${order.contactEmail}` : sending ? 'Sending...' : `📧 Email Quote to ${order.contactEmail}`}
         </button>
@@ -828,7 +828,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
           onChange={e => setSignedName(e.target.value)}
           placeholder="Your full name"
           disabled={signed}
-          className="w-full border rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 disabled:bg-gray-50"
+          className="w-full border rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 disabled:opacity-50"
           style={{ fontStyle: 'italic', fontSize: '16px' }}
         />
       </div>
@@ -941,7 +941,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
             onChange={e => setAccountHolder(e.target.value)}
             disabled={confirmed}
             placeholder="Name on bank account"
-            className="w-full border rounded-lg px-3 py-2.5 text-sm disabled:bg-gray-50"
+            className="w-full border rounded-lg px-3 py-2.5 text-sm disabled:opacity-50"
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -952,7 +952,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
               onChange={e => setSortCode(formatSortCode(e.target.value))}
               disabled={confirmed}
               placeholder="XX-XX-XX"
-              className="w-full border rounded-lg px-3 py-2.5 text-sm disabled:bg-gray-50"
+              className="w-full border rounded-lg px-3 py-2.5 text-sm disabled:opacity-50"
             />
           </div>
           <div>
@@ -962,7 +962,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
               onChange={e => setAccountNumber(e.target.value.replace(/\D/g, '').slice(0, 8))}
               disabled={confirmed}
               placeholder="12345678"
-              className="w-full border rounded-lg px-3 py-2.5 text-sm disabled:bg-gray-50"
+              className="w-full border rounded-lg px-3 py-2.5 text-sm disabled:opacity-50"
             />
           </div>
         </div>
