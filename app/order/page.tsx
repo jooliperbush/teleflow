@@ -314,9 +314,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
   const [loading, setLoading] = useState(false)
   const [voipSeats, setVoipSeats] = useState(1)
   const [mobileSims, setMobileSims] = useState(1)
-  const [selected, setSelected] = useState<Record<string, boolean>>(
-    Object.fromEntries((order.selectedProducts || []).map(p => [p.type, true]))
-  )
+  const [selected, setSelected] = useState<Record<string, boolean>>({})
   // Lease line — no live pricing (requires indirect-quote scope not yet enabled)
   const [selectedTerm, setSelectedTerm] = useState(order.leaseLine?.term || 36)
   // Appointment state
@@ -473,7 +471,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
           {products.map(p => (
             <div key={p.type} onClick={() => toggle(p.type)}
               className="border-2 rounded-xl p-5 cursor-pointer transition-all hover:border-blue-400 hover:shadow-sm"
-              style={selected[p.type] ? { borderColor: "#f94580", background: "hsl(260, 80%, 20%)" } : { borderColor: "hsl(252, 50%, 28%)", background: "hsl(252, 60%, 16%)" }}>
+              style={selected[p.type] ? { borderColor: "#f94580", background: "rgba(249, 69, 128, 0.08)", boxShadow: "0 0 0 1px #f94580" } : { borderColor: "hsl(252, 50%, 30%)", background: "hsl(252, 60%, 16%)" }}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
