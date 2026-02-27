@@ -101,7 +101,7 @@ const STEPS = ['Company', 'Availability', 'Quote', 'Sign', 'Direct Debit', 'Conf
 
 function StepIndicator({ current }: { current: number }) {
   return (
-    <div className="flex items-center justify-center gap-0 mb-8 overflow-x-auto">
+    <div className="flex items-center justify-center gap-0 mb-10 overflow-x-auto">
       {STEPS.map((label, i) => {
         const isActive = i === current
         const isDone = i < current
@@ -109,7 +109,7 @@ function StepIndicator({ current }: { current: number }) {
           <div key={i} className="flex items-center">
             <div className="flex flex-col items-center">
               <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-all"
+                className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-all"
                 style={{
                   background: isDone || isActive ? NAVY : 'white',
                   borderColor: isDone || isActive ? NAVY : '#D1D5DB',
@@ -123,7 +123,7 @@ function StepIndicator({ current }: { current: number }) {
               </span>
             </div>
             {i < STEPS.length - 1 && (
-              <div className="w-8 sm:w-12 h-0.5 mx-1 mb-4" style={{ background: i < current ? NAVY : '#E5E7EB' }} />
+              <div className="w-10 sm:w-16 h-0.5 mx-1 mb-5" style={{ background: i < current ? NAVY : '#E5E7EB' }} />
             )}
           </div>
         )
@@ -195,7 +195,7 @@ function Step1({ order, setOrder, onNext }: {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Company Details</h2>
+      <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Company Details</h2>
       <p className="text-gray-500 text-sm mb-6">We&apos;ll verify your company using Companies House.</p>
 
       <div className="relative mb-4" ref={dropdownRef}>
@@ -204,7 +204,7 @@ function Step1({ order, setOrder, onNext }: {
           value={query}
           onChange={e => { setQuery(e.target.value); setShowDropdown(true) }}
           placeholder="Start typing company name..."
-          className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2"
+          className="w-full border rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2"
           style={{ '--tw-ring-color': NAVY } as React.CSSProperties}
         />
         {searching && <div className="absolute right-3 top-9 text-gray-400 text-xs">Searching...</div>}
@@ -263,7 +263,7 @@ function Step1({ order, setOrder, onNext }: {
               value={(order as unknown as Record<string, string>)[key] || ''}
               onChange={e => setOrder({ [key]: e.target.value })}
               placeholder={placeholder}
-              className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2"
+              className="w-full border rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2"
             />
           </div>
         ))}
@@ -272,7 +272,7 @@ function Step1({ order, setOrder, onNext }: {
       <button
         onClick={onNext}
         disabled={!canContinue}
-        className="w-full py-3 rounded-lg font-semibold text-white transition-opacity disabled:opacity-40"
+        className="w-full py-4 rounded-xl font-semibold text-white text-base transition-opacity disabled:opacity-40"
         style={{ background: NAVY }}
       >
         Check Availability →
@@ -433,7 +433,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
   if (phase === 'address') {
     return (
       <div>
-        <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Select Installation Address</h2>
+        <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Select Installation Address</h2>
         <p className="text-gray-500 text-sm mb-5">
           Addresses found for <strong>{order.sitePostcode}</strong>. Select the exact installation address.
         </p>
@@ -442,7 +442,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
             <p className="text-gray-400 text-sm text-center py-8">No addresses found for this postcode.</p>
           ) : addresses.map(a => (
             <button key={a.goldAddressKey} onClick={() => handleAddressSelect(a)}
-              className="w-full text-left border-2 rounded-xl px-4 py-3 hover:border-blue-700 transition-all text-sm"
+              className="w-full text-left border-2 rounded-xl px-5 py-4 hover:border-blue-700 transition-all text-base"
               style={{ borderColor: '#E5E7EB' }}
               onMouseOver={e => (e.currentTarget.style.borderColor = NAVY)}
               onMouseOut={e => (e.currentTarget.style.borderColor = '#E5E7EB')}>
@@ -450,7 +450,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
             </button>
           ))}
         </div>
-        <button onClick={onBack} className="w-full py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm">← Back</button>
+        <button onClick={onBack} className="w-full py-4 rounded-xl border border-gray-300 text-gray-600 font-medium text-base">← Back</button>
       </div>
     )
   }
@@ -459,7 +459,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
   if (phase === 'products') {
     return (
       <div>
-        <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Available Products</h2>
+        <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Available Products</h2>
         <p className="text-gray-500 text-sm mb-1">{selectedAddress?.displayAddress}</p>
         <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
           className="text-xs mb-5 underline" style={{ color: NAVY }}>
@@ -469,7 +469,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
         <div className="space-y-3 mb-6">
           {products.map(p => (
             <div key={p.type} onClick={() => toggle(p.type)}
-              className="border-2 rounded-xl p-4 cursor-pointer transition-all hover:border-blue-400 hover:shadow-sm"
+              className="border-2 rounded-xl p-5 cursor-pointer transition-all hover:border-blue-400 hover:shadow-sm"
               style={selected[p.type] ? { borderColor: NAVY, background: '#f0f4ff' } : { borderColor: '#D1D5DB', background: 'white' }}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -538,10 +538,10 @@ function Step2({ order, setOrder, onNext, onBack }: {
 
         <div className="flex gap-3">
           <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
-            className="flex-1 py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm">← Back</button>
+            className="flex-1 py-4 rounded-xl border border-gray-300 text-gray-600 font-medium text-base">← Back</button>
           <button onClick={handleProductsNext}
             disabled={!hasSelection || !leaseLineReady}
-            className="flex-1 py-3 rounded-lg font-semibold text-white disabled:opacity-40"
+            className="flex-1 py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40"
             style={{ background: NAVY }}>
             {(() => {
               const sel = products.filter(p => selected[p.type])
@@ -557,7 +557,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
   // ── Phase 3: Appointment picker ──────────────────────────────────────────────
   return (
     <div>
-      <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Book Installation</h2>
+      <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Book Installation</h2>
       <p className="text-gray-500 text-sm mb-6">
         Select an engineer appointment for <strong>{selectedAddress?.displayAddress}</strong>.
         Half-day slots available — engineer will arrive within the window.
@@ -610,10 +610,10 @@ function Step2({ order, setOrder, onNext, onBack }: {
 
       <div className="flex gap-3">
         <button onClick={() => { setPhase('products'); setSelectedSlot(null) }}
-          className="flex-1 py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm">← Back</button>
+          className="flex-1 py-4 rounded-xl border border-gray-300 text-gray-600 font-medium text-base">← Back</button>
         <button onClick={handleAppointmentNext}
           disabled={slots.length > 0 && !selectedSlot}
-          className="flex-1 py-3 rounded-lg font-semibold text-white disabled:opacity-40"
+          className="flex-1 py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40"
           style={{ background: NAVY }}>
           {selectedSlot ? 'Get Quote →' : 'Skip — team will contact me'}
         </button>
@@ -667,7 +667,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Your Quote</h2>
+      <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Your Quote</h2>
       <p className="text-gray-500 text-sm mb-2">Ref: <strong>{quoteRef}</strong> · Valid 30 days</p>
 
       <div className="mb-4 flex items-center gap-3">
@@ -732,7 +732,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
       </div>
 
       <div className="flex gap-3">
-        <button onClick={onBack} className="flex-1 py-3 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm">← Back</button>
+        <button onClick={onBack} className="flex-1 py-4 rounded-xl border border-gray-300 text-gray-600 font-medium text-base">← Back</button>
         <button
           onClick={onNext}
           className="flex-1 py-3 rounded-lg font-semibold text-white"
@@ -798,7 +798,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Sign Agreement</h2>
+      <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Sign Agreement</h2>
       <p className="text-gray-500 text-sm mb-4">Please review and sign the service agreement below.</p>
 
       <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm">
@@ -858,7 +858,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
           <button
             onClick={handleSign}
             disabled={!canSign || signing}
-            className="flex-1 py-3 rounded-lg font-semibold text-white disabled:opacity-40"
+            className="flex-1 py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40"
             style={{ background: NAVY }}
           >
             {signing ? 'Signing...' : '✍️ Sign Agreement'}
@@ -927,7 +927,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-1" style={{ color: NAVY }}>Direct Debit Setup</h2>
+      <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Direct Debit Setup</h2>
       <p className="text-gray-500 text-sm mb-4">
         Monthly payment of <strong>£{order.monthlyTotal?.toFixed(2)}</strong> will be collected on the 1st of each month.
       </p>
@@ -992,7 +992,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
           <button
             onClick={handleSetup}
             disabled={!canSubmit || submitting}
-            className="flex-1 py-3 rounded-lg font-semibold text-white disabled:opacity-40"
+            className="flex-1 py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40"
             style={{ background: NAVY }}
           >
             {submitting ? 'Processing...' : 'Set Up Direct Debit'}
@@ -1102,8 +1102,8 @@ export default function OrderPage() {
   function back() { setStep(s => Math.max(s - 1, 0)) }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-xl mx-auto">
+    <div className="min-h-screen bg-gray-50 py-10 px-6">
+      <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-block px-4 py-2 rounded-full text-white text-sm font-bold mb-2" style={{ background: NAVY }}>
