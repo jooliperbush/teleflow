@@ -499,8 +499,8 @@ function Step2({ order, setOrder, onNext, onBack }: {
         <div className="space-y-3 mb-6">
           {products.map(p => (
             <div key={p.type} onClick={() => toggle(p.type)}
-              className="border-2 rounded-xl p-4 cursor-pointer transition-all"
-              style={selected[p.type] ? { borderColor: NAVY, background: '#f0f4ff' } : { borderColor: '#E5E7EB' }}>
+              className="border-2 rounded-xl p-4 cursor-pointer transition-all hover:border-blue-400 hover:shadow-sm"
+              style={selected[p.type] ? { borderColor: NAVY, background: '#f0f4ff' } : { borderColor: '#D1D5DB', background: 'white' }}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">

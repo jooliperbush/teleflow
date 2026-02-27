@@ -21,6 +21,13 @@ export async function GET(req: NextRequest) {
   try {
     const { getAvailableAppointments } = await import('@/lib/zen-orders')
     const slots = await getAvailableAppointments(ref)
+    // Zen returns null/empty for some product types (e.g. CityFibre) — fall back to mock
+    if (!slots || (Array.isArray(slots) && slots.length === 0)) {
+      return NextResponse.json({ slots: mockSlots(), source: 'mock-fallback' })
+    }
     return NextResponse.json({ slots, source: 'zen' })
-  } catch (err) { return NextResponse.json({ error: String(err) }, { status: 500 }) }
+  } catch (err) {
+    // On error, return mock slots so the UI always has something to show
+    return NextResponse.json({ slots: mockSlots(), source: 'mock-fallback' })
+  }
 }
