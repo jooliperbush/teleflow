@@ -318,7 +318,14 @@ function Step0({ order, setOrder, onNext }: {
     setProducts([])
     setChecked(false)
     try {
-      const availParam = addr.uprn ? `uprn=${encodeURIComponent(addr.uprn)}` : `goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}`
+      // If no UPRN, look it up via EPC register
+      let uprn = addr.uprn
+      if (!uprn) {
+        const epcRes = await fetch(`/api/epc/uprn?postcode=${encodeURIComponent(pc || postcode)}&address=${encodeURIComponent(addr.displayAddress)}`)
+        const epcData = await epcRes.json()
+        uprn = epcData.uprn || ''
+      }
+      const availParam = uprn ? `uprn=${encodeURIComponent(uprn)}` : `goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}`
       const res = await fetch(`/api/zen/availability?${availParam}`)
       const data = await res.json()
       setProducts(data.products || [])
