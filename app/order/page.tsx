@@ -181,13 +181,31 @@ const TIERS = [
 ]
 
 function TierCards({ products }: { products: Product[] }) {
-  const availableSpeeds = new Set(products.map(p => p.downloadMbps || 0))
+  // Match products to tiers by speed range
+  const TIER_RANGES = [
+    { id: 'core',   min: 50,   max: 249  },
+    { id: 'growth', min: 250,  max: 749  },
+    { id: 'pro',    min: 750,  max: 99999 },
+  ]
+
+  function productsForTier(tierId: string) {
+    const range = TIER_RANGES.find(r => r.id === tierId)!
+    return products
+      .filter(p => (p.downloadMbps || 0) >= range.min && (p.downloadMbps || 0) <= range.max)
+      .filter((p, i, arr) => arr.findIndex(x => x.name === p.name) === i)
+      .sort((a, b) => (a.downloadMbps || 0) - (b.downloadMbps || 0))
+  }
+
+  function speedLabel(mbps: number) {
+    return mbps >= 1000 ? `${(mbps/1000).toFixed(mbps % 1000 === 0 ? 0 : 1)} Gbps` : `${mbps} Mbps`
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4 mb-6">
       {TIERS.map(tier => {
-        const tierSpeeds = tier.speeds.filter(s => availableSpeeds.has(s))
-        if (tierSpeeds.length === 0) return null
+        const tierProducts = productsForTier(tier.id)
+        if (tierProducts.length === 0) return null
+        const speeds = tierProducts.map(p => p.downloadMbps || 0)
         return (
           <div key={tier.id} className="rounded-2xl p-5 relative" style={{ background: tier.glow, border: `1.5px solid ${tier.border}` }}>
             {tier.badge && (
@@ -210,18 +228,14 @@ function TierCards({ products }: { products: Product[] }) {
               ))}
             </ul>
             <p className="text-xs italic mb-3" style={{ color: tier.color }}>{tier.positioning}</p>
-            {tierSpeeds.length > 1 && (
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-purple-300 text-xs">Speed:</span>
-                <div className="flex gap-2 flex-wrap">
-                  {tierSpeeds.map(s => (
-                    <span key={s} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ background: 'hsl(252, 60%, 20%)', color: tier.color, border: `1px solid ${tier.border}` }}>
-                      {s >= 1000 ? `${s/1000} Gbps` : `${s} Mbps`}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <span className="text-purple-300 text-xs">Available speeds:</span>
+              {speeds.map(s => (
+                <span key={s} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ background: 'hsl(252, 60%, 20%)', color: tier.color, border: `1px solid ${tier.border}` }}>
+                  {speedLabel(s)}
+                </span>
+              ))}
+            </div>
           </div>
         )
       })}
