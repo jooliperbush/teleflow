@@ -332,11 +332,9 @@ function Step0({ order, setOrder, onNext }: {
   return (
     <div>
       <div className="text-center mb-8">
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(123,231,255,0.12)', border: '1px solid rgba(123,231,255,0.3)' }}>
-          <span className="text-3xl">📡</span>
-        </div>
-        <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Visby CF Bold, Poppins, sans-serif' }}>ITC Availability Checker</h2>
-        <p className="text-white/55">Enter your business postcode to see what's available at your address.</p>
+        <img src="/itc-logo.svg" alt="ITC Telecoms" className="h-12 mx-auto mb-5" />
+        <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Visby CF Bold, sans-serif' }}>ITC Availability Checker</h2>
+        <p className="text-white/55 text-sm">Enter your business postcode to see what's available at your address.</p>
       </div>
 
       <div className="flex gap-2 mb-4">
