@@ -182,6 +182,39 @@ export interface ZenAvailabilityResult {
   lineDetails?: Record<string, unknown>
 }
 
+
+// ─── Brand name mapping ───────────────────────────────────────────────────────
+// Map Zen/supplier product names to ITC's customer-facing brand names
+function brandProductName(rawName: string, dl: number, ul: number, type: string): string {
+  const n = rawName.toLowerCase()
+
+  // CityFibre → Velocity Fibre
+  if (n.includes('cityfibre') || n.includes('city fibre') || type === 'fttp') {
+    if (dl >= 2000) return `Velocity Fibre 2000`
+    if (dl >= 1000) return `Velocity Fibre 1000`
+    if (dl >= 900)  return `Velocity Fibre 900`
+    if (dl >= 500)  return `Velocity Fibre 500`
+    if (dl >= 330)  return `Velocity Fibre 330`
+    if (dl >= 200)  return `Velocity Fibre 200`
+    if (dl >= 150)  return `Velocity Fibre 150`
+    if (dl >= 100)  return `Velocity Fibre 100`
+    if (dl >= 50)   return `Velocity Fibre 50`
+    return `Velocity Fibre ${dl}`
+  }
+
+  // FTTC/VDSL
+  if (type === 'fttc' || type === 'sogea' || type === 'gfast') {
+    const label = type === 'gfast' ? 'G.fast' : type === 'sogea' ? 'SOGEA' : 'FTTC'
+    return `${label} ${dl}/${ul}`
+  }
+
+  // ADSL
+  if (type === 'adsl') return `ADSL ${dl}/${ul}`
+
+  // Replace CityFibre anywhere in string
+  return rawName.replace(/cityfibre/gi, 'Velocity Fibre').replace(/city fibre/gi, 'Velocity Fibre')
+}
+
 export async function checkAvailability(
   uprn: string,
   cli?: string
@@ -320,7 +353,7 @@ function parseAvailabilityResponse(data: RawAvailabilityResponse): ZenAvailabili
         const ul = speeds.ul
         allProducts.push({
           type: type || 'fttp',
-          name: name,
+          name: brandProductName(name, dl, ul, type || 'fttp'),
           downloadMbps: dl,
           uploadMbps: ul,
           monthlyCost: null, // pricing via separate endpoint
