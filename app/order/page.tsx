@@ -1404,9 +1404,7 @@ export default function OrderPage() {
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-block px-4 py-2 rounded-full text-white text-sm font-bold mb-2" style={{ background: NAVY }}>
-            ITC Telecoms
-          </div>
+          <img src="/itc-logo.svg" alt="ITC Telecoms" className="h-10 mx-auto mb-2" />
           <h1 className="text-lg font-semibold text-white">Customer Onboarding Portal</h1>
         </div>
 
