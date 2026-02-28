@@ -530,11 +530,6 @@ function Step1({ order, setOrder, onNext }: {
       <div className="mb-4">
         <label className="block text-sm font-medium text-white/75 mb-1">Company Name</label>
         <div className="relative">
-          {/* Ghost text */}
-          <div aria-hidden="true" className="absolute inset-0 px-4 py-3 text-base pointer-events-none flex items-center overflow-hidden rounded-lg" style={{ fontFamily: 'inherit' }}>
-            <span className="invisible whitespace-pre">{query}</span>
-            <span style={{ color: 'rgb(192,132,252)' }}>{ghostText}</span>
-          </div>
           <input
             value={query}
             onChange={handleChange}
@@ -543,8 +538,13 @@ function Step1({ order, setOrder, onNext }: {
             placeholder="e.g. ITC Telecoms Ltd"
             autoComplete="off"
             className="w-full rounded-lg px-4 py-3 text-base text-white placeholder-purple-400 focus:outline-none relative z-10"
-            style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 30%)' }}
+            style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 30%)', caretColor: 'white' }}
           />
+          {/* Ghost text — sits above input but pointer-events-none */}
+          <div aria-hidden="true" className="absolute inset-0 px-4 py-3 text-base pointer-events-none flex items-center overflow-hidden rounded-lg z-20" style={{ fontFamily: 'inherit' }}>
+            <span className="invisible whitespace-pre">{query}</span>
+            <span style={{ color: 'rgba(192,132,252,0.7)' }}>{ghostText}</span>
+          </div>
           {searching && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20">
               <div className="w-3 h-3 rounded-full border-2 animate-spin" style={{ borderColor: 'rgba(255,255,255,0.2)', borderTopColor: 'rgba(255,255,255,0.6)' }} />
