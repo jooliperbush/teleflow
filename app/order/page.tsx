@@ -268,6 +268,14 @@ function Step0({ order, setOrder, onNext }: {
                 <p className="text-white font-semibold">Great news! {broadband.length} plan{broadband.length !== 1 ? 's' : ''} available at your address.</p>
               </div>
 
+              <div className="rounded-xl px-4 py-3 mb-5 flex items-center gap-3" style={{ background: 'linear-gradient(135deg, rgba(249,69,128,0.15), rgba(89,27,255,0.15))', border: '1px solid rgba(249,69,128,0.4)' }}>
+                <span className="text-2xl">🎁</span>
+                <div>
+                  <p className="text-white font-semibold text-sm">Limited time offer</p>
+                  <p className="text-purple-200 text-sm">Order now and receive a <span className="text-pink-400 font-bold">FREE 30-day unlimited data SIM</span> — no strings attached.</p>
+                </div>
+              </div>
+
               <div className="space-y-2 mb-6">
                 {broadband.map((p, i) => (
                   <div key={i} className="flex items-center justify-between rounded-xl px-4 py-3" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
