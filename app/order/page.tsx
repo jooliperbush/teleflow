@@ -533,7 +533,7 @@ function Step1({ order, setOrder, onNext }: {
           {/* Ghost text */}
           <div aria-hidden="true" className="absolute inset-0 px-4 py-3 text-base pointer-events-none flex items-center overflow-hidden rounded-lg" style={{ fontFamily: 'inherit' }}>
             <span className="invisible whitespace-pre">{query}</span>
-            <span style={{ color: 'rgba(255,255,255,0.28)' }}>{ghostText}</span>
+            <span style={{ color: 'rgb(192,132,252)' }}>{ghostText}</span>
           </div>
           <input
             value={query}
@@ -542,7 +542,7 @@ function Step1({ order, setOrder, onNext }: {
             onBlur={() => { if (suggestion && !order.companyName) acceptSuggestion(suggestion) }}
             placeholder="e.g. ITC Telecoms Ltd"
             autoComplete="off"
-            className="w-full rounded-lg px-4 py-3 text-base text-white focus:outline-none relative z-10"
+            className="w-full rounded-lg px-4 py-3 text-base text-white placeholder-purple-400 focus:outline-none relative z-10"
             style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 30%)' }}
           />
           {searching && (
