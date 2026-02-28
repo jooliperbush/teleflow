@@ -420,6 +420,26 @@ function Step0({ order, setOrder, onNext }: {
 
               <TierCards products={broadband} />
 
+              {/* Also Available */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="rounded-xl p-4" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-lg">📞</span>
+                    <span className="font-semibold text-sm" style={{ color: '#0f0a2e' }}>VoIP</span>
+                  </div>
+                  <p className="text-xs" style={{ color: '#6b7280' }}>Cloud phone system for your whole team. No hardware needed.</p>
+                  <span className="inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: '#f0fdf4', color: '#16a34a' }}>Always available</span>
+                </div>
+                <div className="rounded-xl p-4" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-lg">🔗</span>
+                    <span className="font-semibold text-sm" style={{ color: '#0f0a2e' }}>Leased Line</span>
+                  </div>
+                  <p className="text-xs" style={{ color: '#6b7280' }}>Dedicated uncontended bandwidth with SLA guarantee.</p>
+                  <span className="inline-block mt-2 text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: '#fef3c7', color: '#d97706' }}>Quote on request</span>
+                </div>
+              </div>
+
               <div className="rounded-xl p-5 mb-6 text-center" style={{ background: 'rgba(89,27,255,0.15)', border: '1px solid rgba(89,27,255,0.4)' }}>
                 <p className="text-white font-semibold mb-1">Ready to get connected?</p>
                 <p className="text-purple-300 text-sm mb-4">Complete your order in minutes. Our team handles the rest.</p>
