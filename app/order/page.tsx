@@ -347,7 +347,7 @@ function Step0({ order, setOrder, onNext }: {
   return (
     <div>
       <div className="text-center mb-8">
-        <img src="/itc-logo.svg" alt="ITC Telecoms" className="h-12 mx-auto mb-5" />
+        <img src="/itc-logo.jpg" alt="ITC Telecoms" className="h-14 mx-auto mb-5" style={{ borderRadius: "8px" }} />
         <h2 className="text-2xl font-bold" style={{ fontFamily: 'Visby CF Bold, sans-serif' }}>Enter your business postcode to see what's available at your address.</h2>
       </div>
 
