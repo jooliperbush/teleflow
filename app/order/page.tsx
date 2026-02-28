@@ -115,7 +115,7 @@ const STEPS = ['Check', 'Company', 'Availability', 'Quote', 'Sign', 'Payment', '
 
 function StepIndicator({ current }: { current: number }) {
   return (
-    <div className="flex items-center justify-center gap-0 mb-10 overflow-x-auto">
+    <div className="flex items-center justify-center gap-0 mb-6 sm:mb-10 overflow-x-auto">
       {STEPS.map((label, i) => {
         const isActive = i === current
         const isDone = i < current
@@ -351,7 +351,7 @@ function Step0({ order, setOrder, onNext }: {
         <p className="text-base font-medium text-white/75">Enter your business postcode to see what's available at your address.</p>
       </div>
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex flex-col sm:flex-row gap-2 mb-4">
         <input
           value={postcode}
           onChange={e => { setPostcode(e.target.value.toUpperCase()); setChecked(false); setProducts([]); setAddresses([]) }}
@@ -420,7 +420,7 @@ function Step0({ order, setOrder, onNext }: {
               <TierCards products={broadband} />
 
               {/* Also Available */}
-              <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 <div className="rounded-xl p-4" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                   <h4 className="font-bold mb-1" style={{ fontFamily: 'Visby CF Bold, sans-serif', fontSize: '1.1rem', letterSpacing: '-0.02em', color: '#0f0a2e' }}>VoIP</h4>
                   <p className="text-xs mb-2" style={{ color: '#6b7280' }}>Cloud phone system for your whole team. No hardware needed.</p>
@@ -834,7 +834,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
           ))}
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-col-reverse sm:flex-row gap-3">
           <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
             className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
           <button onClick={handleProductsNext}
@@ -906,7 +906,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex flex-col-reverse sm:flex-row gap-3">
         <button onClick={() => { setPhase('products'); setSelectedSlot(null) }}
           className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         <button onClick={handleAppointmentNext}
@@ -1029,7 +1029,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
         </button>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col-reverse sm:flex-row gap-3">
         <button onClick={onBack} className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         <button
           onClick={onNext}
@@ -1100,7 +1100,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
       <p className="text-purple-300 text-sm mb-4">Please review and sign the service agreement below.</p>
 
       <div className="rounded-lg p-4 mb-4 text-sm" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 28%)" }}>
-        <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mb-3">
           <div><span className="text-white/55">Company</span><br /><strong>{order.companyName}</strong></div>
           <div><span className="text-white/55">Quote Ref</span><br /><strong>{order.quoteReference}</strong></div>
           <div><span className="text-white/55">Monthly Total</span><br /><strong>£{order.monthlyTotal?.toFixed(2)}</strong></div>
@@ -1150,7 +1150,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex flex-col-reverse sm:flex-row gap-3">
         <button onClick={onBack} disabled={signed} className="flex-1 py-3 rounded-xl font-medium text-base text-purple-200 disabled:opacity-40" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         {!signed ? (
           <button
@@ -1241,7 +1241,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
             className="w-full border rounded-lg px-3 py-2.5 text-sm disabled:opacity-50"
           />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-medium text-white/75 mb-1">Sort Code</label>
             <input
@@ -1284,7 +1284,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex flex-col-reverse sm:flex-row gap-3">
         <button onClick={onBack} disabled={confirmed} className="flex-1 py-3 rounded-xl font-medium text-base text-purple-200 disabled:opacity-40" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         {!confirmed ? (
           <button
@@ -1400,7 +1400,7 @@ export default function OrderPage() {
   function back() { setStep(s => Math.max(s - 1, 0)) }
 
   return (
-    <div className="min-h-screen py-10 px-6" style={{ background: "hsl(252, 92%, 10%)" }}>
+    <div className="min-h-screen py-6 px-4 sm:py-10 sm:px-6" style={{ background: "hsl(252, 92%, 10%)" }}>
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
