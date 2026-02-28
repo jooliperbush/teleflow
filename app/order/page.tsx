@@ -139,6 +139,96 @@ function StepIndicator({ current }: { current: number }) {
   )
 }
 
+// ─── Tier Cards ──────────────────────────────────────────────────────────────
+
+const TIERS = [
+  {
+    id: 'core',
+    name: 'Velocity Core',
+    range: '100–200 Mbps',
+    speeds: [100, 150, 200],
+    badge: null,
+    positioning: 'Reliable business connectivity for day-to-day operations.',
+    bullets: ['Small offices', 'Light cloud usage', 'VoIP + browsing', 'Retail, clinics, agencies'],
+    color: '#7be7ff',
+    glow: 'rgba(123,231,255,0.12)',
+    border: 'rgba(123,231,255,0.3)',
+  },
+  {
+    id: 'growth',
+    name: 'Velocity Growth',
+    range: '330–500 Mbps',
+    speeds: [330, 500],
+    badge: 'Most Popular',
+    positioning: 'High-capacity connectivity built for scaling teams.',
+    bullets: ['10–40 staff', 'Cloud-first teams', 'Heavy Teams / Zoom', 'CRM + file sync'],
+    color: '#f94580',
+    glow: 'rgba(249,69,128,0.12)',
+    border: 'rgba(249,69,128,0.5)',
+  },
+  {
+    id: 'pro',
+    name: 'Velocity Pro',
+    range: '1–2 Gbps',
+    speeds: [900, 1000, 2000],
+    badge: null,
+    positioning: 'Enterprise-grade performance with priority SLA options.',
+    bullets: ['40+ staff', 'High upload demand', 'Multi-site', 'Hosted services'],
+    color: '#a78bfa',
+    glow: 'rgba(167,139,250,0.12)',
+    border: 'rgba(167,139,250,0.3)',
+  },
+]
+
+function TierCards({ products }: { products: Product[] }) {
+  const availableSpeeds = new Set(products.map(p => p.downloadMbps || 0))
+
+  return (
+    <div className="grid grid-cols-1 gap-4 mb-6">
+      {TIERS.map(tier => {
+        const tierSpeeds = tier.speeds.filter(s => availableSpeeds.has(s))
+        if (tierSpeeds.length === 0) return null
+        return (
+          <div key={tier.id} className="rounded-2xl p-5 relative" style={{ background: tier.glow, border: `1.5px solid ${tier.border}` }}>
+            {tier.badge && (
+              <div className="absolute -top-3 left-5 px-3 py-1 rounded-full text-xs font-bold text-white" style={{ background: 'linear-gradient(135deg, #f94580, #591bff)' }}>
+                ⭐ {tier.badge}
+              </div>
+            )}
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="text-lg font-bold text-white" style={{ fontFamily: 'Visby CF Bold, sans-serif' }}>{tier.name}</h3>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: `${tier.color}22`, color: tier.color }}>{tier.range}</span>
+              </div>
+              <span className="text-cyan-300 text-xs font-medium mt-1">Available ✓</span>
+            </div>
+            <ul className="space-y-1 mb-3">
+              {tier.bullets.map(b => (
+                <li key={b} className="text-purple-200 text-sm flex items-center gap-2">
+                  <span style={{ color: tier.color }}>•</span> {b}
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs italic mb-3" style={{ color: tier.color }}>{tier.positioning}</p>
+            {tierSpeeds.length > 1 && (
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-purple-300 text-xs">Speed:</span>
+                <div className="flex gap-2 flex-wrap">
+                  {tierSpeeds.map(s => (
+                    <span key={s} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ background: 'hsl(252, 60%, 20%)', color: tier.color, border: `1px solid ${tier.border}` }}>
+                      {s >= 1000 ? `${s/1000} Gbps` : `${s} Mbps`}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // ─── Step 0: Availability Checker ────────────────────────────────────────────
 
 function Step0({ order, setOrder, onNext }: {
@@ -276,17 +366,7 @@ function Step0({ order, setOrder, onNext }: {
                 </div>
               </div>
 
-              <div className="space-y-2 mb-6">
-                {broadband.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between rounded-xl px-4 py-3" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
-                    <div>
-                      <span className="text-white font-medium text-sm">{p.name}</span>
-                      <span className="text-purple-400 text-xs ml-3">{p.downloadMbps}/{p.uploadMbps} Mbps</span>
-                    </div>
-                    <span className="text-cyan-300 text-xs font-medium">Available ✓</span>
-                  </div>
-                ))}
-              </div>
+              <TierCards products={broadband} />
 
               <div className="rounded-xl p-5 mb-6 text-center" style={{ background: 'rgba(89,27,255,0.15)', border: '1px solid rgba(89,27,255,0.4)' }}>
                 <p className="text-white font-semibold mb-1">Ready to get connected?</p>
