@@ -89,13 +89,11 @@ export async function POST(req: NextRequest) {
 
     const opportunity = await cw('POST', '/sales/opportunities', {
       name: `${order.companyName} — TeleFlow Onboarding`,
-      type: { name: 'New Business' },
-      stage: { name: 'Proposal' },
-      status: { name: 'Open' },
+      stage: { id: 5, name: '3. Quoted' },
+      status: { id: 9, name: 'Quoted' },
       company: { id: companyId },
       contact: { id: contactId },
-      estimatedRevenue: order.monthlyTotal || 0,
-      notes: `Products: ${productSummary}\nTerm: ${order.quoteTerm} months\nSite: ${order.sitePostcode}\nRef: ${order.quoteReference}\nSigned: ${order.signedName} at ${order.signedAt}`,
+      expectedCloseDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     })
 
     // 4. Create provisioning service ticket
