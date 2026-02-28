@@ -255,13 +255,13 @@ function TierCards({ products }: { products: Product[] }) {
                 )}
               </div>
 
-              <p className="text-purple-400 text-xs mb-4 leading-relaxed">{tier.positioning}</p>
+              <p className="text-xs mb-4 leading-relaxed" style={{ color: "hsl(252, 20%, 60%)" }}>{tier.positioning}</p>
 
               <div className="w-full h-px mb-4" style={{ background: 'hsl(252, 50%, 22%)' }} />
 
               <ul className="space-y-2 flex-1 mb-4">
                 {tier.bullets.map(b => (
-                  <li key={b} className="flex items-start gap-2 text-sm text-purple-200">
+                  <li key={b} className="flex items-start gap-2 text-sm" style={{ color: "rgba(255,255,255,0.75)" }}>
                     <svg className="mt-0.5 shrink-0" width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <circle cx="7" cy="7" r="7" fill={tier.color} fillOpacity="0.15"/>
                       <path d="M4 7l2 2 4-4" stroke={tier.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -348,7 +348,7 @@ function Step0({ order, setOrder, onNext }: {
           <span className="text-3xl">📡</span>
         </div>
         <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Visby CF Bold, Poppins, sans-serif' }}>ITC Availability Checker</h2>
-        <p className="text-purple-300">Enter your business postcode to see what's available at your address.</p>
+        <p className="text-white/55">Enter your business postcode to see what's available at your address.</p>
       </div>
 
       <div className="flex gap-2 mb-4">
@@ -374,7 +374,7 @@ function Step0({ order, setOrder, onNext }: {
 
       {addresses.length > 1 && !selectedAddr && (
         <div className="mb-4">
-          <p className="text-purple-300 text-sm mb-2">Select your address:</p>
+          <p className="text-sm mb-2 text-white/55">Select your address:</p>
           <div className="rounded-xl overflow-hidden" style={{ border: '1px solid hsl(252, 50%, 28%)' }}>
             {addresses.map((a, i) => (
               <button
@@ -413,7 +413,7 @@ function Step0({ order, setOrder, onNext }: {
                 <span className="text-2xl">🎁</span>
                 <div>
                   <p className="text-white font-semibold text-sm">Limited time offer</p>
-                  <p className="text-purple-200 text-sm">Order now and receive a <span className="text-pink-400 font-bold">FREE 30-day unlimited data SIM</span> — no strings attached.</p>
+                  <p className="text-sm text-white/75">Order now and receive a <span className="text-pink-400 font-bold">FREE 30-day unlimited data SIM</span> — no strings attached.</p>
                 </div>
               </div>
 
@@ -491,10 +491,10 @@ function Step1({ order, setOrder, onNext }: {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-2">Company Details</h2>
-      <p className="text-purple-300 text-sm mb-6">Enter your Companies House registration number to get started.</p>
+      <p className="text-sm mb-6 text-white/55">Enter your Companies House registration number to get started.</p>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium text-purple-200 mb-1">Companies House Number</label>
+        <label className="block text-sm font-medium text-white/75 mb-1">Companies House Number</label>
         <div className="flex gap-2">
           <input
             value={companyNumber}
@@ -525,7 +525,7 @@ function Step1({ order, setOrder, onNext }: {
 
       {order.companyName && (
         <div className="mb-4">
-          <label className="block text-sm font-medium text-purple-200 mb-1">Company Name</label>
+          <label className="block text-sm font-medium text-white/75 mb-1">Company Name</label>
           <input
             readOnly
             value={order.companyName}
@@ -538,15 +538,15 @@ function Step1({ order, setOrder, onNext }: {
       {order.companyNumber && (
         <div className="rounded-lg p-4 mb-4 text-sm" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 28%)" }}>
           <div className="grid grid-cols-2 gap-2">
-            <div><span className="text-purple-300">Number</span><br /><strong>{order.companyNumber}</strong></div>
-            <div><span className="text-purple-300">Reference</span><br /><strong>{order.companyReference}</strong></div>
+            <div><span className="text-white/55">Number</span><br /><strong>{order.companyNumber}</strong></div>
+            <div><span className="text-white/55">Reference</span><br /><strong>{order.companyReference}</strong></div>
             <div className="col-span-2">
-              <span className="text-purple-300">Registered Address</span><br />
+              <span className="text-white/55">Registered Address</span><br />
               <strong>{[order.registeredAddress?.address_line_1, order.registeredAddress?.locality, order.registeredAddress?.postal_code].filter(Boolean).join(', ')}</strong>
             </div>
-            <div><span className="text-purple-300">Incorporated</span><br /><strong>{order.incorporatedDate}</strong></div>
+            <div><span className="text-white/55">Incorporated</span><br /><strong>{order.incorporatedDate}</strong></div>
             <div>
-              <span className="text-purple-300">Status</span><br />
+              <span className="text-white/55">Status</span><br />
               <strong className={order.companyStatus === 'active' ? 'text-green-600' : 'text-red-600'}>
                 {order.companyStatus?.toUpperCase()}
               </strong>
@@ -568,7 +568,7 @@ function Step1({ order, setOrder, onNext }: {
           { label: 'Site Postcode', key: 'sitePostcode', type: 'text', placeholder: 'BD1 1AA' },
         ].map(({ label, key, type, placeholder }) => (
           <div key={key}>
-            <label className="block text-sm font-medium text-purple-200 mb-1">{label}</label>
+            <label className="block text-sm font-medium text-white/75 mb-1">{label}</label>
             <input
               type={type}
               value={(order as unknown as Record<string, string>)[key] || ''}
@@ -764,7 +764,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
     return (
       <div>
         <h2 className="text-2xl font-bold mb-2" >Available Products</h2>
-        <p className="text-purple-300 text-sm mb-1">{selectedAddress?.displayAddress}</p>
+        <p className="text-sm mb-1 text-white/55">{selectedAddress?.displayAddress}</p>
         <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
           className="text-xs mb-5 underline" style={{ color: "#7be7ff" }}>
           ← Change address
@@ -862,7 +862,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-2" >Book Installation</h2>
-      <p className="text-purple-300 text-sm mb-6">
+      <p className="text-sm mb-6 text-white/55">
         Select an engineer appointment for <strong>{selectedAddress?.displayAddress}</strong>.
         Half-day slots available — engineer will arrive within the window.
       </p>
@@ -972,7 +972,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-2" >Your Quote</h2>
-      <p className="text-purple-300 text-sm mb-2">Ref: <strong>{quoteRef}</strong> · Valid 30 days</p>
+      <p className="text-sm mb-2 text-white/55">Ref: <strong>{quoteRef}</strong> · Valid 30 days</p>
 
       <div className="mb-4 flex items-center gap-3">
         <label className="text-sm font-medium text-purple-200">Contract Term:</label>
@@ -1107,10 +1107,10 @@ function Step4({ order, setOrder, onNext, onBack }: {
 
       <div className="rounded-lg p-4 mb-4 text-sm" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 28%)" }}>
         <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-          <div><span className="text-purple-300">Company</span><br /><strong>{order.companyName}</strong></div>
-          <div><span className="text-purple-300">Quote Ref</span><br /><strong>{order.quoteReference}</strong></div>
-          <div><span className="text-purple-300">Monthly Total</span><br /><strong>£{order.monthlyTotal?.toFixed(2)}</strong></div>
-          <div><span className="text-purple-300">Contract</span><br /><strong>{order.quoteTerm} months</strong></div>
+          <div><span className="text-white/55">Company</span><br /><strong>{order.companyName}</strong></div>
+          <div><span className="text-white/55">Quote Ref</span><br /><strong>{order.quoteReference}</strong></div>
+          <div><span className="text-white/55">Monthly Total</span><br /><strong>£{order.monthlyTotal?.toFixed(2)}</strong></div>
+          <div><span className="text-white/55">Contract</span><br /><strong>{order.quoteTerm} months</strong></div>
         </div>
       </div>
 
@@ -1125,7 +1125,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
       </div>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium text-purple-200 mb-1">Type your full name to sign</label>
+        <label className="block text-sm font-medium text-white/75 mb-1">Type your full name to sign</label>
         <input
           value={signedName}
           onChange={e => setSignedName(e.target.value)}
@@ -1238,7 +1238,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
 
       <div className="space-y-3 mb-4">
         <div>
-          <label className="block text-sm font-medium text-purple-200 mb-1">Account Holder Name</label>
+          <label className="block text-sm font-medium text-white/75 mb-1">Account Holder Name</label>
           <input
             value={accountHolder}
             onChange={e => setAccountHolder(e.target.value)}
@@ -1249,7 +1249,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-purple-200 mb-1">Sort Code</label>
+            <label className="block text-sm font-medium text-white/75 mb-1">Sort Code</label>
             <input
               value={sortCode}
               onChange={e => setSortCode(formatSortCode(e.target.value))}
@@ -1259,7 +1259,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-purple-200 mb-1">Account Number</label>
+            <label className="block text-sm font-medium text-white/75 mb-1">Account Number</label>
             <input
               value={accountNumber}
               onChange={e => setAccountNumber(e.target.value.replace(/\D/g, '').slice(0, 8))}
@@ -1340,10 +1340,10 @@ function Step6({ order }: { order: OrderState }) {
 
       <div className="rounded-xl p-4 text-sm text-left mb-6" style={{ background: "hsl(252, 60%, 16%)", border: "1px solid hsl(252, 50%, 28%)" }}>
         <div className="space-y-2">
-          <div className="flex justify-between"><span className="text-purple-300">Company</span><strong>{order.companyName}</strong></div>
-          <div className="flex justify-between"><span className="text-purple-300">Contact</span><strong>{order.contactEmail}</strong></div>
-          <div className="flex justify-between"><span className="text-purple-300">Monthly</span><strong>£{order.monthlyTotal?.toFixed(2)}</strong></div>
-          <div className="flex justify-between"><span className="text-purple-300">Contract</span><strong>{order.quoteTerm} months</strong></div>
+          <div className="flex justify-between"><span className="text-white/55">Company</span><strong>{order.companyName}</strong></div>
+          <div className="flex justify-between"><span className="text-white/55">Contact</span><strong>{order.contactEmail}</strong></div>
+          <div className="flex justify-between"><span className="text-white/55">Monthly</span><strong>£{order.monthlyTotal?.toFixed(2)}</strong></div>
+          <div className="flex justify-between"><span className="text-white/55">Contract</span><strong>{order.quoteTerm} months</strong></div>
         </div>
 
         <div className="mt-3 pt-3 space-y-1" style={{ borderTop: "1px solid hsl(252, 50%, 28%)" }}>
