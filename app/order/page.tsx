@@ -36,6 +36,13 @@ interface SelectedProduct {
   requiresCallback?: boolean
 }
 
+interface ZenAddress {
+  goldAddressKey: string
+  districtCode: string
+  uprn: string
+  displayAddress: string
+}
+
 interface OrderState {
   id?: string
   // Step 1
@@ -53,7 +60,7 @@ interface OrderState {
   selectedProducts: SelectedProduct[]
   requiresCallback: boolean
   zenAvailabilityRef?: string
-  selectedAddress?: { goldAddressKey: string; districtCode: string; displayAddress: string }
+  selectedAddress?: ZenAddress
   appointment?: { date: string; startTime: string; endTime: string; type: string }
   leaseLine?: { bandwidth: number; term: number; monthlyPrice: number; setupFee: number }
   // Step 3
@@ -97,7 +104,7 @@ const MARGIN = 1.25 // 25% markup
 
 // ─── Step Indicator ──────────────────────────────────────────────────────────
 
-const STEPS = ['Company', 'Availability', 'Quote', 'Sign', 'Direct Debit', 'Confirm']
+const STEPS = ['Check', 'Company', 'Availability', 'Quote', 'Sign', 'Direct Debit', 'Confirm']
 
 function StepIndicator({ current }: { current: number }) {
   return (
@@ -128,6 +135,175 @@ function StepIndicator({ current }: { current: number }) {
           </div>
         )
       })}
+    </div>
+  )
+}
+
+// ─── Step 0: Availability Checker ────────────────────────────────────────────
+
+function Step0({ order, setOrder, onNext }: {
+  order: OrderState
+  setOrder: (o: Partial<OrderState>) => void
+  onNext: () => void
+}) {
+  const [postcode, setPostcode] = useState(order.sitePostcode || '')
+  const [addresses, setAddresses] = useState<ZenAddress[]>([])
+  const [selectedAddr, setSelectedAddr] = useState<ZenAddress | null>(order.selectedAddress || null)
+  const [products, setProducts] = useState<Product[]>([])
+  const [loadingAddr, setLoadingAddr] = useState(false)
+  const [loadingProds, setLoadingProds] = useState(false)
+  const [addrError, setAddrError] = useState('')
+  const [prodError, setProdError] = useState('')
+  const [checked, setChecked] = useState(false)
+
+  async function checkPostcode() {
+    const pc = postcode.trim().toUpperCase()
+    if (!pc) return
+    setLoadingAddr(true)
+    setAddrError('')
+    setAddresses([])
+    setSelectedAddr(null)
+    setProducts([])
+    setChecked(false)
+    try {
+      const res = await fetch(`/api/zen/address?postcode=${encodeURIComponent(pc)}`)
+      const data = await res.json()
+      if (!data.addresses?.length) { setAddrError('No addresses found for this postcode.'); setLoadingAddr(false); return }
+      setAddresses(data.addresses)
+      if (data.addresses.length === 1) selectAddress(data.addresses[0], pc)
+    } catch { setAddrError('Could not look up postcode. Please try again.') }
+    setLoadingAddr(false)
+  }
+
+  async function selectAddress(addr: ZenAddress, pc?: string) {
+    setSelectedAddr(addr)
+    setLoadingProds(true)
+    setProdError('')
+    setProducts([])
+    setChecked(false)
+    try {
+      const res = await fetch(`/api/zen/availability?uprn=${encodeURIComponent(addr.uprn)}`)
+      const data = await res.json()
+      setProducts(data.products || [])
+      setChecked(true)
+      setOrder({
+        sitePostcode: pc || postcode.trim().toUpperCase(),
+        selectedAddress: addr,
+        zenAvailabilityRef: data.availabilityRef,
+      })
+    } catch { setProdError('Could not check availability. Please try again.') }
+    setLoadingProds(false)
+  }
+
+  const broadband = products.filter(p => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+  const hasProducts = broadband.length > 0
+
+  return (
+    <div>
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(123,231,255,0.12)', border: '1px solid rgba(123,231,255,0.3)' }}>
+          <span className="text-3xl">📡</span>
+        </div>
+        <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Visby CF Bold, Poppins, sans-serif' }}>ITC Availability Checker</h2>
+        <p className="text-purple-300">Enter your business postcode to see what's available at your address.</p>
+      </div>
+
+      <div className="flex gap-2 mb-4">
+        <input
+          value={postcode}
+          onChange={e => { setPostcode(e.target.value.toUpperCase()); setChecked(false); setProducts([]); setAddresses([]) }}
+          onKeyDown={e => e.key === 'Enter' && checkPostcode()}
+          placeholder="e.g. BD1 1AA"
+          maxLength={8}
+          className="flex-1 rounded-xl px-4 py-3 text-base text-white placeholder-purple-400 font-medium tracking-widest"
+          style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 35%)' }}
+        />
+        <button
+          onClick={checkPostcode}
+          disabled={loadingAddr || postcode.trim().length < 5}
+          className="itc-gradient-btn px-6 py-3 rounded-xl font-semibold text-white text-base disabled:opacity-40"
+        >
+          {loadingAddr ? 'Checking...' : 'Check'}
+        </button>
+      </div>
+
+      {addrError && <p className="text-red-400 text-sm mb-4">{addrError}</p>}
+
+      {addresses.length > 1 && !selectedAddr && (
+        <div className="mb-4">
+          <p className="text-purple-300 text-sm mb-2">Select your address:</p>
+          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid hsl(252, 50%, 28%)' }}>
+            {addresses.map((a, i) => (
+              <button
+                key={a.uprn}
+                onClick={() => selectAddress(a)}
+                className="w-full text-left px-4 py-3 text-sm text-white transition-colors"
+                style={{ borderTop: i > 0 ? '1px solid hsl(252, 50%, 25%)' : 'none', background: 'transparent' }}
+                onMouseOver={e => (e.currentTarget.style.background = 'hsl(260, 80%, 22%)')}
+                onMouseOut={e => (e.currentTarget.style.background = 'transparent')}
+              >
+                {a.displayAddress}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {loadingProds && (
+        <div className="text-center py-8">
+          <div className="text-purple-400 text-sm animate-pulse">Checking availability at your address...</div>
+        </div>
+      )}
+
+      {prodError && <p className="text-red-400 text-sm mb-4">{prodError}</p>}
+
+      {checked && (
+        <div className="mt-2">
+          {hasProducts ? (
+            <>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-green-400 text-lg">✓</span>
+                <p className="text-white font-semibold">Great news! {broadband.length} plan{broadband.length !== 1 ? 's' : ''} available at your address.</p>
+              </div>
+
+              <div className="space-y-2 mb-6">
+                {broadband.map((p, i) => (
+                  <div key={i} className="flex items-center justify-between rounded-xl px-4 py-3" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+                    <div>
+                      <span className="text-white font-medium text-sm">{p.name}</span>
+                      <span className="text-purple-400 text-xs ml-3">{p.downloadMbps}/{p.uploadMbps} Mbps</span>
+                    </div>
+                    <span className="text-cyan-300 text-xs font-medium">Available ✓</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-xl p-5 mb-6 text-center" style={{ background: 'rgba(89,27,255,0.15)', border: '1px solid rgba(89,27,255,0.4)' }}>
+                <p className="text-white font-semibold mb-1">Ready to get connected?</p>
+                <p className="text-purple-300 text-sm mb-4">Complete your order in minutes. Our team handles the rest.</p>
+                <button
+                  onClick={onNext}
+                  className="itc-gradient-btn px-8 py-3 rounded-xl font-semibold text-white text-base"
+                >
+                  Start Your Order →
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="rounded-xl p-5 text-center" style={{ background: 'rgba(249,69,128,0.08)', border: '1px solid rgba(249,69,128,0.3)' }}>
+              <p className="text-white font-semibold mb-2">No broadband plans found</p>
+              <p className="text-purple-300 text-sm mb-4">We may still be able to help with a managed fibre or leased line solution.</p>
+              <button
+                onClick={onNext}
+                className="px-8 py-3 rounded-xl font-medium text-white text-sm"
+                style={{ border: '1px solid rgba(249,69,128,0.5)', background: 'transparent' }}
+              >
+                Talk to an advisor →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -284,12 +460,7 @@ interface AppointmentSlot {
   type: string
 }
 
-interface ZenAddress {
-  goldAddressKey: string
-  districtCode: string
-  uprn?: string
-  displayAddress: string
-}
+
 
 function Step2({ order, setOrder, onNext, onBack }: {
   order: OrderState
@@ -1077,10 +1248,10 @@ export default function OrderPage() {
 
   function next() {
     const current = step
-    setStep(s => Math.min(s + 1, 5))
+    setStep(s => Math.min(s + 1, 6))
     // Leaving Step 1 (postcode entry) — clear all downstream address/availability state
     // so a changed postcode doesn't carry over stale address/products
-    if (current === 0) {
+    if (current === 1) {
       setOrder({
         selectedAddress: undefined,
         zenAvailabilityRef: undefined,
@@ -1108,12 +1279,13 @@ export default function OrderPage() {
 
         {/* Step Card */}
         <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
-          {step === 0 && <Step1 order={order} setOrder={setOrder} onNext={next} />}
-          {step === 1 && <Step2 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
-          {step === 2 && <Step3 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
-          {step === 3 && <Step4 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
-          {step === 4 && <Step5 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
-          {step === 5 && <Step6 order={order} />}
+          {step === 0 && <Step0 order={order} setOrder={setOrder} onNext={next} />}
+          {step === 1 && <Step1 order={order} setOrder={setOrder} onNext={next} />}
+          {step === 2 && <Step2 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
+          {step === 3 && <Step3 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
+          {step === 4 && <Step4 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
+          {step === 5 && <Step5 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
+          {step === 6 && <Step6 order={order} />}
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6">
