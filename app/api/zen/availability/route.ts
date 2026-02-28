@@ -8,14 +8,15 @@ const ZEN_CONFIGURED = !!(process.env.ZEN_CLIENT_ID && process.env.ZEN_CLIENT_SE
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const uprn = searchParams.get('uprn')
+  const goldAddressKey = searchParams.get('goldAddressKey')
   const cli = searchParams.get('cli') || undefined
 
-  if (!uprn) return NextResponse.json({ error: 'uprn required' }, { status: 400 })
+  if (!uprn && !goldAddressKey) return NextResponse.json({ error: 'uprn or goldAddressKey required' }, { status: 400 })
   if (!ZEN_CONFIGURED) return NextResponse.json({ error: 'Zen not configured' }, { status: 503 })
 
   try {
     const { checkAvailability } = await import('@/lib/zen')
-    const result = await checkAvailability(uprn, cli)
+    const result = await checkAvailability(uprn || undefined, cli, goldAddressKey || undefined)
 
     // Zen availability does not return pricing — prices come from a separate
     // quote step once the customer selects a product and term

@@ -216,11 +216,13 @@ function brandProductName(rawName: string, dl: number, ul: number, type: string)
 }
 
 export async function checkAvailability(
-  uprn: string,
-  cli?: string
+  uprn?: string,
+  cli?: string,
+  goldAddressKey?: string
 ): Promise<ZenAvailabilityResult> {
   const body: Record<string, string> = {}
   if (uprn) body.uprn = uprn
+  if (goldAddressKey) body.goldAddressKey = goldAddressKey
   if (cli) body.cli = cli
 
   const data = await zenPost<RawAvailabilityResponse>(

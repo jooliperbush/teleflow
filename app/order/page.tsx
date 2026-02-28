@@ -311,7 +311,8 @@ function Step0({ order, setOrder, onNext }: {
     setProducts([])
     setChecked(false)
     try {
-      const res = await fetch(`/api/zen/availability?uprn=${encodeURIComponent(addr.uprn)}`)
+      const availParam = addr.uprn ? `uprn=${encodeURIComponent(addr.uprn)}` : `goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}`
+      const res = await fetch(`/api/zen/availability?${availParam}`)
       const data = await res.json()
       setProducts(data.products || [])
       setChecked(true)
