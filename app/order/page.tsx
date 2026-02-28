@@ -575,6 +575,9 @@ function Step1({ order, setOrder, onNext }: {
           { label: 'Contact Name', key: 'contactName', type: 'text', placeholder: 'Full name' },
           { label: 'Contact Email', key: 'contactEmail', type: 'email', placeholder: 'email@company.com' },
           { label: 'Contact Phone', key: 'contactPhone', type: 'tel', placeholder: '07700 000000' },
+          { label: 'Site Address Line 1', key: 'siteAddressLine1', type: 'text', placeholder: '123 High Street' },
+          { label: 'Site Address Line 2', key: 'siteAddressLine2', type: 'text', placeholder: 'Suite / Floor (optional)' },
+          { label: 'Town / City', key: 'siteCity', type: 'text', placeholder: 'Bradford' },
           { label: 'Site Postcode', key: 'sitePostcode', type: 'text', placeholder: 'BD1 1AA' },
         ].map(({ label, key, type, placeholder }) => (
           <div key={key}>
