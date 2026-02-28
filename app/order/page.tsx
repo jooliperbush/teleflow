@@ -246,14 +246,12 @@ function TierCards({ products }: { products: Product[] }) {
                 </div>
               )}
 
-              <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: tier.color }}>{tier.name}</p>
+              <h3 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: 'Visby CF Bold, sans-serif', letterSpacing: '-0.02em' }}>{tier.name}</h3>
 
-              <div className="mb-1">
-                <span className="text-3xl font-bold text-white" style={{ fontFamily: 'Visby CF Bold, sans-serif', letterSpacing: '-0.03em' }}>
-                  {speedLabel(speeds[0])}
-                </span>
+              <div className="flex items-baseline gap-1.5 mb-1">
+                <span className="text-sm font-semibold" style={{ color: tier.color }}>{speedLabel(speeds[0])}</span>
                 {speeds.length > 1 && (
-                  <span className="text-sm text-purple-400 ml-1">– {speedLabel(speeds[speeds.length - 1])}</span>
+                  <span className="text-sm" style={{ color: tier.color }}>– {speedLabel(speeds[speeds.length - 1])}</span>
                 )}
               </div>
 
