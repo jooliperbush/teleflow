@@ -111,7 +111,7 @@ const MARGIN = 1.25 // 25% markup
 
 // ─── Step Indicator ──────────────────────────────────────────────────────────
 
-const STEPS = ['Check', 'Company', 'Availability', 'Quote', 'Sign', 'Direct Debit', 'Confirm']
+const STEPS = ['Check', 'Company', 'Availability', 'Quote', 'Sign', 'Payment', 'Confirm']
 
 function StepIndicator({ current }: { current: number }) {
   return (
