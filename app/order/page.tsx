@@ -229,6 +229,7 @@ function TierCards({ products }: { products: Product[] }) {
               background: 'white',
               border: isFeatured ? '2px solid transparent' : '1px solid #e5e7eb',
               boxShadow: isFeatured ? '0 8px 32px rgba(249,69,128,0.2)' : '0 2px 8px rgba(0,0,0,0.06)',
+              marginTop: isFeatured ? '14px' : '0',
             }}
           >
             {isFeatured && (
@@ -237,14 +238,18 @@ function TierCards({ products }: { products: Product[] }) {
                 background: 'linear-gradient(135deg, #f94580, #591bff)',
               }} />
             )}
+            {isFeatured && (
+              <div style={{
+                position: 'absolute', top: 0, left: '50%',
+                transform: 'translate(-50%, -50%)',
+                background: 'linear-gradient(135deg, #f94580, #591bff)',
+                zIndex: 2, whiteSpace: 'nowrap',
+              }} className="px-3 py-1 rounded-full text-xs font-semibold text-white">
+                Most Popular
+              </div>
+            )}
 
             <div className="rounded-2xl flex flex-col flex-1 p-5" style={{ background: 'white', position: 'relative', zIndex: 1 }}>
-              {isFeatured && (
-                <div className="self-start mb-3 px-2.5 py-0.5 rounded-full text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg, #f94580, #591bff)' }}>
-                  Most Popular
-                </div>
-              )}
-
               <h3 className="text-2xl font-bold mb-1" style={{ fontFamily: 'Visby CF Bold, sans-serif', letterSpacing: '-0.02em', color: '#0f0a2e' }}>{tier.name}</h3>
 
               <div className="flex items-baseline gap-1 mb-3">
