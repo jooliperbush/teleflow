@@ -139,92 +139,71 @@ function Step1({ order, setOrder, onNext }: {
   setOrder: (o: Partial<OrderState>) => void
   onNext: () => void
 }) {
-  const [query, setQuery] = useState(order.companyName || '')
-  const [results, setResults] = useState<CompanyResult[]>([])
-  const [searching, setSearching] = useState(false)
-  const [showDropdown, setShowDropdown] = useState(false)
-  const justSelected = useRef(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [companyNumber, setCompanyNumber] = useState(order.companyNumber || '')
+  const [looking, setLooking] = useState(false)
+  const [lookupError, setLookupError] = useState('')
 
-  const search = useCallback(async (q: string) => {
-    if (justSelected.current) { justSelected.current = false; return }
-    if (q.length < 2) { setResults([]); setShowDropdown(false); return }
-    setSearching(true)
+  async function lookupByNumber(num: string) {
+    const clean = num.replace(/\s/g, '').toUpperCase()
+    if (clean.length < 7) return
+    setLooking(true)
+    setLookupError('')
     try {
-      const res = await fetch(`/api/companies-house?q=${encodeURIComponent(q)}`)
-      const data = await res.json()
-      setResults(data.items || [])
-      setShowDropdown(true)
-    } catch { setResults([]) }
-    setSearching(false)
-  }, [])
-
-  useEffect(() => {
-    const t = setTimeout(() => search(query), 300)
-    return () => clearTimeout(t)
-  }, [query, search])
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowDropdown(false)
-      }
+      const res = await fetch(`/api/companies-house/number?number=${encodeURIComponent(clean)}`)
+      if (!res.ok) throw new Error('not found')
+      const c: CompanyResult = await res.json()
+      if (!c.title) throw new Error('not found')
+      const ref = generateCompanyRef(c.title, c.date_of_creation || '')
+      setOrder({
+        companyName: c.title,
+        companyNumber: c.company_number,
+        companyReference: ref,
+        registeredAddress: c.registered_office_address,
+        incorporatedDate: c.date_of_creation || '',
+        companyStatus: c.company_status || '',
+      })
+    } catch {
+      setLookupError('Company not found. Please check the number and try again.')
+      setOrder({ companyName: '', companyNumber: '', companyStatus: '' })
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  function selectCompany(c: CompanyResult) {
-    const ref = generateCompanyRef(c.title, c.date_of_creation || '')
-    setOrder({
-      companyName: c.title,
-      companyNumber: c.company_number,
-      companyReference: ref,
-      registeredAddress: c.registered_office_address,
-      incorporatedDate: c.date_of_creation || '',
-      companyStatus: c.company_status || '',
-    })
-    justSelected.current = true
-    setQuery(c.title)
-    setShowDropdown(false)
-    setResults([])
+    setLooking(false)
   }
 
-  const canContinue = order.companyName && order.companyNumber && order.contactName && order.contactEmail && order.sitePostcode
+  const canContinue = order.companyName && order.companyNumber && order.companyStatus === 'active' && order.contactName && order.contactEmail && order.sitePostcode
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-2" >Company Details</h2>
-      <p className="text-purple-300 text-sm mb-6">We&apos;ll verify your company using Companies House.</p>
+      <h2 className="text-2xl font-bold mb-2">Company Details</h2>
+      <p className="text-purple-300 text-sm mb-6">Enter your Companies House registration number to get started.</p>
 
-      <div className="relative mb-4" ref={dropdownRef}>
-        <label className="block text-sm font-medium text-purple-200 mb-1">Company Name</label>
-        <input
-          value={query}
-          onChange={e => { setQuery(e.target.value); setShowDropdown(true) }}
-          placeholder="Start typing company name..."
-          className="w-full rounded-lg px-4 py-3 text-base focus:outline-none text-white placeholder-purple-300"
-          style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }}
-        />
-        {searching && <div className="absolute right-3 top-9 text-gray-400 text-xs">Searching...</div>}
-        {showDropdown && results.length > 0 && (
-          <div className="absolute z-10 w-full rounded-xl shadow-2xl mt-1 max-h-52 overflow-y-auto" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 30%)" }}>
-            {results.map(c => (
-              <button
-                key={c.company_number}
-                onClick={() => selectCompany(c)}
-                className="w-full text-left px-4 py-3 transition-colors border-b last:border-0 text-white"
-                style={{ borderColor: "hsl(252, 50%, 25%)" }}
-                onMouseOver={e => (e.currentTarget.style.background = "hsl(260, 80%, 22%)")}
-                onMouseOut={e => (e.currentTarget.style.background = "transparent")}
-              >
-                <div className="font-medium text-sm">{c.title}</div>
-                <div className="text-xs text-purple-400">{c.company_number} · {c.registered_office_address?.postal_code}</div>
-              </button>
-            ))}
-          </div>
-        )}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-purple-200 mb-1">Companies House Number</label>
+        <div className="flex gap-2">
+          <input
+            value={companyNumber}
+            onChange={e => {
+              setCompanyNumber(e.target.value)
+              setLookupError('')
+              if (order.companyName) setOrder({ companyName: '', companyNumber: '', companyStatus: '' })
+            }}
+            onBlur={e => lookupByNumber(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && lookupByNumber(companyNumber)}
+            placeholder="e.g. 12345678"
+            maxLength={8}
+            className="flex-1 rounded-lg px-4 py-3 text-base focus:outline-none text-white placeholder-purple-300"
+            style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }}
+          />
+          <button
+            onClick={() => lookupByNumber(companyNumber)}
+            disabled={looking || companyNumber.length < 7}
+            className="px-5 py-3 rounded-lg font-medium text-sm text-white disabled:opacity-40"
+            style={{ background: "hsl(252, 60%, 25%)", border: "1px solid hsl(252, 50%, 35%)" }}
+          >
+            {looking ? '...' : 'Look up'}
+          </button>
+        </div>
+        {lookupError && <p className="text-red-400 text-xs mt-2">{lookupError}</p>}
+        {looking && <p className="text-purple-400 text-xs mt-2">Checking Companies House...</p>}
       </div>
 
       {order.companyNumber && (
