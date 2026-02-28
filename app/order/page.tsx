@@ -36,6 +36,13 @@ interface SelectedProduct {
   requiresCallback?: boolean
 }
 
+interface AppointmentSlot {
+  date: string
+  startTime: string
+  endTime: string
+  type: string
+}
+
 interface ZenAddress {
   goldAddressKey: string
   districtCode: string
@@ -443,107 +450,98 @@ function Step1({ order, setOrder, onNext }: {
   setOrder: (o: Partial<OrderState>) => void
   onNext: () => void
 }) {
-  const [companyNumber, setCompanyNumber] = useState(order.companyNumber || '')
-  const [looking, setLooking] = useState(false)
-  const [lookupError, setLookupError] = useState('')
+  const [query, setQuery] = useState(order.companyName || '')
+  const [suggestion, setSuggestion] = useState<CompanyResult | null>(null)
+  const [searching, setSearching] = useState(false)
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  async function lookupByNumber(num: string) {
-    const clean = num.replace(/\s/g, '').toUpperCase()
-    if (clean.length < 7) return
-    setLooking(true)
-    setLookupError('')
+  async function fetchSuggestion(q: string) {
+    if (q.length < 2) { setSuggestion(null); return }
+    setSearching(true)
     try {
-      const res = await fetch(`/api/companies-house/number?number=${encodeURIComponent(clean)}`)
-      if (!res.ok) throw new Error('not found')
-      const c: CompanyResult = await res.json()
-      if (!c.title) throw new Error('not found')
-      const ref = generateCompanyRef(c.title, c.date_of_creation || '')
-      setOrder({
-        companyName: c.title,
-        companyNumber: c.company_number,
-        companyReference: ref,
-        registeredAddress: c.registered_office_address,
-        incorporatedDate: c.date_of_creation || '',
-        companyStatus: c.company_status || '',
-      })
-    } catch {
-      setLookupError('Company not found. Please check the number and try again.')
-      setOrder({ companyName: '', companyNumber: '', companyStatus: '' })
-    }
-    setLooking(false)
+      const res = await fetch(`/api/companies-house?q=${encodeURIComponent(q)}`)
+      const data = await res.json()
+      setSuggestion(data.items?.[0] || null)
+    } catch { setSuggestion(null) }
+    setSearching(false)
   }
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value
+    setQuery(val)
+    setSuggestion(null)
+    setOrder({ companyName: '', companyNumber: '', companyStatus: '' })
+    if (searchTimer.current) clearTimeout(searchTimer.current)
+    searchTimer.current = setTimeout(() => fetchSuggestion(val), 300)
+  }
+
+  function acceptSuggestion(s: CompanyResult) {
+    const ref = generateCompanyRef(s.title, s.date_of_creation || '')
+    setQuery(s.title)
+    setOrder({
+      companyName: s.title,
+      companyNumber: s.company_number,
+      companyReference: ref,
+      registeredAddress: s.registered_office_address,
+      incorporatedDate: s.date_of_creation || '',
+      companyStatus: s.company_status || '',
+    })
+    setSuggestion(null)
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if ((e.key === 'Tab' || e.key === 'ArrowRight' || e.key === 'Enter') && suggestion && !order.companyName) {
+      e.preventDefault()
+      acceptSuggestion(suggestion)
+    }
+    if (e.key === 'Escape') setSuggestion(null)
+  }
+
+  const ghostText = suggestion && suggestion.title.toLowerCase().startsWith(query.toLowerCase())
+    ? suggestion.title.slice(query.length) : ''
 
   const canContinue = order.companyName && order.companyNumber && order.companyStatus === 'active' && order.contactName && order.contactEmail && order.sitePostcode
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-2">Company Details</h2>
-      <p className="text-sm mb-6 text-white/55">Enter your Companies House registration number to get started.</p>
+      <p className="text-white/55 text-sm mb-6">Start typing your company name to verify against Companies House.</p>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium text-white/75 mb-1">Companies House Number</label>
-        <div className="flex gap-2">
+        <label className="block text-sm font-medium text-white/75 mb-1">Company Name</label>
+        <div className="relative">
+          {/* Ghost text */}
+          <div aria-hidden="true" className="absolute inset-0 px-4 py-3 text-base pointer-events-none flex items-center overflow-hidden rounded-lg" style={{ fontFamily: 'inherit' }}>
+            <span className="invisible whitespace-pre">{query}</span>
+            <span style={{ color: 'rgba(255,255,255,0.28)' }}>{ghostText}</span>
+          </div>
           <input
-            value={companyNumber}
-            onChange={e => {
-              setCompanyNumber(e.target.value)
-              setLookupError('')
-              if (order.companyName) setOrder({ companyName: '', companyNumber: '', companyStatus: '' })
-            }}
-            onBlur={e => lookupByNumber(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && lookupByNumber(companyNumber)}
-            placeholder="e.g. 12345678"
-            maxLength={8}
-            className="flex-1 rounded-lg px-4 py-3 text-base focus:outline-none text-white placeholder-purple-300"
-            style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }}
+            value={query}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            onBlur={() => { if (suggestion && !order.companyName) acceptSuggestion(suggestion) }}
+            placeholder="e.g. ITC Telecoms Ltd"
+            autoComplete="off"
+            className="w-full rounded-lg px-4 py-3 text-base text-white focus:outline-none relative z-10"
+            style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 30%)' }}
           />
-          <button
-            onClick={() => lookupByNumber(companyNumber)}
-            disabled={looking || companyNumber.length < 7}
-            className="px-5 py-3 rounded-lg font-medium text-sm text-white disabled:opacity-40"
-            style={{ background: "hsl(252, 60%, 25%)", border: "1px solid hsl(252, 50%, 35%)" }}
-          >
-            {looking ? '...' : 'Look up'}
-          </button>
+          {searching && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20">
+              <div className="w-3 h-3 rounded-full border-2 animate-spin" style={{ borderColor: 'rgba(255,255,255,0.2)', borderTopColor: 'rgba(255,255,255,0.6)' }} />
+            </div>
+          )}
         </div>
-        {lookupError && <p className="text-red-400 text-xs mt-2">{lookupError}</p>}
-        {looking && <p className="text-purple-400 text-xs mt-2">Checking Companies House...</p>}
+        {suggestion && !order.companyName && (
+          <p className="text-xs mt-1.5 pl-1" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            Tab to accept · {suggestion.company_number} · {suggestion.registered_office_address?.postal_code}
+          </p>
+        )}
       </div>
 
       {order.companyName && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-white/75 mb-1">Company Name</label>
-          <input
-            readOnly
-            value={order.companyName}
-            className="w-full rounded-lg px-4 py-3 text-base text-white opacity-80 cursor-default"
-            style={{ background: "hsl(252, 60%, 14%)", border: "1px solid hsl(252, 50%, 28%)" }}
-          />
-        </div>
-      )}
-
-      {order.companyNumber && (
-        <div className="rounded-lg p-4 mb-4 text-sm" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 28%)" }}>
-          <div className="grid grid-cols-2 gap-2">
-            <div><span className="text-white/55">Number</span><br /><strong>{order.companyNumber}</strong></div>
-            <div><span className="text-white/55">Reference</span><br /><strong>{order.companyReference}</strong></div>
-            <div className="col-span-2">
-              <span className="text-white/55">Registered Address</span><br />
-              <strong>{[order.registeredAddress?.address_line_1, order.registeredAddress?.locality, order.registeredAddress?.postal_code].filter(Boolean).join(', ')}</strong>
-            </div>
-            <div><span className="text-white/55">Incorporated</span><br /><strong>{order.incorporatedDate}</strong></div>
-            <div>
-              <span className="text-white/55">Status</span><br />
-              <strong className={order.companyStatus === 'active' ? 'text-green-600' : 'text-red-600'}>
-                {order.companyStatus?.toUpperCase()}
-              </strong>
-            </div>
-          </div>
-          {order.companyStatus !== 'active' && (
-            <div className="mt-3 bg-red-50 border border-red-200 rounded p-2 text-red-700 text-xs">
-              ⚠️ This company is not active. Please verify before continuing.
-            </div>
-          )}
+        <div className="rounded-lg p-3 mb-4 text-xs flex items-center gap-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+          <span className="text-green-400 text-sm">✓</span>
+          <span className="text-white/75">{order.companyName} · {order.companyNumber} · <span className={order.companyStatus === 'active' ? 'text-green-400' : 'text-red-400'}>{order.companyStatus?.toUpperCase()}</span></span>
         </div>
       )}
 
@@ -561,7 +559,8 @@ function Step1({ order, setOrder, onNext }: {
               value={(order as unknown as Record<string, string>)[key] || ''}
               onChange={e => setOrder({ [key]: e.target.value })}
               placeholder={placeholder}
-              className="w-full rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 text-white placeholder-purple-300" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }}
+              className="w-full rounded-lg px-4 py-3 text-base focus:outline-none text-white"
+              style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 30%)' }}
             />
           </div>
         ))}
@@ -570,25 +569,13 @@ function Step1({ order, setOrder, onNext }: {
       <button
         onClick={onNext}
         disabled={!canContinue}
-        className="w-full py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn"
-        style={{ background: NAVY }}
+        className="itc-gradient-btn w-full py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40"
       >
-        Check Availability →
+        Continue →
       </button>
     </div>
   )
 }
-
-// ─── Step 2: Availability (3 sub-phases) ────────────────────────────────────
-
-interface AppointmentSlot {
-  date: string
-  startTime: string
-  endTime: string
-  type: string
-}
-
-
 
 function Step2({ order, setOrder, onNext, onBack }: {
   order: OrderState
