@@ -212,66 +212,54 @@ function TierCards({ products }: { products: Product[] }) {
         const speeds = tierProducts.map(p => p.downloadMbps || 0)
         const isFeatured = tier.badge === 'Most Popular'
 
+        const accentDark = tier.id === 'growth' ? '#be185d' : tier.id === 'core' ? '#0e7490' : '#6d28d9'
+
         return (
           <div
             key={tier.id}
-            className="rounded-2xl flex flex-col"
+            className="rounded-2xl flex flex-col relative"
             style={{
-              background: isFeatured ? 'hsl(252, 60%, 15%)' : 'hsl(252, 60%, 13%)',
-              border: isFeatured
-                ? '1.5px solid transparent'
-                : '1px solid hsl(252, 50%, 24%)',
-              backgroundClip: 'padding-box',
-              position: 'relative',
-              padding: isFeatured ? '1.5px' : '0',
+              background: 'white',
+              border: isFeatured ? '2px solid transparent' : '1px solid #e5e7eb',
+              boxShadow: isFeatured ? '0 8px 32px rgba(249,69,128,0.2)' : '0 2px 8px rgba(0,0,0,0.06)',
             }}
           >
             {isFeatured && (
               <div style={{
-                position: 'absolute', inset: 0, borderRadius: '1rem', zIndex: 0,
+                position: 'absolute', inset: -2, borderRadius: '1.1rem', zIndex: -1,
                 background: 'linear-gradient(135deg, #f94580, #591bff)',
-                padding: '1.5px',
               }} />
             )}
-            <div
-              className="rounded-2xl flex flex-col flex-1 p-5"
-              style={{
-                background: isFeatured ? 'hsl(252, 60%, 13%)' : 'transparent',
-                position: 'relative', zIndex: 1,
-              }}
-            >
+
+            <div className="rounded-2xl flex flex-col flex-1 p-5" style={{ background: 'white', position: 'relative', zIndex: 1 }}>
               {isFeatured && (
                 <div className="self-start mb-3 px-2.5 py-0.5 rounded-full text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg, #f94580, #591bff)' }}>
                   Most Popular
                 </div>
               )}
 
-              <h3 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: 'Visby CF Bold, sans-serif', letterSpacing: '-0.02em' }}>{tier.name}</h3>
+              <h3 className="text-2xl font-bold mb-1" style={{ fontFamily: 'Visby CF Bold, sans-serif', letterSpacing: '-0.02em', color: '#0f0a2e' }}>{tier.name}</h3>
 
-              <div className="flex items-baseline gap-1.5 mb-1">
-                <span className="text-sm font-semibold" style={{ color: tier.color }}>{speedLabel(speeds[0])}</span>
-                {speeds.length > 1 && (
-                  <span className="text-sm" style={{ color: tier.color }}>– {speedLabel(speeds[speeds.length - 1])}</span>
-                )}
+              <div className="flex items-baseline gap-1 mb-3">
+                <span className="text-sm font-semibold" style={{ color: accentDark }}>{speedLabel(speeds[0])}</span>
+                {speeds.length > 1 && <span className="text-sm" style={{ color: accentDark }}>– {speedLabel(speeds[speeds.length - 1])}</span>}
               </div>
 
-              <p className="text-xs mb-4 leading-relaxed" style={{ color: "hsl(252, 20%, 60%)" }}>{tier.positioning}</p>
+              <p className="text-xs mb-4 leading-relaxed" style={{ color: '#6b7280' }}>{tier.positioning}</p>
 
-              <div className="w-full h-px mb-4" style={{ background: 'hsl(252, 50%, 22%)' }} />
+              <div className="w-full h-px mb-4" style={{ background: '#f3f4f6' }} />
 
-              <ul className="space-y-2 flex-1 mb-4">
+              <ul className="space-y-2 flex-1 mb-2">
                 {tier.bullets.map(b => (
-                  <li key={b} className="flex items-start gap-2 text-sm" style={{ color: "rgba(255,255,255,0.75)" }}>
+                  <li key={b} className="flex items-start gap-2 text-sm" style={{ color: '#374151' }}>
                     <svg className="mt-0.5 shrink-0" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <circle cx="7" cy="7" r="7" fill={tier.color} fillOpacity="0.15"/>
-                      <path d="M4 7l2 2 4-4" stroke={tier.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <circle cx="7" cy="7" r="7" fill={accentDark} fillOpacity="0.1"/>
+                      <path d="M4 7l2 2 4-4" stroke={accentDark} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     {b}
                   </li>
                 ))}
               </ul>
-
-
             </div>
           </div>
         )
