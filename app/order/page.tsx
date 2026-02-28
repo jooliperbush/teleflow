@@ -184,8 +184,8 @@ function TierCards({ products }: { products: Product[] }) {
   // Match products to tiers by speed range
   const TIER_RANGES = [
     { id: 'core',   min: 50,   max: 249  },
-    { id: 'growth', min: 250,  max: 749  },
-    { id: 'pro',    min: 750,  max: 99999 },
+    { id: 'growth', min: 250,  max: 999  },
+    { id: 'pro',    min: 1000, max: 99999 },
   ]
 
   function productsForTier(tierId: string) {
