@@ -181,7 +181,6 @@ const TIERS = [
 ]
 
 function TierCards({ products }: { products: Product[] }) {
-  // Match products to tiers by speed range
   const TIER_RANGES = [
     { id: 'core',   min: 50,   max: 249  },
     { id: 'growth', min: 250,  max: 999  },
@@ -197,44 +196,92 @@ function TierCards({ products }: { products: Product[] }) {
   }
 
   function speedLabel(mbps: number) {
-    return mbps >= 1000 ? `${(mbps/1000).toFixed(mbps % 1000 === 0 ? 0 : 1)} Gbps` : `${mbps} Mbps`
+    if (mbps >= 1000) {
+      const g = mbps / 1000
+      return `${Number.isInteger(g) ? g : g.toFixed(1)} Gbps`
+    }
+    return `${mbps} Mbps`
   }
 
+  const activeTiers = TIERS.filter(t => productsForTier(t.id).length > 0)
+
   return (
-    <div className="grid grid-cols-1 gap-4 mb-6">
-      {TIERS.map(tier => {
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+      {activeTiers.map(tier => {
         const tierProducts = productsForTier(tier.id)
-        if (tierProducts.length === 0) return null
         const speeds = tierProducts.map(p => p.downloadMbps || 0)
+        const isFeatured = tier.badge === 'Most Popular'
+
         return (
-          <div key={tier.id} className="rounded-2xl p-5 relative" style={{ background: tier.glow, border: `1.5px solid ${tier.border}` }}>
-            {tier.badge && (
-              <div className="absolute -top-3 left-5 px-3 py-1 rounded-full text-xs font-bold text-white" style={{ background: 'linear-gradient(135deg, #f94580, #591bff)' }}>
-                ⭐ {tier.badge}
-              </div>
+          <div
+            key={tier.id}
+            className="rounded-2xl flex flex-col"
+            style={{
+              background: isFeatured ? 'hsl(252, 60%, 15%)' : 'hsl(252, 60%, 13%)',
+              border: isFeatured
+                ? '1.5px solid transparent'
+                : '1px solid hsl(252, 50%, 24%)',
+              backgroundClip: 'padding-box',
+              position: 'relative',
+              padding: isFeatured ? '1.5px' : '0',
+            }}
+          >
+            {isFeatured && (
+              <div style={{
+                position: 'absolute', inset: 0, borderRadius: '1rem', zIndex: 0,
+                background: 'linear-gradient(135deg, #f94580, #591bff)',
+                padding: '1.5px',
+              }} />
             )}
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h3 className="text-lg font-bold text-white" style={{ fontFamily: 'Visby CF Bold, sans-serif' }}>{tier.name}</h3>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: `${tier.color}22`, color: tier.color }}>{tier.range}</span>
-              </div>
-              <span className="text-cyan-300 text-xs font-medium mt-1">Available ✓</span>
-            </div>
-            <ul className="space-y-1 mb-3">
-              {tier.bullets.map(b => (
-                <li key={b} className="text-purple-200 text-sm flex items-center gap-2">
-                  <span style={{ color: tier.color }}>•</span> {b}
-                </li>
-              ))}
-            </ul>
-            <p className="text-xs italic mb-3" style={{ color: tier.color }}>{tier.positioning}</p>
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <span className="text-purple-300 text-xs">Available speeds:</span>
-              {speeds.map(s => (
-                <span key={s} className="text-xs px-2 py-1 rounded-lg font-medium" style={{ background: 'hsl(252, 60%, 20%)', color: tier.color, border: `1px solid ${tier.border}` }}>
-                  {speedLabel(s)}
+            <div
+              className="rounded-2xl flex flex-col flex-1 p-5"
+              style={{
+                background: isFeatured ? 'hsl(252, 60%, 13%)' : 'transparent',
+                position: 'relative', zIndex: 1,
+              }}
+            >
+              {isFeatured && (
+                <div className="self-start mb-3 px-2.5 py-0.5 rounded-full text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg, #f94580, #591bff)' }}>
+                  Most Popular
+                </div>
+              )}
+
+              <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: tier.color }}>{tier.name}</p>
+
+              <div className="mb-1">
+                <span className="text-3xl font-bold text-white" style={{ fontFamily: 'Visby CF Bold, sans-serif', letterSpacing: '-0.03em' }}>
+                  {speedLabel(speeds[0])}
                 </span>
-              ))}
+                {speeds.length > 1 && (
+                  <span className="text-sm text-purple-400 ml-1">– {speedLabel(speeds[speeds.length - 1])}</span>
+                )}
+              </div>
+
+              <p className="text-purple-400 text-xs mb-4 leading-relaxed">{tier.positioning}</p>
+
+              <div className="w-full h-px mb-4" style={{ background: 'hsl(252, 50%, 22%)' }} />
+
+              <ul className="space-y-2 flex-1 mb-4">
+                {tier.bullets.map(b => (
+                  <li key={b} className="flex items-start gap-2 text-sm text-purple-200">
+                    <svg className="mt-0.5 shrink-0" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <circle cx="7" cy="7" r="7" fill={tier.color} fillOpacity="0.15"/>
+                      <path d="M4 7l2 2 4-4" stroke={tier.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    {b}
+                  </li>
+                ))}
+              </ul>
+
+              {speeds.length > 1 && (
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {speeds.map(s => (
+                    <span key={s} className="text-xs px-2 py-0.5 rounded-md font-medium" style={{ background: 'hsl(252, 60%, 20%)', color: tier.color, border: '1px solid hsl(252, 50%, 28%)' }}>
+                      {speedLabel(s)}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )
