@@ -273,15 +273,7 @@ function TierCards({ products }: { products: Product[] }) {
                 ))}
               </ul>
 
-              {speeds.length > 1 && (
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {speeds.map(s => (
-                    <span key={s} className="text-xs px-2 py-0.5 rounded-md font-medium" style={{ background: 'hsl(252, 60%, 20%)', color: tier.color, border: '1px solid hsl(252, 50%, 28%)' }}>
-                      {speedLabel(s)}
-                    </span>
-                  ))}
-                </div>
-              )}
+
             </div>
           </div>
         )
