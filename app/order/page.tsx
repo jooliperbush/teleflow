@@ -206,6 +206,18 @@ function Step1({ order, setOrder, onNext }: {
         {looking && <p className="text-purple-400 text-xs mt-2">Checking Companies House...</p>}
       </div>
 
+      {order.companyName && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-purple-200 mb-1">Company Name</label>
+          <input
+            readOnly
+            value={order.companyName}
+            className="w-full rounded-lg px-4 py-3 text-base text-white opacity-80 cursor-default"
+            style={{ background: "hsl(252, 60%, 14%)", border: "1px solid hsl(252, 50%, 28%)" }}
+          />
+        </div>
+      )}
+
       {order.companyNumber && (
         <div className="rounded-lg p-4 mb-4 text-sm" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 28%)" }}>
           <div className="grid grid-cols-2 gap-2">
