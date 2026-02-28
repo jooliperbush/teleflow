@@ -195,7 +195,9 @@ function Step0({ order, setOrder, onNext }: {
     setLoadingProds(false)
   }
 
-  const broadband = products.filter(p => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+  const broadband = products
+    .filter(p => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+    .filter((p, i, arr) => arr.findIndex(x => x.name === p.name) === i)
   const hasProducts = broadband.length > 0
 
   return (
