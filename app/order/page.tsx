@@ -670,7 +670,16 @@ function Step2({ order, setOrder, onNext, onBack }: {
     setLoading(true)
     setPhase('products')
     try {
-      const uprnParam = addr.uprn ? `uprn=${encodeURIComponent(addr.uprn)}` : `postcode=${encodeURIComponent(order.sitePostcode)}`
+      // If no UPRN, look it up via EPC register
+      let uprn = addr.uprn
+      if (!uprn) {
+        try {
+          const epcRes = await fetch(`/api/epc/uprn?postcode=${encodeURIComponent(order.sitePostcode)}&address=${encodeURIComponent(addr.displayAddress)}`)
+          const epcData = await epcRes.json()
+          uprn = epcData.uprn || ''
+        } catch {}
+      }
+      const uprnParam = uprn ? `uprn=${encodeURIComponent(uprn)}` : `goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}`
       const res = await fetch(`/api/zen/availability?${uprnParam}`)
       const data = await res.json()
       const zenProducts: Product[] = (data.products || [])
