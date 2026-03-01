@@ -756,10 +756,12 @@ function Step2({ order, setOrder, onNext, onBack }: {
       <div>
         <h2 className="text-2xl font-bold mb-2" >Select Installation Address</h2>
         <p className="text-purple-300 text-sm mb-5">
-          Addresses found for <strong>{order.sitePostcode}</strong>. Select the exact installation address.
+          {loading ? 'Looking up addresses…' : addresses.length > 0 ? <>Addresses found for <strong>{order.sitePostcode}</strong>. Select the exact installation address.</> : <>Enter your installation postcode below.</>}
         </p>
         <div className="space-y-2 mb-6 max-h-80 overflow-y-auto">
-          {addresses.length === 0 ? (
+          {loading ? (
+            <p className="text-purple-400 text-sm text-center py-8">Loading addresses…</p>
+          ) : addresses.length === 0 ? (
             <p className="text-purple-400 text-sm text-center py-8">No addresses found for this postcode.</p>
           ) : addresses.map(a => (
             <button key={a.goldAddressKey} onClick={() => handleAddressSelect(a)}
