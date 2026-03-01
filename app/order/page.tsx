@@ -361,7 +361,7 @@ function Step0({ order, setOrder, onNext }: {
       <div className="flex gap-2 mb-4">
         <input
           value={postcode}
-          onChange={e => { setPostcode(e.target.value.toUpperCase()); setChecked(false); setProducts([]); setAddresses([]) }}
+          onChange={e => { setPostcode(e.target.value.toUpperCase()); setChecked(false); setProducts([]); setAddresses([]); setSelectedAddr(null); setOrder({ selectedAddress: undefined }) }}
           onKeyDown={e => e.key === 'Enter' && checkPostcode()}
           placeholder="e.g. BD1 1AA"
           maxLength={8}
