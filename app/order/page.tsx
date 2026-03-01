@@ -383,7 +383,7 @@ function Step0({ order, setOrder, onNext }: {
       {addresses.length > 1 && !selectedAddr && (
         <div className="mb-4">
           <p className="text-sm mb-2 text-white/55">Select your address ({addresses.length} found):</p>
-          <div className="rounded-xl overflow-hidden overflow-y-auto" style={{ border: '1px solid hsl(252, 50%, 28%)', maxHeight: '280px' }}>
+          <div className="rounded-xl overflow-y-auto" style={{ border: '1px solid hsl(252, 50%, 28%)', maxHeight: '280px' }}>
             {addresses.map((a, i) => (
               <button
                 key={a.uprn || a.goldAddressKey}
