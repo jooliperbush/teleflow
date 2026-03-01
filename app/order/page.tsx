@@ -114,7 +114,7 @@ const MARGIN = 1.25 // 25% markup
 
 // ─── Step Indicator ──────────────────────────────────────────────────────────
 
-const STEPS = ['Check', 'Company', 'Availability', 'Quote', 'Sign', 'Payment', 'Confirm']
+const STEPS = ['Company', 'Availability', 'Quote', 'Sign', 'Payment', 'Confirm']
 
 function StepIndicator({ current }: { current: number }) {
   return (
@@ -1391,7 +1391,7 @@ const defaultOrder: OrderState = {
 }
 
 export default function OrderPage() {
-  const [step, setStep] = useState(0)
+  const [step, setStep] = useState(-1)
   const [order, setOrderState] = useState<OrderState>(defaultOrder)
 
   function setOrder(partial: Partial<OrderState>) {
@@ -1414,29 +1414,38 @@ export default function OrderPage() {
       })
     }
   }
-  function back() { setStep(s => Math.max(s - 1, 0)) }
+  function back() { setStep(s => Math.max(s - 1, -1)) }
 
   return (
     <div className="min-h-screen py-6 px-4 sm:py-10 sm:px-6" style={{ background: "hsl(252, 92%, 10%)" }}>
       <div className="max-w-3xl mx-auto">
-        {/* Header */}
+        {/* Header — always shown */}
         <div className="text-center mb-8">
           <img src="/itc-logo.svg" alt="ITC Telecoms" className="h-10 mx-auto mb-2" />
           <h1 className="text-lg font-semibold text-white">Customer Onboarding Portal</h1>
         </div>
 
-        <StepIndicator current={step} />
+        {/* Postcode checker — pre-onboarding, no step bar */}
+        {step === -1 && (
+          <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
+            <Step0 order={order} setOrder={setOrder} onNext={next} />
+          </div>
+        )}
 
-        {/* Step Card */}
-        <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
-          {step === 0 && <Step0 order={order} setOrder={setOrder} onNext={next} />}
-          {step === 1 && <Step1 order={order} setOrder={setOrder} onNext={next} />}
-          {step === 2 && <Step2 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
-          {step === 3 && <Step3 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
-          {step === 4 && <Step4 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
-          {step === 5 && <Step5 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
-          {step === 6 && <Step6 order={order} />}
-        </div>
+        {/* Onboarding wizard — step bar + steps */}
+        {step >= 0 && (
+          <>
+            <StepIndicator current={step} />
+            <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
+              {step === 0 && <Step1 order={order} setOrder={setOrder} onNext={next} />}
+              {step === 1 && <Step2 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
+              {step === 2 && <Step3 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
+              {step === 3 && <Step4 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
+              {step === 4 && <Step5 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
+              {step === 5 && <Step6 order={order} />}
+            </div>
+          </>
+        )}
 
         <p className="text-center text-xs text-gray-400 mt-6">
           Powered by TeleFlow · ITC Telecoms Ltd · All data is encrypted and securely stored
