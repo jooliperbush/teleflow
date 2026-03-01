@@ -62,6 +62,9 @@ interface OrderState {
   contactName: string
   contactEmail: string
   contactPhone: string
+  siteAddressLine1: string
+  siteAddressLine2: string
+  siteCity: string
   sitePostcode: string
   // Step 2
   selectedProducts: SelectedProduct[]
@@ -1381,7 +1384,7 @@ function Step6({ order }: { order: OrderState }) {
 const defaultOrder: OrderState = {
   companyName: '', companyNumber: '', companyReference: '', registeredAddress: undefined,
   incorporatedDate: '', companyStatus: '', contactName: '', contactEmail: '', contactPhone: '',
-  sitePostcode: '', selectedProducts: [], requiresCallback: false, quoteReference: '',
+  siteAddressLine1: '', siteAddressLine2: '', siteCity: '', sitePostcode: '', selectedProducts: [], requiresCallback: false, quoteReference: '',
   quoteTerm: 24, monthlyTotal: 0, annualTotal: 0, quoteSent: false, signedName: '',
   signedAt: '', ddAccountHolder: '', ddSortCode: '', ddAccountNumberLast4: '',
   ddConfirmed: false,
