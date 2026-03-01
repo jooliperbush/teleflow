@@ -503,24 +503,30 @@ function Step1({ order, setOrder, onNext }: {
     searchTimer.current = setTimeout(() => fetchSuggestion(val), 300)
   }
 
-  function acceptSuggestion(s: CompanyResult) {
+  async function acceptSuggestion(s: CompanyResult) {
     const ref = generateCompanyRef(s.title, s.date_of_creation || '')
-    const addr = s.registered_office_address || {}
     setQuery(s.title)
     setOrder({
       companyName: s.title,
       companyNumber: s.company_number,
       companyReference: ref,
-      registeredAddress: addr,
       incorporatedDate: s.date_of_creation || '',
       companyStatus: s.company_status || '',
-      // Pre-fill site address fields from Companies House data
-      siteAddressLine1: (addr as Record<string,string>).address_line_1 || '',
-      siteAddressLine2: (addr as Record<string,string>).address_line_2 || '',
-      siteCity: (addr as Record<string,string>).locality || '',
-      sitePostcode: (addr as Record<string,string>).postal_code || '',
     })
     setSuggestion(null)
+    // Fetch full profile to get registered_office_address
+    try {
+      const res = await fetch(`/api/companies-house/number?number=${s.company_number}`)
+      const data = await res.json()
+      const addr = data.registered_office_address || {}
+      setOrder({
+        registeredAddress: addr,
+        siteAddressLine1: addr.address_line_1 || '',
+        siteAddressLine2: addr.address_line_2 || '',
+        siteCity: addr.locality || '',
+        sitePostcode: addr.postal_code || '',
+      })
+    } catch {}
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
