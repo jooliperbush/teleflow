@@ -489,7 +489,7 @@ function Step1({ order, setOrder, onNext }: {
     try {
       const res = await fetch(`/api/companies-house?q=${encodeURIComponent(q)}`)
       const data = await res.json()
-      setSuggestion(data.items?.[0] || null)
+      setSuggestion(data.items?.find((i: CompanyResult) => i.company_status === 'active') || null)
     } catch { setSuggestion(null) }
     setSearching(false)
   }
@@ -689,7 +689,12 @@ function Step2({ order, setOrder, onNext, onBack }: {
         { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
         { type: 'mobile', name: 'O2 Unlimited SIM', monthlyCost: 15.00 * MARGIN, setupFee: 0, available: true },
       ]
-      setProducts(allProducts)
+      if (zenProducts.length === 0 && !data.availabilityReference) {
+        // Zen returned no products and no availability ref — address not in coverage
+        setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
+      } else {
+        setProducts(allProducts)
+      }
       setAvailRef(data.availabilityReference || null)
       setOrder({ zenAvailabilityRef: data.availabilityReference || undefined })
     } catch {

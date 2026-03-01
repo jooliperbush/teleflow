@@ -16,8 +16,17 @@ export async function GET(req: NextRequest) {
       `https://epc.opendatacommunities.org/api/v1/non-domestic/search?postcode=${encodeURIComponent(postcode)}&size=25`,
       { headers: { Accept: 'application/json', Authorization: AUTH } }
     )
-    const data = await res.json()
-    const rows: Array<Record<string,string>> = data.rows || []
+
+    // EPC returns 401 for unknown postcodes or empty body for no results
+    if (!res.ok) return NextResponse.json({ uprn: null, total: 0, uprnMap: {} })
+
+    const text = await res.text()
+    if (!text || text.trim() === '') return NextResponse.json({ uprn: null, total: 0, uprnMap: {} })
+
+    let data: { rows?: Array<Record<string,string>> }
+    try { data = JSON.parse(text) } catch { return NextResponse.json({ uprn: null, total: 0, uprnMap: {} }) }
+
+    const rows = data.rows || []
 
     // Build address → uprn map
     const uprnMap: Record<string, string> = {}
@@ -45,6 +54,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ uprn, total: rows.length, uprnMap })
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    return NextResponse.json({ uprn: null, total: 0, uprnMap: {}, error: String(err) })
   }
 }
