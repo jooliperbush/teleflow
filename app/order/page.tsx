@@ -502,14 +502,20 @@ function Step1({ order, setOrder, onNext }: {
 
   function acceptSuggestion(s: CompanyResult) {
     const ref = generateCompanyRef(s.title, s.date_of_creation || '')
+    const addr = s.registered_office_address || {}
     setQuery(s.title)
     setOrder({
       companyName: s.title,
       companyNumber: s.company_number,
       companyReference: ref,
-      registeredAddress: s.registered_office_address,
+      registeredAddress: addr,
       incorporatedDate: s.date_of_creation || '',
       companyStatus: s.company_status || '',
+      // Pre-fill site address fields from Companies House data
+      siteAddressLine1: (addr as Record<string,string>).address_line_1 || '',
+      siteAddressLine2: (addr as Record<string,string>).address_line_2 || '',
+      siteCity: (addr as Record<string,string>).locality || '',
+      sitePostcode: (addr as Record<string,string>).postal_code || '',
     })
     setSuggestion(null)
   }
