@@ -629,7 +629,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
   const [selectedAddress, setSelectedAddress] = useState<ZenAddress | null>(order.selectedAddress || null)
   const [products, setProducts] = useState<Product[]>([])
   const [availRef, setAvailRef] = useState<string | null>(order.zenAvailabilityRef || null)
-  const [phase, setPhase] = useState<'address' | 'products' | 'appointment'>('address')
+  const [phase, setPhase] = useState<'address' | 'products' | 'appointment'>(order.selectedAddress ? 'products' : 'address')
   const [loading, setLoading] = useState(false)
   const [voipSeats, setVoipSeats] = useState(1)
   const [mobileSims, setMobileSims] = useState(1)
@@ -641,9 +641,44 @@ function Step2({ order, setOrder, onNext, onBack }: {
   const [slotsLoading, setSlotsLoading] = useState(false)
   const [selectedSlot, setSelectedSlot] = useState<AppointmentSlot | null>(order.appointment || null)
 
-  // Load addresses on mount
+  // Load addresses on mount — or load products if address already selected
   useEffect(() => {
-    if (order.selectedAddress) return // already have address
+    if (order.selectedAddress) {
+      // Address already chosen (came from pre-onboarding checker) — load products
+      if (products.length > 0) return
+      setLoading(true)
+      const addr = order.selectedAddress
+      const uprn = addr.uprn
+      const loadProducts = async () => {
+        let resolvedUprn = uprn
+        if (!resolvedUprn) {
+          try {
+            const epcRes = await fetch(`/api/epc/uprn?postcode=${encodeURIComponent(order.sitePostcode)}&address=${encodeURIComponent(addr.displayAddress)}`)
+            const epcData = await epcRes.json()
+            resolvedUprn = epcData.uprn || ''
+          } catch {}
+        }
+        const uprnParam = resolvedUprn ? `uprn=${encodeURIComponent(resolvedUprn)}` : `goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}`
+        const res = await fetch(`/api/zen/availability?${uprnParam}`)
+        const data = await res.json()
+        const zenProducts: Product[] = data.products || []
+        const broadband = zenProducts.filter((p: Product) => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+        if (broadband.length === 0 && !data.availabilityReference) {
+          setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
+        } else {
+          setProducts([...zenProducts,
+            { type: 'lease_line', name: 'Managed Fibre', downloadMbps: 200, uploadMbps: 1000, monthlyCost: null, setupFee: null, available: true },
+            { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
+            { type: 'mobile', name: 'O2 Unlimited SIM', monthlyCost: 15.00 * MARGIN, setupFee: 0, available: true },
+          ])
+        }
+        setAvailRef(data.availabilityReference || null)
+        setLoading(false)
+      }
+      loadProducts().catch(() => setLoading(false))
+      return
+    }
+    if (!order.sitePostcode) return
     setLoading(true)
     fetch(`/api/zen/address?postcode=${encodeURIComponent(order.sitePostcode)}`)
       .then(r => r.json())
