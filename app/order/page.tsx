@@ -771,15 +771,38 @@ function Step2({ order, setOrder, onNext, onBack }: {
   if (phase === 'address') {
     return (
       <div>
-        <h2 className="text-2xl font-bold mb-2" >Select Installation Address</h2>
-        <p className="text-purple-300 text-sm mb-5">
-          {loading ? 'Looking up addresses…' : addresses.length > 0 ? <>Addresses found for <strong>{order.sitePostcode}</strong>. Select the exact installation address.</> : <>Enter your installation postcode below.</>}
-        </p>
+        <h2 className="text-2xl font-bold mb-4">Select Installation Address</h2>
+
+        {/* Postcode search — pre-filled from CH but editable */}
+        <div className="flex gap-2 mb-4">
+          <input
+            defaultValue={order.sitePostcode || ''}
+            id="step2-postcode"
+            placeholder="Installation postcode"
+            maxLength={8}
+            className="flex-1 rounded-xl px-4 py-3 text-base text-white placeholder-purple-400 font-medium tracking-widest focus:outline-none"
+            style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 35%)' }}
+            onKeyDown={e => { if (e.key === 'Enter') {
+              const pc = (e.target as HTMLInputElement).value.trim().toUpperCase()
+              if (pc) { setOrder({ sitePostcode: pc }); setAddresses([]); setLoading(true)
+                fetch(`/api/zen/address?postcode=${encodeURIComponent(pc)}`).then(r=>r.json()).then(d=>{setAddresses(d.addresses||[]);setLoading(false)}).catch(()=>setLoading(false)) }
+            }}}
+          />
+          <button
+            onClick={() => {
+              const pc = (document.getElementById('step2-postcode') as HTMLInputElement)?.value.trim().toUpperCase()
+              if (pc) { setOrder({ sitePostcode: pc }); setAddresses([]); setLoading(true)
+                fetch(`/api/zen/address?postcode=${encodeURIComponent(pc)}`).then(r=>r.json()).then(d=>{setAddresses(d.addresses||[]);setLoading(false)}).catch(()=>setLoading(false)) }
+            }}
+            className="itc-gradient-btn px-5 py-3 rounded-xl font-semibold text-white text-sm"
+          >Search</button>
+        </div>
+
         <div className="space-y-2 mb-6 max-h-80 overflow-y-auto">
           {loading ? (
             <p className="text-purple-400 text-sm text-center py-8">Loading addresses…</p>
           ) : addresses.length === 0 ? (
-            <p className="text-purple-400 text-sm text-center py-8">No addresses found for this postcode.</p>
+            <p className="text-purple-400 text-sm text-center py-8">{order.sitePostcode ? 'No addresses found — try a different postcode.' : 'Enter your installation postcode above.'}</p>
           ) : addresses.map(a => (
             <button key={a.goldAddressKey} onClick={() => handleAddressSelect(a)}
               className="w-full text-left rounded-xl px-5 py-4 transition-all text-base text-white"
