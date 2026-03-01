@@ -354,12 +354,11 @@ function Step0({ order, setOrder, onNext }: {
 
   return (
     <div>
-      <div className="text-center mb-8">
-        <img src="/itc-logo.svg" alt="ITC Telecoms" className="h-14 mx-auto mb-5" />
+      <div className="text-center mb-6">
         <p className="text-base font-medium text-white/75">Enter your business postcode to see what's available at your address.</p>
       </div>
 
-      <div className="flex flex-row gap-2 mb-4">
+      <div className="flex gap-2 mb-4">
         <input
           value={postcode}
           onChange={e => { setPostcode(e.target.value.toUpperCase()); setChecked(false); setProducts([]); setAddresses([]) }}
@@ -1458,13 +1457,11 @@ export default function OrderPage() {
   return (
     <div className="min-h-screen py-6 px-4 sm:py-10 sm:px-6" style={{ background: "hsl(252, 92%, 10%)" }}>
       <div className="max-w-3xl mx-auto">
-        {/* Header — only shown during wizard */}
-        {step >= 0 && (
-          <div className="text-center mb-8">
-            <img src="/itc-logo.svg" alt="ITC Telecoms" className="h-10 mx-auto mb-2" />
-            <h1 className="text-lg font-semibold text-white">Customer Onboarding Portal</h1>
-          </div>
-        )}
+        {/* Header */}
+        <div className="text-center mb-8">
+          <img src="/itc-logo.svg" alt="ITC Telecoms" className="h-10 mx-auto mb-2" />
+          {step >= 0 && <h1 className="text-lg font-semibold text-white">Customer Onboarding Portal</h1>}
+        </div>
 
         {/* Postcode checker — pre-onboarding, no step bar */}
         {step === -1 && (
