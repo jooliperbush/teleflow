@@ -692,7 +692,10 @@ function Step2({ order, setOrder, onNext, onBack }: {
       setProducts(allProducts)
       setAvailRef(data.availabilityReference || null)
       setOrder({ zenAvailabilityRef: data.availabilityReference || undefined })
-    } catch { /* keep going */ }
+    } catch {
+      // Could not resolve UPRN or check availability — show callback notice
+      setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
+    }
     setLoading(false)
   }
 
@@ -798,8 +801,18 @@ function Step2({ order, setOrder, onNext, onBack }: {
           ← Change address
         </button>
 
+        {/* Unresolvable address fallback */}
+        {products.length === 1 && products[0].name === '__unresolvable__' ? (
+          <div className="rounded-xl p-6 mb-6 text-center" style={{ background: 'rgba(249,69,128,0.08)', border: '1px solid rgba(249,69,128,0.3)' }}>
+            <p className="text-white font-semibold mb-2">We couldn't automatically check availability for this address</p>
+            <p className="text-purple-300 text-sm mb-4">An ITC advisor will contact you within 1 business day to confirm what's available and provide a tailored quote.</p>
+            <button onClick={handleProductsNext} className="itc-gradient-btn px-6 py-3 rounded-xl font-semibold text-white text-sm">
+              Request a Callback →
+            </button>
+          </div>
+        ) : (
         <div className="space-y-3 mb-6">
-          {products.map(p => (
+          {products.map(p => p.name === '__unresolvable__' ? null : (
             <div key={p.name} onClick={() => toggle(p.name)}
               className="border-2 rounded-xl p-5 cursor-pointer transition-all hover:border-blue-400 hover:shadow-sm"
               style={selected[p.name] ? { borderColor: "#f94580", background: "rgba(249, 69, 128, 0.08)", boxShadow: "0 0 0 1px #f94580" } : { borderColor: "hsl(252, 50%, 30%)", background: "hsl(252, 60%, 16%)" }}>
@@ -867,7 +880,9 @@ function Step2({ order, setOrder, onNext, onBack }: {
             </div>
           ))}
         </div>
+        )}
 
+        {!(products.length === 1 && products[0]?.name === '__unresolvable__') && (
         <div className="flex flex-col-reverse sm:flex-row gap-3">
           <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
             className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
@@ -882,6 +897,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
             })()}
           </button>
         </div>
+        )}
       </div>
     )
   }
