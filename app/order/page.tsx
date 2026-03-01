@@ -359,7 +359,7 @@ function Step0({ order, setOrder, onNext }: {
         <p className="text-base font-medium text-white/75">Enter your business postcode to see what's available at your address.</p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-2 mb-4">
+      <div className="flex flex-row gap-2 mb-4">
         <input
           value={postcode}
           onChange={e => { setPostcode(e.target.value.toUpperCase()); setChecked(false); setProducts([]); setAddresses([]) }}
