@@ -540,7 +540,7 @@ function Step1({ order, setOrder, onNext }: {
   const ghostText = suggestion && suggestion.title.toLowerCase().startsWith(query.toLowerCase())
     ? suggestion.title.slice(query.length) : ''
 
-  const canContinue = order.companyName && order.companyNumber && order.companyStatus === 'active' && order.contactName && order.contactEmail && order.sitePostcode
+  const canContinue = order.companyName && order.companyNumber && order.companyStatus === 'active' && order.contactName && order.contactEmail && order.siteAddressLine1 && order.siteCity && order.sitePostcode
 
   return (
     <div>
@@ -689,8 +689,9 @@ function Step2({ order, setOrder, onNext, onBack }: {
         { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
         { type: 'mobile', name: 'O2 Unlimited SIM', monthlyCost: 15.00 * MARGIN, setupFee: 0, available: true },
       ]
-      if (zenProducts.length === 0 && !data.availabilityReference) {
-        // Zen returned no products and no availability ref — address not in coverage
+      const broadbandProducts = zenProducts.filter(p => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+      if (broadbandProducts.length === 0 && !data.availabilityReference) {
+        // No ref at all — UPRN unresolvable, show callback
         setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
       } else {
         setProducts(allProducts)
