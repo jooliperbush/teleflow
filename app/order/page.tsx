@@ -386,8 +386,8 @@ function Step0({ order, setOrder, onNext }: {
           <div className="rounded-xl overflow-hidden" style={{ border: '1px solid hsl(252, 50%, 28%)' }}>
             {addresses.map((a, i) => (
               <button
-                key={a.uprn}
-                onClick={() => selectAddress(a)}
+                key={a.uprn || a.goldAddressKey}
+                onClick={() => selectAddress(a, postcode.trim().toUpperCase())}
                 className="w-full text-left px-4 py-3 text-sm text-white transition-colors"
                 style={{ borderTop: i > 0 ? '1px solid hsl(252, 50%, 25%)' : 'none', background: 'transparent' }}
                 onMouseOver={e => (e.currentTarget.style.background = 'hsl(260, 80%, 22%)')}
