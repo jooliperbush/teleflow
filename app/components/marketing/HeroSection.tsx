@@ -47,7 +47,7 @@ export default function HeroSection() {
         </FadeInView>
 
         <FadeInView delay={0.2}>
-          <p className="text-base md:text-lg text-white/70 max-w-md mb-2 md:mb-3 leading-relaxed"
+          <p className="text-base md:text-lg text-white/45 max-w-md mb-2 md:mb-3 leading-relaxed"
             style={{ textShadow: "0 1px 12px rgba(0,0,0,0.6)" }}>
             Over 20 years providing the best in VoIP, Business Internet, Mobile and SaaS.
           </p>
