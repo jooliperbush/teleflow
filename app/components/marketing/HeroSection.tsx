@@ -11,7 +11,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 z-0">
         <img src="/hero-bg.jpg" alt="" className="w-full h-full object-cover object-center" />
         {/* Dark overlay so text reads cleanly — stronger on left where text sits */}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(8,4,25,0.54) 0%, rgba(8,4,25,0.38) 50%, rgba(8,4,25,0.10) 100%)" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(8,4,25,0.40) 0%, rgba(8,4,25,0.28) 50%, rgba(8,4,25,0.05) 100%)" }} />
         {/* Bottom fade into next section */}
         <div className="absolute bottom-0 left-0 right-0 h-40" style={{ background: "linear-gradient(to bottom, transparent, hsl(252,92%,8%))" }} />
         {/* Top gradient line */}
@@ -35,7 +35,7 @@ export default function HeroSection() {
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] tracking-tighter mb-8 text-white drop-shadow-2xl"
             style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif", textShadow: "0 2px 40px rgba(0,0,0,0.5)" }}>
             Connectivity{" "}<br />
-            <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 20px rgba(249,69,128,0.6))" }}>
               Without the
             </span><br />
             Complexity
