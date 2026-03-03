@@ -73,7 +73,7 @@ export default function InvoiceAnalyser() {
                 Current Bill
               </span>
             </h2>
-            <p className="text-base md:text-lg text-gray-600 max-w-xl mx-auto">
+            <p className="text-base md:text-lg text-gray-900 font-medium max-w-xl mx-auto">
               See exactly what you're overpaying — and what ITC would charge instead. Takes 30 seconds.
             </p>
           </div>
