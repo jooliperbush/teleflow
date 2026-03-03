@@ -15,9 +15,7 @@ export default function HeroSection() {
           style={{ background: "linear-gradient(160deg, rgba(8,4,25,0.75) 0%, rgba(8,4,25,0.55) 60%, rgba(8,4,25,0.20) 100%)" }} />
         <div className="absolute inset-0 hidden md:block"
           style={{ background: "linear-gradient(to right, rgba(8,4,25,0.40) 0%, rgba(8,4,25,0.28) 50%, rgba(8,4,25,0.05) 100%)" }} />
-        {/* Bottom fade into next section */}
-        <div className="absolute bottom-0 left-0 right-0 h-40"
-          style={{ background: "linear-gradient(to bottom, transparent, hsl(252,92%,8%))" }} />
+
         {/* Top accent line */}
         <div className="absolute top-0 left-0 right-0 h-px z-10"
           style={{ background: "linear-gradient(to right, transparent, #f94580, #591bff, #7be7ff, transparent)" }} />
