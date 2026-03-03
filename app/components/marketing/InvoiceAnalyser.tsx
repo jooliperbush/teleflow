@@ -6,7 +6,7 @@ import FadeInView from "./FadeInView";
 
 interface Service { name: string; cost: number; itcEquivalent: string; itcCost: number }
 interface Analysis {
-  provider: string; totalMonthly: number; currency: string;
+  provider: string; alreadyITC?: boolean; totalMonthly: number; currency: string;
   services: Service[]; itcTotalMonthly: number; monthlySaving: number;
   annualSaving: number; savingPercent: number;
   recommendations: string[]; redFlags: string[]; summary: string;
@@ -34,7 +34,11 @@ export default function InvoiceAnalyser() {
       const res = await fetch('/api/analyse-invoice', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Analysis failed')
-      setResult(data)
+      if (data.alreadyITC) {
+        setResult({ ...data, alreadyITC: true, services: [], recommendations: [], redFlags: [], monthlySaving: 0, annualSaving: 0, savingPercent: 0, itcTotalMonthly: 0, currency: 'GBP', summary: '' })
+      } else {
+        setResult(data)
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Something went wrong')
     } finally { setLoading(false) }
