@@ -55,9 +55,7 @@ export default function InvoiceAnalyser() {
         />
         {/* Very subtle white wash to soften image under content */}
         <div className="absolute inset-0" style={{ background: "rgba(240,238,255,0.45)" }} />
-        {/* Edge fades to blend with dark sections */}
-        <div className="absolute top-0 left-0 right-0 h-24" style={{ background: "linear-gradient(to bottom, hsl(252,92%,8%), transparent)" }} />
-        <div className="absolute bottom-0 left-0 right-0 h-24" style={{ background: "linear-gradient(to top, hsl(252,92%,8%), transparent)" }} />
+
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
