@@ -1,71 +1,86 @@
 "use client";
-import { PhoneCall, Mail } from "lucide-react";
+import { PhoneCall, Mail, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import FadeInView from "./FadeInView";
 import Link from "next/link";
 
 export default function ContactSection() {
   return (
     <section id="contact" className="py-20 md:py-32 px-6 md:px-20 relative overflow-hidden"
-      style={{ background: "linear-gradient(135deg, hsl(252,92%,10%) 0%, hsl(260,80%,12%) 100%)" }}>
+      style={{ background: "linear-gradient(135deg, hsl(252,92%,8%) 0%, hsl(260,80%,11%) 100%)" }}>
+      <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(to right, transparent, rgba(249,69,128,0.3), rgba(89,27,255,0.3), transparent)" }} />
+      <div className="absolute top-1/4 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(89,27,255,0.12) 0%, transparent 70%)", filter: "blur(60px)" }} />
+
       <div className="max-w-7xl mx-auto relative">
         <div className="grid md:grid-cols-2 gap-10 md:gap-16">
           <FadeInView>
             <div>
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+              <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 text-white"
+                style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
                 Ready to <br />
                 <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Talk?</span>
               </h2>
-              <div className="space-y-8 mb-10">
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "rgba(249,69,128,0.2)" }}>
-                    <PhoneCall className="w-6 h-6 text-[#f94580]" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-white/40">Call our team</p>
-                    <p className="text-xl font-bold text-white">01274 952 123</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-5">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "rgba(123,231,255,0.2)" }}>
-                    <Mail className="w-6 h-6 text-[#7be7ff]" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-white/40">Email us</p>
-                    <p className="text-xl font-bold text-white">connect@clickitc.co.uk</p>
-                  </div>
-                </div>
+              <div className="space-y-5 mb-10">
+                {[
+                  { icon: PhoneCall, color: "#f94580", label: "Call our team", value: "01274 952 123", bg: "rgba(249,69,128,0.12)", border: "rgba(249,69,128,0.2)" },
+                  { icon: Mail, color: "#7be7ff", label: "Email us", value: "connect@clickitc.co.uk", bg: "rgba(123,231,255,0.12)", border: "rgba(123,231,255,0.2)" },
+                ].map((item) => (
+                  <motion.div key={item.label} whileHover={{ x: 4 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className="flex items-center gap-5">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+                      style={{ background: item.bg, border: `1px solid ${item.border}`, backdropFilter: "blur(10px)" }}>
+                      <item.icon className="w-6 h-6" style={{ color: item.color }} />
+                    </div>
+                    <div>
+                      <p className="text-sm text-white/40">{item.label}</p>
+                      <p className="text-lg font-bold text-white">{item.value}</p>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
-              <Link href="/order"
-                className="inline-flex items-center gap-3 px-8 py-5 rounded-full font-bold text-lg text-white hover:scale-105 transition-transform"
-                style={{ background: "linear-gradient(135deg, #f94580, #591bff)" }}>
-                Start Onboarding →
-              </Link>
+
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}>
+                <Link href="/order"
+                  className="inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold text-base text-white group relative overflow-hidden"
+                  style={{ background: "linear-gradient(135deg, #f94580 0%, #591bff 100%)", boxShadow: "0 0 30px rgba(249,69,128,0.35), 0 8px 32px rgba(89,27,255,0.25), inset 0 1px 0 rgba(255,255,255,0.15)" }}>
+                  Start Onboarding
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </motion.div>
             </div>
           </FadeInView>
+
           <FadeInView delay={0.2}>
-            <form onSubmit={(e) => e.preventDefault()} className="bg-white/5 border border-white/10 rounded-[2rem] p-6 sm:p-10 space-y-6">
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/40">Name</label>
-                  <input type="text" placeholder="Your name"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#f94580]/50 transition-all" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/40">Email</label>
-                  <input type="email" placeholder="you@company.com"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#f94580]/50 transition-all" />
-                </div>
+            <form onSubmit={(e) => e.preventDefault()}
+              className="rounded-[2rem] p-8 sm:p-10 space-y-5"
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", backdropFilter: "blur(24px)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.07), 0 8px 40px rgba(0,0,0,0.2)" }}>
+              <div className="grid sm:grid-cols-2 gap-5">
+                {["Name", "Email"].map((label) => (
+                  <div key={label} className="space-y-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-white/35">{label}</label>
+                    <input type={label === "Email" ? "email" : "text"} placeholder={label === "Email" ? "you@company.com" : "Your name"}
+                      className="w-full px-5 py-3.5 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-all"
+                      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+                      onFocus={(e) => e.target.style.border = "1px solid rgba(249,69,128,0.5)"}
+                      onBlur={(e) => e.target.style.border = "1px solid rgba(255,255,255,0.08)"} />
+                  </div>
+                ))}
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/40">Message</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-white/35">Message</label>
                 <textarea rows={5} placeholder="Tell us about your communication needs..."
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#f94580]/50 transition-all resize-none" />
+                  className="w-full px-5 py-3.5 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-all resize-none"
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+                  onFocus={(e) => e.target.style.border = "1px solid rgba(249,69,128,0.5)"}
+                  onBlur={(e) => e.target.style.border = "1px solid rgba(255,255,255,0.08)"} />
               </div>
-              <button type="submit"
-                className="w-full py-5 rounded-full font-bold text-lg text-white hover:scale-[1.02] transition-all"
-                style={{ background: "linear-gradient(135deg, #f94580, #591bff)" }}>
+              <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                className="w-full py-4 rounded-full font-bold text-base text-white"
+                style={{ background: "linear-gradient(135deg, #f94580 0%, #591bff 100%)", boxShadow: "0 0 24px rgba(249,69,128,0.3), inset 0 1px 0 rgba(255,255,255,0.15)" }}>
                 Send Message
-              </button>
+              </motion.button>
             </form>
           </FadeInView>
         </div>
