@@ -11,14 +11,18 @@ const reasons = [
 
 export default function WhyITCSection() {
   return (
-    <section id="why-itc" className="py-20 md:py-32 px-6 md:px-20 relative overflow-hidden bg-white text-black">
-      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: "rgba(249,69,128,0.08)", filter: "blur(120px)" }} />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: "rgba(123,231,255,0.08)", filter: "blur(120px)" }} />
+    <section id="why-itc" className="py-20 md:py-32 px-6 md:px-20 relative overflow-hidden text-white"
+      style={{ background: "linear-gradient(135deg, hsl(252,92%,10%) 0%, hsl(260,80%,12%) 100%)" }}>
+      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full pointer-events-none"
+        style={{ background: "rgba(249,69,128,0.08)", filter: "blur(120px)" }} />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full pointer-events-none"
+        style={{ background: "rgba(123,231,255,0.08)", filter: "blur(120px)" }} />
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <FadeInView>
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 md:mb-12" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+              <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 md:mb-12"
+                style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
                 Why Choose <br />
                 <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>ITC?</span>
               </h2>
@@ -26,14 +30,15 @@ export default function WhyITCSection() {
             <div className="grid sm:grid-cols-2 gap-6">
               {reasons.map((item, i) => (
                 <FadeInView key={item.title} delay={0.1 + i * 0.08}>
-                  <div className="bg-white/60 backdrop-blur-md border border-black/10 rounded-[2rem] p-8 hover:bg-white/80 transition-colors">
+                  <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[2rem] p-8 hover:bg-white/10 transition-colors">
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-1" style={{ background: "rgba(249,69,128,0.1)" }}>
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-1"
+                        style={{ background: "rgba(249,69,128,0.15)" }}>
                         <Zap className="w-5 h-5 text-[#f94580]" />
                       </div>
                       <div>
-                        <p className="font-bold text-lg mb-2">{item.title}</p>
-                        <p className="text-sm text-black/60 leading-relaxed">{item.desc}</p>
+                        <p className="font-bold text-lg mb-2 text-white">{item.title}</p>
+                        <p className="text-sm text-white/55 leading-relaxed">{item.desc}</p>
                       </div>
                     </div>
                   </div>
@@ -42,12 +47,16 @@ export default function WhyITCSection() {
             </div>
           </div>
           <FadeInView delay={0.3}>
-            <div className="bg-white/60 backdrop-blur-md border border-black/10 rounded-[2rem] p-10 flex flex-col items-center justify-center text-center h-full">
-              <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: "rgba(123,231,255,0.2)" }}>
+            <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[2rem] p-10 flex flex-col items-center justify-center text-center h-full">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+                style={{ background: "rgba(123,231,255,0.15)" }}>
                 <Zap className="w-10 h-10 text-[#7be7ff]" />
               </div>
-              <p className="text-6xl font-black mb-2" style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>99.99%</p>
-              <p className="text-black/60 font-medium">Uptime Guarantee</p>
+              <p className="text-6xl font-black mb-2"
+                style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+                99.99%
+              </p>
+              <p className="text-white/55 font-medium">Uptime Guarantee</p>
             </div>
           </FadeInView>
         </div>
