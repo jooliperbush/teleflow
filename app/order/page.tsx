@@ -1519,7 +1519,7 @@ export default function OrderPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <img src="/itc-logo.svg" alt="ITC Telecoms" className="h-10 mx-auto mb-2" />
-          {step >= 0 && <h1 className="text-lg font-semibold text-white">Customer Onboarding Portal</h1>}
+          {step === -1 ? <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Availability Checker</h1> : <h1 className="text-lg font-semibold text-white">Customer Onboarding Portal</h1>}
         </div>
 
         {/* Postcode checker — pre-onboarding, no step bar */}
