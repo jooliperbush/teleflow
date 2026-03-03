@@ -11,7 +11,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 z-0">
         <img src="/hero-bg.jpg" alt="" className="w-full h-full object-cover object-center" />
         {/* Dark overlay so text reads cleanly — stronger on left where text sits */}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(8,4,25,0.72) 0%, rgba(8,4,25,0.50) 50%, rgba(8,4,25,0.15) 100%)" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(8,4,25,0.54) 0%, rgba(8,4,25,0.38) 50%, rgba(8,4,25,0.10) 100%)" }} />
         {/* Bottom fade into next section */}
         <div className="absolute bottom-0 left-0 right-0 h-40" style={{ background: "linear-gradient(to bottom, transparent, hsl(252,92%,8%))" }} />
         {/* Top gradient line */}
