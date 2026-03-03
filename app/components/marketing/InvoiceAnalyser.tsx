@@ -135,7 +135,7 @@ export default function InvoiceAnalyser() {
               )}
 
               <button onClick={analyse} disabled={!file || loading}
-                className="mt-5 w-full py-4 md:py-5 rounded-full font-bold text-base md:text-lg text-white flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+                className="mt-5 w-full py-4 md:py-5 rounded-full font-bold text-base md:text-lg text-white flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed"
                 style={{ background: "linear-gradient(135deg, #f94580 0%, #591bff 100%)", boxShadow: "0 0 30px rgba(89,27,255,0.25), inset 0 1px 0 rgba(255,255,255,0.15)" }}>
                 {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Analysing...</> : <>Analyse My Bill <ArrowRight className="w-5 h-5" /></>}
               </button>
