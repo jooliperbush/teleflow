@@ -38,7 +38,7 @@ export default function MarketingNavbar() {
           boxShadow: scrolled ? "0 4px 24px rgba(0,0,0,0.08)" : "0 4px 24px rgba(0,0,0,0.2)",
         }}>
         <Link href="/" className="flex items-center">
-          <Image src="/itc-logo.svg" alt="ITC" width={110} height={36} className={scrolled ? "brightness-0" : ""} />
+          <Image src="/itc-logo.svg" alt="ITC" width={110} height={36}  />
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
