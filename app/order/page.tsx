@@ -354,15 +354,14 @@ function Step0({ order, setOrder, onNext }: {
 
   return (
     <div>
-      <div className="text-center mb-8">
-        <img src="/itc-logo.svg" alt="ITC Telecoms" className="h-14 mx-auto mb-5" />
+      <div className="text-center mb-6">
         <p className="text-base font-medium text-white/75">Enter your business postcode to see what's available at your address.</p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-2 mb-4">
+      <div className="flex gap-2 mb-4">
         <input
           value={postcode}
-          onChange={e => { setPostcode(e.target.value.toUpperCase()); setChecked(false); setProducts([]); setAddresses([]) }}
+          onChange={e => { setPostcode(e.target.value.toUpperCase()); setChecked(false); setProducts([]); setAddresses([]); setSelectedAddr(null); setOrder({ selectedAddress: undefined }) }}
           onKeyDown={e => e.key === 'Enter' && checkPostcode()}
           placeholder="e.g. BD1 1AA"
           maxLength={8}
@@ -383,7 +382,7 @@ function Step0({ order, setOrder, onNext }: {
       {addresses.length > 1 && !selectedAddr && (
         <div className="mb-4">
           <p className="text-sm mb-2 text-white/55">Select your address ({addresses.length} found):</p>
-          <div className="rounded-xl overflow-hidden overflow-y-auto" style={{ border: '1px solid hsl(252, 50%, 28%)', maxHeight: '280px' }}>
+          <div className="rounded-xl overflow-y-auto" style={{ border: '1px solid hsl(252, 50%, 28%)', maxHeight: '280px' }}>
             {addresses.map((a, i) => (
               <button
                 key={a.uprn || a.goldAddressKey}
@@ -473,10 +472,11 @@ function Step0({ order, setOrder, onNext }: {
 
 // ─── Step 1: Company Details ──────────────────────────────────────────────────
 
-function Step1({ order, setOrder, onNext }: {
+function Step1({ order, setOrder, onNext, onBack }: {
   order: OrderState
   setOrder: (o: Partial<OrderState>) => void
   onNext: () => void
+  onBack: () => void
 }) {
   const [query, setQuery] = useState(order.companyName || '')
   const [suggestion, setSuggestion] = useState<CompanyResult | null>(null)
@@ -540,7 +540,10 @@ function Step1({ order, setOrder, onNext }: {
   const ghostText = suggestion && suggestion.title.toLowerCase().startsWith(query.toLowerCase())
     ? suggestion.title.slice(query.length) : ''
 
-  const canContinue = order.companyName && order.companyNumber && order.companyStatus === 'active' && order.contactName && order.contactEmail && order.siteAddressLine1 && order.siteCity && order.sitePostcode
+  const emailValid = !order.contactEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.contactEmail)
+  const phoneValid = !order.contactPhone || /^[\d\s\+\(\)\-]{7,15}$/.test(order.contactPhone)
+  const postcodeValid = !order.sitePostcode || /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(order.sitePostcode)
+  const canContinue = order.companyName && order.companyNumber && order.companyStatus === 'active' && order.contactName && order.contactEmail && emailValid && order.siteAddressLine1 && order.siteCity && order.sitePostcode && postcodeValid
 
   return (
     <div>
@@ -579,35 +582,98 @@ function Step1({ order, setOrder, onNext }: {
       </div>
 
       {order.companyName && (
-        <div className="rounded-lg p-3 mb-4 text-xs flex items-center gap-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
-          <span className="text-green-400 text-sm">✓</span>
-          <span className="text-white/75">{order.companyName} · {order.companyNumber} · <span className={order.companyStatus === 'active' ? 'text-green-400' : 'text-red-400'}>{order.companyStatus?.toUpperCase()}</span></span>
-        </div>
+        <>
+          <div className="rounded-lg p-3 mb-3 text-xs flex items-center gap-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+            <span className="text-green-400 text-sm">✓</span>
+            <span className="text-white/75">{order.companyName} · {order.companyNumber} · <span className={order.companyStatus === 'active' ? 'text-green-400' : 'text-red-400'}>{order.companyStatus?.toUpperCase()}</span></span>
+          </div>
+          {order.registeredAddress && (
+            <div className="rounded-lg p-3 mb-4 text-xs" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-white/55 uppercase tracking-wide text-[10px] font-semibold">Installation Address</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const reg = order.registeredAddress
+                    if (!reg) return
+                    const usingSame = order.siteAddressLine1 === (reg.address_line_1 || '')
+                    if (usingSame) {
+                      setOrder({ siteAddressLine1: '', siteAddressLine2: '', siteCity: '', sitePostcode: '' })
+                    } else {
+                      setOrder({
+                        siteAddressLine1: reg.address_line_1 || '',
+                        siteAddressLine2: '',
+                        siteCity: reg.locality || '',
+                        sitePostcode: reg.postal_code || '',
+                      })
+                    }
+                  }}
+                  className="text-[#7be7ff] text-[10px] font-semibold hover:underline"
+                >
+                  {order.siteAddressLine1 === (order.registeredAddress?.address_line_1 || '') && order.siteAddressLine1
+                    ? '✎ Use different address'
+                    : '↩ Use registered address'}
+                </button>
+              </div>
+              {order.siteAddressLine1 && order.siteAddressLine1 === (order.registeredAddress?.address_line_1 || '') ? (
+                <span className="text-white/75">{order.siteAddressLine1}, {order.siteCity}, {order.sitePostcode}</span>
+              ) : (
+                <span className="text-white/40 italic">Enter trading/site address below</span>
+              )}
+            </div>
+          )}
+        </>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        {[
+      {(() => {
+        const emailValid = !order.contactEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.contactEmail)
+        const phoneValid = !order.contactPhone || /^[\d\s\+\(\)\-]{7,15}$/.test(order.contactPhone)
+        const postcodeValid = !order.sitePostcode || /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(order.sitePostcode)
+
+        const fields: { label: string; key: keyof OrderState; type: string; placeholder: string; validate?: (v: string) => boolean; error?: string }[] = [
           { label: 'Contact Name', key: 'contactName', type: 'text', placeholder: 'Full name' },
-          { label: 'Contact Email', key: 'contactEmail', type: 'email', placeholder: 'email@company.com' },
-          { label: 'Contact Phone', key: 'contactPhone', type: 'tel', placeholder: '07700 000000' },
+          { label: 'Contact Email', key: 'contactEmail', type: 'email', placeholder: 'email@company.com', validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), error: 'Enter a valid email address' },
+          { label: 'Contact Phone', key: 'contactPhone', type: 'tel', placeholder: '07700 000000', validate: v => /^[\d\s\+\(\)\-]{7,15}$/.test(v), error: 'Enter a valid phone number' },
           { label: 'Site Address Line 1', key: 'siteAddressLine1', type: 'text', placeholder: '123 High Street' },
           { label: 'Site Address Line 2', key: 'siteAddressLine2', type: 'text', placeholder: 'Suite / Floor (optional)' },
           { label: 'Town / City', key: 'siteCity', type: 'text', placeholder: 'Bradford' },
-          { label: 'Site Postcode', key: 'sitePostcode', type: 'text', placeholder: 'BD1 1AA' },
-        ].map(({ label, key, type, placeholder }) => (
-          <div key={key}>
-            <label className="block text-sm font-medium text-white/75 mb-1">{label}</label>
-            <input
-              type={type}
-              value={(order as unknown as Record<string, string>)[key] || ''}
-              onChange={e => setOrder({ [key]: e.target.value })}
-              placeholder={placeholder}
-              className="w-full rounded-lg px-4 py-3 text-base focus:outline-none text-white"
-              style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 30%)' }}
-            />
+          { label: 'Site Postcode', key: 'sitePostcode', type: 'text', placeholder: 'BD1 1AA', validate: v => /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(v), error: 'Enter a valid UK postcode' },
+        ]
+
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            {fields.map(({ label, key, type, placeholder, validate, error }) => {
+              const val = String((order as unknown as Record<string, string>)[key] || '')
+              const touched = val.length > 0
+              const isInvalid = touched && validate && !validate(val)
+              return (
+                <div key={key}>
+                  <label className="block text-sm font-medium text-white/75 mb-1">{label}</label>
+                  <input
+                    type={type}
+                    value={val}
+                    onChange={e => {
+                      let v = e.target.value
+                      if (key === 'contactPhone') v = v.replace(/[^\d\s\+\(\)\-]/g, '')
+                      if (key === 'sitePostcode') v = v.toUpperCase()
+                      setOrder({ [key]: v })
+                    }}
+                    placeholder={placeholder}
+                    className="w-full rounded-lg px-4 py-3 text-base focus:outline-none text-white"
+                    style={{
+                      background: 'hsl(252, 60%, 18%)',
+                      border: isInvalid ? '1px solid #f94580' : '1px solid hsl(252, 50%, 30%)'
+                    }}
+                  />
+                  {isInvalid && error && (
+                    <p className="text-xs mt-1 text-[#f94580]">{error}</p>
+                  )}
+                </div>
+              )
+            })}
           </div>
-        ))}
-      </div>
+        )
+      })()}
 
       <button
         onClick={onNext}
@@ -630,7 +696,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
   const [selectedAddress, setSelectedAddress] = useState<ZenAddress | null>(order.selectedAddress || null)
   const [products, setProducts] = useState<Product[]>([])
   const [availRef, setAvailRef] = useState<string | null>(order.zenAvailabilityRef || null)
-  const [phase, setPhase] = useState<'address' | 'products' | 'appointment'>('address')
+  const [phase, setPhase] = useState<'address' | 'products' | 'appointment'>(order.selectedAddress ? 'products' : 'address')
   const [loading, setLoading] = useState(false)
   const [voipSeats, setVoipSeats] = useState(1)
   const [mobileSims, setMobileSims] = useState(1)
@@ -642,9 +708,74 @@ function Step2({ order, setOrder, onNext, onBack }: {
   const [slotsLoading, setSlotsLoading] = useState(false)
   const [selectedSlot, setSelectedSlot] = useState<AppointmentSlot | null>(order.appointment || null)
 
-  // Load addresses on mount
+  // Load addresses on mount — or load products if address already selected
   useEffect(() => {
-    if (order.selectedAddress) return // already have address
+    if (order.selectedAddress) {
+      // Address already chosen (came from pre-onboarding checker) — load products
+      if (products.length > 0) return
+      setLoading(true)
+      const addr = order.selectedAddress
+      const uprn = addr.uprn
+      const loadProducts = async () => {
+        let resolvedUprn = uprn
+        if (!resolvedUprn) {
+          try {
+            const epcRes = await fetch(`/api/epc/uprn?postcode=${encodeURIComponent(order.sitePostcode)}&address=${encodeURIComponent(addr.displayAddress)}`)
+            const epcData = await epcRes.json()
+            resolvedUprn = epcData.uprn || ''
+          } catch {}
+        }
+        const uprnParam = resolvedUprn ? `uprn=${encodeURIComponent(resolvedUprn)}` : `goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}`
+        const res = await fetch(`/api/zen/availability?${uprnParam}`)
+        const data = await res.json()
+        const zenProducts: Product[] = data.products || []
+        const broadband = zenProducts.filter((p: Product) => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+        if (broadband.length === 0 && !data.availabilityReference) {
+          setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
+        } else {
+          const filteredZen = (() => {
+            // First filter: remove symmetric/zero-upload
+            const valid = zenProducts.filter((p: Product) =>
+              !['fttp','fttc','sogea','gfast','adsl'].includes(p.type) ||
+              (p.downloadMbps !== p.uploadMbps && (p.uploadMbps || 0) > 0)
+            )
+
+            // Split broadband vs add-ons
+            const broadband = valid.filter((p: Product) => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+            const addons = valid.filter((p: Product) => !['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+
+            // Pick 3 tiers: fastest ≤1000, closest to 550, closest to 115
+            const targets = [1000, 550, 115]
+            const picked: Product[] = []
+            const sorted = [...broadband].sort((a, b) => (b.downloadMbps || 0) - (a.downloadMbps || 0))
+
+            for (const target of targets) {
+              // Find closest available that hasn't been picked yet
+              const remaining = sorted.filter(p => !picked.includes(p))
+              if (!remaining.length) break
+              const closest = remaining.reduce((best, p) =>
+                Math.abs((p.downloadMbps || 0) - target) < Math.abs((best.downloadMbps || 0) - target) ? p : best
+              )
+              picked.push(closest)
+            }
+
+            // Sort picked descending by speed
+            picked.sort((a, b) => (b.downloadMbps || 0) - (a.downloadMbps || 0))
+            return [...picked, ...addons]
+          })()
+          setProducts([...filteredZen,
+            { type: 'lease_line', name: 'Managed Fibre', downloadMbps: 200, uploadMbps: 1000, monthlyCost: null, setupFee: null, available: true },
+            { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
+            { type: 'mobile', name: 'O2 Unlimited SIM', monthlyCost: 15.00 * MARGIN, setupFee: 0, available: true },
+          ])
+        }
+        setAvailRef(data.availabilityReference || null)
+        setLoading(false)
+      }
+      loadProducts().catch(() => setLoading(false))
+      return
+    }
+    if (!order.sitePostcode) return
     setLoading(true)
     fetch(`/api/zen/address?postcode=${encodeURIComponent(order.sitePostcode)}`)
       .then(r => r.json())
@@ -705,9 +836,25 @@ function Step2({ order, setOrder, onNext, onBack }: {
     setLoading(false)
   }
 
-  function toggle(key: string) {
-    setSelected(s => ({ ...s, [key]: !s[key] }))
+  function toggle(key: string, type: string) {
+    setSelected(s => {
+      const isBroadband = !['voip', 'mobile', 'lease_line'].includes(type)
+      if (isBroadband) {
+        // Radio: deselect all broadband, select only this one (or deselect if already selected)
+        const alreadySelected = s[key]
+        const cleared: Record<string, boolean> = {}
+        Object.keys(s).forEach(k => {
+          const p = products.find(p => productKey(p) === k)
+          if (p && !['voip', 'mobile', 'lease_line'].includes(p.type)) cleared[k] = false
+          else cleared[k] = s[k]
+        })
+        return { ...cleared, [key]: !alreadySelected }
+      }
+      // VoIP / Mobile / Lease line: toggle freely
+      return { ...s, [key]: !s[key] }
+    })
   }
+  function productKey(p: Product) { return `${p.name}-${p.downloadMbps ?? p.type}` }
 
 
   function buildSelected(): SelectedProduct[] {
@@ -772,15 +919,38 @@ function Step2({ order, setOrder, onNext, onBack }: {
   if (phase === 'address') {
     return (
       <div>
-        <h2 className="text-2xl font-bold mb-2" >Select Installation Address</h2>
-        <p className="text-purple-300 text-sm mb-5">
-          {loading ? 'Looking up addresses…' : addresses.length > 0 ? <>Addresses found for <strong>{order.sitePostcode}</strong>. Select the exact installation address.</> : <>Enter your installation postcode below.</>}
-        </p>
+        <h2 className="text-2xl font-bold mb-4">Select Installation Address</h2>
+
+        {/* Postcode search — pre-filled from CH but editable */}
+        <div className="flex gap-2 mb-4">
+          <input
+            defaultValue={order.sitePostcode || ''}
+            id="step2-postcode"
+            placeholder="Installation postcode"
+            maxLength={8}
+            className="flex-1 rounded-xl px-4 py-3 text-base text-white placeholder-purple-400 font-medium tracking-widest focus:outline-none"
+            style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 35%)' }}
+            onKeyDown={e => { if (e.key === 'Enter') {
+              const pc = (e.target as HTMLInputElement).value.trim().toUpperCase()
+              if (pc) { setOrder({ sitePostcode: pc }); setAddresses([]); setLoading(true)
+                fetch(`/api/zen/address?postcode=${encodeURIComponent(pc)}`).then(r=>r.json()).then(d=>{setAddresses(d.addresses||[]);setLoading(false)}).catch(()=>setLoading(false)) }
+            }}}
+          />
+          <button
+            onClick={() => {
+              const pc = (document.getElementById('step2-postcode') as HTMLInputElement)?.value.trim().toUpperCase()
+              if (pc) { setOrder({ sitePostcode: pc }); setAddresses([]); setLoading(true)
+                fetch(`/api/zen/address?postcode=${encodeURIComponent(pc)}`).then(r=>r.json()).then(d=>{setAddresses(d.addresses||[]);setLoading(false)}).catch(()=>setLoading(false)) }
+            }}
+            className="itc-gradient-btn px-5 py-3 rounded-xl font-semibold text-white text-sm"
+          >Search</button>
+        </div>
+
         <div className="space-y-2 mb-6 max-h-80 overflow-y-auto">
           {loading ? (
             <p className="text-purple-400 text-sm text-center py-8">Loading addresses…</p>
           ) : addresses.length === 0 ? (
-            <p className="text-purple-400 text-sm text-center py-8">No addresses found for this postcode.</p>
+            <p className="text-purple-400 text-sm text-center py-8">{order.sitePostcode ? 'No addresses found — try a different postcode.' : 'Enter your installation postcode above.'}</p>
           ) : addresses.map(a => (
             <button key={a.goldAddressKey} onClick={() => handleAddressSelect(a)}
               className="w-full text-left rounded-xl px-5 py-4 transition-all text-base text-white"
@@ -798,111 +968,122 @@ function Step2({ order, setOrder, onNext, onBack }: {
 
   // ── Phase 2: Product picker ──────────────────────────────────────────────────
   if (phase === 'products') {
+    const broadband = products.filter(p => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type) && p.name !== '__unresolvable__')
+    const addons = products.filter(p => ['voip','mobile','lease_line'].includes(p.type))
+    const isUnresolvable = products.length === 1 && products[0].name === '__unresolvable__'
+
     return (
       <div>
-        <h2 className="text-2xl font-bold mb-2" >Available Products</h2>
-        <p className="text-sm mb-1 text-white/55">{selectedAddress?.displayAddress}</p>
-        <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
-          className="text-xs mb-5 underline" style={{ color: "#7be7ff" }}>
-          ← Change address
-        </button>
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-2xl font-bold">Select Services</h2>
+          <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
+            className="text-xs underline" style={{ color: "#7be7ff" }}>← Change address</button>
+        </div>
+        <p className="text-sm mb-5 text-white/40">{selectedAddress?.displayAddress}</p>
 
-        {/* Unresolvable address fallback */}
-        {products.length === 1 && products[0].name === '__unresolvable__' ? (
+        {isUnresolvable ? (
           <div className="rounded-xl p-6 mb-6 text-center" style={{ background: 'rgba(249,69,128,0.08)', border: '1px solid rgba(249,69,128,0.3)' }}>
             <p className="text-white font-semibold mb-2">We couldn't automatically check availability for this address</p>
             <p className="text-purple-300 text-sm mb-4">An ITC advisor will contact you within 1 business day to confirm what's available and provide a tailored quote.</p>
-            <button onClick={handleProductsNext} className="itc-gradient-btn px-6 py-3 rounded-xl font-semibold text-white text-sm">
-              Request a Callback →
-            </button>
+            <button onClick={handleProductsNext} className="itc-gradient-btn px-6 py-3 rounded-xl font-semibold text-white text-sm">Request a Callback →</button>
           </div>
         ) : (
-        <div className="space-y-3 mb-6">
-          {products.map(p => p.name === '__unresolvable__' ? null : (
-            <div key={p.name} onClick={() => toggle(p.name)}
-              className="border-2 rounded-xl p-5 cursor-pointer transition-all hover:border-blue-400 hover:shadow-sm"
-              style={selected[p.name] ? { borderColor: "#f94580", background: "rgba(249, 69, 128, 0.08)", boxShadow: "0 0 0 1px #f94580" } : { borderColor: "hsl(252, 50%, 30%)", background: "hsl(252, 60%, 16%)" }}>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0"
-                      style={{ borderColor: selected[p.name] ? '#f94580' : 'hsl(252,50%,35%)', background: selected[p.name] ? '#f94580' : 'transparent' }}>
-                      {selected[p.name] && <span className="text-white text-xs leading-none">✓</span>}
-                    </div>
-                    <span className="font-semibold text-sm">{p.name}</span>
-                  </div>
-
-                  {/* Broadband speed info */}
-                  {['fttp','fttc','sogea','gfast','adsl'].includes(p.type) && (
-                    <p className="text-xs text-gray-500 mt-1 ml-6">{p.downloadMbps}/{p.uploadMbps} Mbps · Engineer installation required</p>
-                  )}
-
-                  {/* Lease line — callback required for quote */}
-                  {p.type === 'lease_line' && selected['Managed Fibre (Leased Line)'] && (
-                    <div className="ml-6 mt-2" onClick={e => e.stopPropagation()}>
-                      <p className="text-xs rounded-lg px-3 py-2" style={{ background: "rgba(249, 69, 128, 0.1)", border: "1px solid rgba(249, 69, 128, 0.4)", color: "#f94580" }}>
-                        📞 An ITC advisor will call you within 1 business day to discuss bandwidth options and pricing.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* VoIP seats */}
-                  {p.type === 'voip' && selected[p.name] && (
-                    <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                      <label className="text-xs text-purple-200">Seats:</label>
-                      <input type="number" min={1} max={100} value={voipSeats}
-                        onChange={e => setVoipSeats(Number(e.target.value))}
-                        className="w-16 rounded px-2 py-1 text-sm text-white" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }} />
-                      <span className="text-xs text-purple-400">× £{(8 * MARGIN).toFixed(2)}/mo</span>
-                    </div>
-                  )}
-
-                  {/* Mobile SIMs */}
-                  {p.type === 'mobile' && selected[p.name] && (
-                    <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                      <label className="text-xs text-purple-200">SIMs:</label>
-                      <input type="number" min={1} max={500} value={mobileSims}
-                        onChange={e => setMobileSims(Number(e.target.value))}
-                        className="w-16 rounded px-2 py-1 text-sm text-white" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }} />
-                      <span className="text-xs text-purple-400">× £{(15 * MARGIN).toFixed(2)}/mo</span>
-                    </div>
-                  )}
+          <>
+            {/* Broadband */}
+            {broadband.length > 0 && (
+              <div className="mb-5">
+                <div className="rounded-lg px-3 py-2 mb-3 flex items-center gap-2" style={{ background: 'rgba(123,231,255,0.08)', border: '1px solid rgba(123,231,255,0.2)' }}>
+                  <span className="text-[#7be7ff] text-xs font-bold uppercase tracking-widest">✓ Full Fibre available at your address</span>
                 </div>
-
-                {/* Price column */}
-                <div className="text-right ml-4 flex-shrink-0">
-                  {p.type === 'lease_line' ? (
-                    <div className="text-xs text-purple-400">POA</div>
-                  ) : p.monthlyCost ? (
-                    <>
-                      <div className="font-bold text-sm" >£{p.monthlyCost.toFixed(2)}</div>
-                      <div className="text-xs text-purple-400">/ month</div>
-                    </>
-                  ) : (
-                    <div className="text-xs text-purple-400">—</div>
-                  )}
+                <div className="space-y-2">
+                  {broadband.map(p => (
+                    <div key={productKey(p)} onClick={() => toggle(productKey(p), p.type)}
+                      className="flex items-center justify-between rounded-xl px-4 py-3.5 cursor-pointer transition-all"
+                      style={selected[productKey(p)]
+                        ? { border: '2px solid #f94580', background: 'rgba(249,69,128,0.08)' }
+                        : { border: '1.5px solid hsl(252,50%,30%)', background: 'hsl(252,60%,16%)' }}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                          style={{ borderColor: selected[productKey(p)] ? '#f94580' : 'hsl(252,50%,35%)', background: selected[productKey(p)] ? '#f94580' : 'transparent' }}>
+                          {selected[productKey(p)] && <span className="text-white text-[9px] leading-none">✓</span>}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm text-white">{p.name}</p>
+                          <p className="text-xs text-white/40">↓ {p.downloadMbps} / ↑ {p.uploadMbps} Mbps</p>
+                        </div>
+                      </div>
+                      <span className="text-xs text-white/30">{p.monthlyCost ? `£${p.monthlyCost.toFixed(2)}/mo` : 'POA'}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-        )}
+            )}
 
-        {!(products.length === 1 && products[0]?.name === '__unresolvable__') && (
-        <div className="flex flex-col-reverse sm:flex-row gap-3">
-          <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
-            className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
-          <button onClick={handleProductsNext}
-            disabled={!hasSelection || !leaseLineReady}
-            className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40"
-            style={{ background: NAVY }}>
-            {(() => {
-              const sel = products.filter(p => selected[p.name])
-              const needsInstall = sel.some(p => ['fttp','fttc','sogea','gfast','adsl','lease_line'].includes(p.type))
-              return needsInstall ? 'Book Installation →' : 'Get Quote →'
-            })()}
-          </button>
-        </div>
+            {/* Add-ons */}
+            {addons.length > 0 && (
+              <div className="mb-5">
+                <p className="text-xs font-bold uppercase tracking-widest text-white/30 mb-2">Add-ons</p>
+                <div className="space-y-2">
+                  {addons.map(p => (
+                    <div key={productKey(p)} onClick={() => toggle(productKey(p), p.type)}
+                      className="flex items-center justify-between rounded-xl px-4 py-3.5 cursor-pointer transition-all"
+                      style={selected[productKey(p)]
+                        ? { border: '2px solid #f94580', background: 'rgba(249,69,128,0.08)' }
+                        : { border: '1.5px solid hsl(252,50%,30%)', background: 'hsl(252,60%,16%)' }}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0"
+                          style={{ borderColor: selected[productKey(p)] ? '#f94580' : 'hsl(252,50%,35%)', background: selected[productKey(p)] ? '#f94580' : 'transparent' }}>
+                          {selected[productKey(p)] && <span className="text-white text-[9px] leading-none">✓</span>}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm text-white">{p.name}</p>
+                          {p.type === 'lease_line' && <p className="text-xs text-white/40">Quote on request</p>}
+                          {p.type === 'voip' && <p className="text-xs text-white/40">Cloud phone system</p>}
+                          {p.type === 'mobile' && <p className="text-xs text-white/40">O2 business SIM</p>}
+                        </div>
+                      </div>
+                      {/* Qty controls */}
+                      {p.type === 'voip' && selected[productKey(p)] && (
+                        <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                          <input type="number" min={1} max={100} value={voipSeats}
+                            onChange={e => setVoipSeats(Number(e.target.value))}
+                            className="w-14 rounded px-2 py-1 text-sm text-white text-center" style={{ background: "hsl(252,60%,18%)", border: "1px solid hsl(252,50%,30%)" }} />
+                          <span className="text-xs text-white/30">seats</span>
+                        </div>
+                      )}
+                      {p.type === 'mobile' && selected[productKey(p)] && (
+                        <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                          <input type="number" min={1} max={500} value={mobileSims}
+                            onChange={e => setMobileSims(Number(e.target.value))}
+                            className="w-14 rounded px-2 py-1 text-sm text-white text-center" style={{ background: "hsl(252,60%,18%)", border: "1px solid hsl(252,50%,30%)" }} />
+                          <span className="text-xs text-white/30">SIMs</span>
+                        </div>
+                      )}
+                      {p.type === 'lease_line' && <span className="text-xs text-white/30">POA</span>}
+                      {p.type === 'voip' && !selected[productKey(p)] && <span className="text-xs text-white/30">£{(8 * MARGIN).toFixed(2)}/seat</span>}
+                      {p.type === 'mobile' && !selected[productKey(p)] && <span className="text-xs text-white/30">£{(15 * MARGIN).toFixed(2)}/SIM</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Lease line callout */}
+            {products.some(p => p.type === 'lease_line' && selected[productKey(p)]) && (
+              <div className="rounded-lg px-4 py-3 mb-4 text-xs" style={{ background: 'rgba(249,69,128,0.08)', border: '1px solid rgba(249,69,128,0.3)', color: '#f94580' }}>
+                📞 An ITC advisor will call within 1 business day to discuss leased line options and pricing.
+              </div>
+            )}
+
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
+              <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
+                className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252,50%,35%)", background: "hsl(252,60%,18%)" }}>← Back</button>
+              <button onClick={handleProductsNext} disabled={!hasSelection}
+                className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40">
+                {products.filter(p => selected[productKey(p)]).some(p => ['fttp','fttc','sogea','gfast','adsl','lease_line'].includes(p.type)) ? 'Book Installation →' : 'Get Quote →'}
+              </button>
+            </div>
+          </>
         )}
       </div>
     )
@@ -984,7 +1165,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
   onNext: () => void
   onBack: () => void
 }) {
-  const [term, setTerm] = useState<number>(order.quoteTerm || 24)
+  const [term, setTerm] = useState<number>(order.quoteTerm || 36)
   const [emailSent, setEmailSent] = useState(false)
   const [sending, setSending] = useState(false)
 
@@ -1026,7 +1207,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
 
       <div className="mb-4 flex items-center gap-3">
         <label className="text-sm font-medium text-purple-200">Contract Term:</label>
-        {[12, 24, 36].map(t => (
+        {[12, 36].map(t => (
           <button
             key={t}
             onClick={() => setTerm(t)}
@@ -1074,7 +1255,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
         </table>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-6 flex flex-col gap-2">
         <button
           onClick={emailQuote}
           disabled={sending || emailSent}
@@ -1082,6 +1263,46 @@ function Step3({ order, setOrder, onNext, onBack }: {
           style={{ border: "1.5px solid #591bff", color: emailSent ? 'white' : '#7be7ff', background: emailSent ? '#591bff' : 'transparent' }}
         >
           {emailSent ? `✓ Quote sent to ${order.contactEmail}` : sending ? 'Sending...' : `📧 Email Quote to ${order.contactEmail}`}
+        </button>
+        <button
+          onClick={() => {
+            const rows = order.selectedProducts.map(p =>
+              `${p.name} x${p.quantity} — £${p.unitMonthly ? p.unitMonthly.toFixed(2) : 'POA'}/mo each — £${p.monthlyTotal ? p.monthlyTotal.toFixed(2) : 'POA'}/mo`
+            ).join('\n')
+            const text = [
+              'ITC TELECOMS — QUOTE',
+              '====================',
+              `Ref: ${quoteRef}`,
+              `Date: ${new Date().toLocaleDateString('en-GB')}`,
+              `Valid: 30 days`,
+              `Contract: ${term} months`,
+              '',
+              'Customer: ' + order.companyName,
+              'Contact: ' + order.contactName,
+              'Email: ' + order.contactEmail,
+              'Site: ' + [order.siteAddressLine1, order.siteCity, order.sitePostcode].filter(Boolean).join(', '),
+              '',
+              'PRODUCTS',
+              '--------',
+              rows,
+              '',
+              `Monthly Total: £${monthly.toFixed(2)}`,
+              `Annual Total: £${annual.toFixed(2)}`,
+              '',
+              'ITC Telecoms Ltd · 01274 952 123 · adminteam@clickitc.co.uk',
+            ].join('\n')
+            const blob = new Blob([text], { type: 'text/plain' })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `ITC-Quote-${quoteRef}.txt`
+            a.click()
+            URL.revokeObjectURL(url)
+          }}
+          className="w-full py-2.5 rounded-xl font-medium text-sm transition-all"
+          style={{ border: "1.5px solid hsl(252,50%,35%)", color: '#c4b8f0', background: 'transparent' }}
+        >
+          💾 Save Quote
         </button>
       </div>
 
@@ -1203,6 +1424,24 @@ function Step4({ order, setOrder, onNext, onBack }: {
         <div className="rounded-lg p-3 mb-4 text-sm" style={{ background: "rgba(123, 231, 255, 0.1)", border: "1px solid rgba(123, 231, 255, 0.4)", color: "#7be7ff" }}>
           ✓ Signed by <strong>{order.signedName}</strong> on {new Date(order.signedAt).toLocaleDateString('en-GB')} at {new Date(order.signedAt).toLocaleTimeString('en-GB')} UTC<br />
           <span className="text-xs text-green-600">Electronic signature captured per Electronic Communications Act 2000</span>
+        </div>
+      )}
+
+      {signed && (
+        <div className="rounded-lg p-3 mb-4 flex items-center justify-between gap-3"
+          style={{ background: "hsl(252,60%,16%)", border: "1px solid hsl(252,50%,28%)" }}>
+          <div>
+            <p className="text-sm font-medium text-white">📧 Send signed copy by email</p>
+            <p className="text-xs text-white/40 mt-0.5">A copy of the signed agreement will be sent to {order.contactEmail}</p>
+          </div>
+          <button
+            disabled
+            className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold text-white/40 cursor-not-allowed"
+            style={{ background: "hsl(252,60%,22%)", border: "1px solid hsl(252,50%,30%)" }}
+            title="Email delivery coming soon — Resend domain verification pending"
+          >
+            Coming Soon
+          </button>
         </div>
       )}
 
@@ -1386,7 +1625,7 @@ function Step6({ order }: { order: OrderState }) {
 
       <h2 className="text-2xl font-bold mb-2" >Order Confirmed!</h2>
       <p className="text-gray-500 mb-1">Reference: <strong>{order.quoteReference}</strong></p>
-      {synced && <p className="text-xs text-green-600 mb-4">✓ Provisioning ticket created in ConnectWise</p>}
+      
 
       <div className="rounded-xl p-4 text-sm text-left mb-6" style={{ background: "hsl(252, 60%, 16%)", border: "1px solid hsl(252, 50%, 28%)" }}>
         <div className="space-y-2">
@@ -1412,8 +1651,25 @@ function Step6({ order }: { order: OrderState }) {
         </div>
       )}
 
-      <p className="text-sm text-purple-300">A confirmation has been sent to <strong>{order.contactEmail}</strong></p>
-      <p className="text-sm text-gray-500 mt-1">Your account manager will be in touch within 24 hours.</p>
+      <div className="rounded-xl p-5 mt-2 text-sm space-y-3" style={{ background: "hsl(252,60%,16%)", border: "1px solid hsl(252,50%,28%)" }}>
+        <p className="text-white font-semibold">What happens next?</p>
+        <div className="flex items-start gap-3">
+          <span className="text-[#f94580] font-bold flex-shrink-0">1.</span>
+          <p className="text-white/75">Your order is being processed — a confirmation will be sent to <strong className="text-white">{order.contactEmail}</strong> shortly.</p>
+        </div>
+        <div className="flex items-start gap-3">
+          <span className="text-[#f94580] font-bold flex-shrink-0">2.</span>
+          <p className="text-white/75">Your dedicated account manager will call you within <strong className="text-white">1 business day</strong> to walk you through the next steps.</p>
+        </div>
+        <div className="flex items-start gap-3">
+          <span className="text-[#f94580] font-bold flex-shrink-0">3.</span>
+          <p className="text-white/75">An engineer will be scheduled for installation. You'll receive a date confirmation by email.</p>
+        </div>
+        <div className="mt-4 pt-4 border-t flex items-center gap-2" style={{ borderColor: "hsl(252,50%,28%)" }}>
+          <span className="text-white/40 text-xs">Need to speak to us now?</span>
+          <a href="tel:01274952123" className="text-[#7be7ff] text-xs font-semibold hover:underline">01274 952 123</a>
+        </div>
+      </div>
     </div>
   )
 }
@@ -1458,13 +1714,11 @@ export default function OrderPage() {
   return (
     <div className="min-h-screen py-6 px-4 sm:py-10 sm:px-6" style={{ background: "hsl(252, 92%, 10%)" }}>
       <div className="max-w-3xl mx-auto">
-        {/* Header — only shown during wizard */}
-        {step >= 0 && (
-          <div className="text-center mb-8">
-            <img src="/itc-logo.svg" alt="ITC Telecoms" className="h-10 mx-auto mb-2" />
-            <h1 className="text-lg font-semibold text-white">Customer Onboarding Portal</h1>
-          </div>
-        )}
+        {/* Header */}
+        <div className="text-center mb-8">
+          <img src="/itc-logo.svg" alt="ITC Telecoms" className="h-10 mx-auto mb-2" />
+          {step === -1 ? <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Availability Checker</h1> : <h1 className="text-lg font-semibold text-white">Customer Onboarding Portal</h1>}
+        </div>
 
         {/* Postcode checker — pre-onboarding, no step bar */}
         {step === -1 && (
@@ -1478,7 +1732,7 @@ export default function OrderPage() {
           <>
             <StepIndicator current={step} />
             <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
-              {step === 0 && <Step1 order={order} setOrder={setOrder} onNext={next} />}
+              {step === 0 && <Step1 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
               {step === 1 && <Step2 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
               {step === 2 && <Step3 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
               {step === 3 && <Step4 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
