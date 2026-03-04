@@ -355,7 +355,7 @@ function Step0({ order, setOrder, onNext }: {
   return (
     <div>
       <div className="text-center mb-6">
-        <p className="text-base font-medium text-white/75">Enter your business postcode to see what's available at your address.</p>
+        <p className="text-base font-medium text-white/75">Enter the postcode you want to check, to see if ITC services are available to you!</p>
       </div>
 
       <div className="flex gap-2 mb-4">
