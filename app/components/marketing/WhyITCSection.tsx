@@ -46,26 +46,18 @@ export default function WhyITCSection() {
             </p>
           </FadeInView>
 
-          {/* Right - vertical timeline */}
+          {/* Right - differentiators */}
           <FadeInView delay={0.15}>
-            <div className="relative">
-              <div className="absolute left-[27px] top-8 bottom-4 w-px" style={{ background: "rgba(255,255,255,0.1)" }} />
-              <div className="space-y-8">
-                {timeline.map((t) => (
-                  <div key={t.year} className="flex items-start gap-5">
-                    <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 font-black text-lg relative z-10"
-                      style={{ border: `2px solid ${t.color}`, background: `${t.color}18`, color: t.color, fontFamily: "'Visby CF', sans-serif" }}>
-                      {t.short}
-                    </div>
-                    <div className="pt-2">
-                      <p className="text-xs font-bold uppercase tracking-[0.15em] mb-1" style={{ color: t.color }}>
-                        {t.year} - {t.label}
-                      </p>
-                      <p className="text-white/55 text-sm leading-relaxed">{t.desc}</p>
-                    </div>
+            <div className="space-y-6">
+              {differentiators.map((item) => (
+                <div key={item.title} className="flex items-start gap-4">
+                  <span className="text-2xl flex-shrink-0 mt-0.5">{item.icon}</span>
+                  <div>
+                    <p className="font-bold text-base mb-1 text-white">{item.title}</p>
+                    <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </FadeInView>
         </div>
