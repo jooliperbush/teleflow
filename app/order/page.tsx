@@ -1427,6 +1427,24 @@ function Step4({ order, setOrder, onNext, onBack }: {
         </div>
       )}
 
+      {signed && (
+        <div className="rounded-lg p-3 mb-4 flex items-center justify-between gap-3"
+          style={{ background: "hsl(252,60%,16%)", border: "1px solid hsl(252,50%,28%)" }}>
+          <div>
+            <p className="text-sm font-medium text-white">📧 Send signed copy by email</p>
+            <p className="text-xs text-white/40 mt-0.5">A copy of the signed agreement will be sent to {order.contactEmail}</p>
+          </div>
+          <button
+            disabled
+            className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold text-white/40 cursor-not-allowed"
+            style={{ background: "hsl(252,60%,22%)", border: "1px solid hsl(252,50%,30%)" }}
+            title="Email delivery coming soon — Resend domain verification pending"
+          >
+            Coming Soon
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col-reverse sm:flex-row gap-3">
         <button onClick={onBack} disabled={signed} className="flex-1 py-3 rounded-xl font-medium text-base text-purple-200 disabled:opacity-40" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         {!signed ? (
