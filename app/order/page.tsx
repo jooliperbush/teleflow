@@ -696,7 +696,8 @@ function Step2({ order, setOrder, onNext, onBack }: {
         if (broadband.length === 0 && !data.availabilityReference) {
           setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
         } else {
-          setProducts([...zenProducts,
+          const filteredZen = zenProducts.filter((p: Product) => !p.downloadMbps || !p.uploadMbps || p.downloadMbps !== p.uploadMbps || !['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+          setProducts([...filteredZen,
             { type: 'lease_line', name: 'Managed Fibre', downloadMbps: 200, uploadMbps: 1000, monthlyCost: null, setupFee: null, available: true },
             { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
             { type: 'mobile', name: 'O2 Unlimited SIM', monthlyCost: 15.00 * MARGIN, setupFee: 0, available: true },
