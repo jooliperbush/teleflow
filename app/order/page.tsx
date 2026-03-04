@@ -410,7 +410,6 @@ function Step0({ order, setOrder, onNext }: {
       {checked && (
         <div className="mt-2">
           <div className="rounded-xl p-6 text-center" style={{ background: 'rgba(89,27,255,0.15)', border: '1px solid rgba(89,27,255,0.4)' }}>
-            <div className="text-3xl mb-3">✅</div>
             <p className="text-white font-bold text-lg mb-1">Great News!</p>
             <p className="text-white/75 text-sm mb-5">ITC services are available at your address.</p>
             <button
