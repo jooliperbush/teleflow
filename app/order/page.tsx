@@ -79,7 +79,9 @@ interface OrderState {
   monthlyTotal: number
   annualTotal: number
   quoteSent: boolean
-  // Step 4
+  // Step 2
+  authorisedToSign: boolean
+  // Step 5
   signedName: string
   signedAt: string
   // Step 5
@@ -114,7 +116,7 @@ const MARGIN = 1.25 // 25% markup
 
 // ─── Step Indicator ──────────────────────────────────────────────────────────
 
-const STEPS = ['Company', 'Availability', 'Quote', 'Sign', 'Payment', 'Confirm']
+const STEPS = ['Address', 'Company', 'Products', 'Quote', 'Sign', 'Payment', 'Confirm']
 
 function StepIndicator({ current }: { current: number }) {
   return (
@@ -425,9 +427,171 @@ function Step0({ order, setOrder, onNext }: {
   )
 }
 
-// ─── Step 1: Company Details ──────────────────────────────────────────────────
+// ─── Step 1: Installation Address + Contact Info ─────────────────────────────
 
 function Step1({ order, setOrder, onNext, onBack }: {
+  order: OrderState
+  setOrder: (o: Partial<OrderState>) => void
+  onNext: () => void
+  onBack: () => void
+}) {
+  const [showDifferent, setShowDifferent] = useState(false)
+  const [altPostcode, setAltPostcode] = useState('')
+  const [altAddresses, setAltAddresses] = useState<ZenAddress[]>([])
+  const [altLoading, setAltLoading] = useState(false)
+  const [altError, setAltError] = useState('')
+
+  async function searchAltPostcode() {
+    const pc = altPostcode.trim().toUpperCase()
+    if (!pc) return
+    setAltLoading(true); setAltError(''); setAltAddresses([])
+    try {
+      const res = await fetch(`/api/zen/address?postcode=${encodeURIComponent(pc)}`)
+      const data = await res.json()
+      if (!data.addresses?.length) { setAltError('No addresses found for this postcode.'); setAltLoading(false); return }
+      setAltAddresses(data.addresses)
+    } catch { setAltError('Could not look up postcode. Please try again.') }
+    setAltLoading(false)
+  }
+
+  function selectAltAddress(addr: ZenAddress) {
+    const parts = addr.displayAddress.split(',')
+    setOrder({
+      siteAddressLine1: parts[0]?.trim() || addr.displayAddress,
+      siteAddressLine2: parts[1]?.trim() || '',
+      siteCity: parts[parts.length - 2]?.trim() || '',
+      sitePostcode: altPostcode.trim().toUpperCase(),
+      selectedAddress: addr,
+      zenAvailabilityRef: undefined,
+    })
+    setAltAddresses([])
+    setShowDifferent(false)
+  }
+
+  const emailValid = !order.contactEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.contactEmail)
+  const postcodeValid = !order.sitePostcode || /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(order.sitePostcode)
+  const canContinue = order.contactName && order.contactEmail && emailValid && order.siteAddressLine1 && order.siteCity && order.sitePostcode && postcodeValid
+
+  const contactFields: { label: string; key: keyof OrderState; type: string; placeholder: string; validate?: (v: string) => boolean; error?: string }[] = [
+    { label: 'Contact Name', key: 'contactName', type: 'text', placeholder: 'Full name' },
+    { label: 'Contact Email', key: 'contactEmail', type: 'email', placeholder: 'email@company.com', validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), error: 'Enter a valid email address' },
+    { label: 'Contact Phone', key: 'contactPhone', type: 'tel', placeholder: '07700 000000' },
+  ]
+
+  const addressFields: { label: string; key: keyof OrderState; type: string; placeholder: string; validate?: (v: string) => boolean; error?: string }[] = [
+    { label: 'Address Line 1', key: 'siteAddressLine1', type: 'text', placeholder: '123 High Street' },
+    { label: 'Address Line 2', key: 'siteAddressLine2', type: 'text', placeholder: 'Suite / Floor (optional)' },
+    { label: 'Town / City', key: 'siteCity', type: 'text', placeholder: 'Bradford' },
+    { label: 'Postcode', key: 'sitePostcode', type: 'text', placeholder: 'BD1 1AA', validate: v => /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(v), error: 'Enter a valid UK postcode' },
+  ]
+
+  function renderField({ label, key, type, placeholder, validate, error }: typeof contactFields[0]) {
+    const val = String((order as unknown as Record<string, string>)[key] || '')
+    const touched = val.length > 0
+    const isInvalid = touched && validate && !validate(val)
+    return (
+      <div key={key}>
+        <label className="block text-sm font-medium text-white/75 mb-1">{label}</label>
+        <input
+          type={type}
+          value={val}
+          onChange={e => {
+            let v = e.target.value
+            if (key === 'contactPhone') v = v.replace(/[^\d\s\+\(\)\-]/g, '')
+            if (key === 'sitePostcode') v = v.toUpperCase()
+            setOrder({ [key]: v })
+          }}
+          placeholder={placeholder}
+          className="w-full rounded-lg px-4 py-3 text-base focus:outline-none text-white"
+          style={{ background: 'hsl(252, 60%, 18%)', border: isInvalid ? '1px solid #f94580' : '1px solid hsl(252, 50%, 30%)' }}
+        />
+        {isInvalid && error && <p className="text-xs mt-1 text-[#f94580]">{error}</p>}
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-2">Installation Address</h2>
+      <p className="text-white/55 text-sm mb-6">Confirm where you&apos;d like the service installed and your contact details.</p>
+
+      {/* Address from availability check */}
+      {order.selectedAddress && (
+        <div className="rounded-xl p-4 mb-4" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-1">Installation Address</p>
+          <p className="text-white font-medium text-sm">{order.selectedAddress.displayAddress}</p>
+          <p className="text-white/40 text-xs mt-0.5">{order.sitePostcode}</p>
+        </div>
+      )}
+
+      {/* Different address toggle */}
+      <div className="mb-5">
+        <button
+          type="button"
+          onClick={() => { setShowDifferent(v => !v); setAltAddresses([]); setAltError('') }}
+          className="text-sm font-medium text-[#7be7ff] hover:underline"
+        >
+          {showDifferent ? '✕ Cancel' : '+ Installation address is different?'}
+        </button>
+        {showDifferent && (
+          <div className="mt-3 rounded-xl p-4" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+            <p className="text-xs text-white/55 mb-3">Enter the postcode for the installation address and we&apos;ll check availability there.</p>
+            <div className="flex gap-2 mb-3">
+              <input
+                value={altPostcode}
+                onChange={e => { setAltPostcode(e.target.value.toUpperCase()); setAltAddresses([]); setAltError('') }}
+                onKeyDown={e => e.key === 'Enter' && searchAltPostcode()}
+                placeholder="e.g. BD1 1AA"
+                maxLength={8}
+                className="flex-1 rounded-lg px-4 py-2.5 text-sm text-white placeholder-purple-400 font-medium tracking-widest focus:outline-none"
+                style={{ background: 'hsl(252, 60%, 20%)', border: '1px solid hsl(252, 50%, 35%)' }}
+              />
+              <button onClick={searchAltPostcode} disabled={altLoading || altPostcode.trim().length < 5}
+                className="itc-gradient-btn px-5 py-2.5 rounded-lg font-semibold text-white text-sm disabled:opacity-40">
+                {altLoading ? 'Searching...' : 'Search'}
+              </button>
+            </div>
+            {altError && <p className="text-red-400 text-xs mb-2">{altError}</p>}
+            {altAddresses.length > 0 && (
+              <div className="rounded-lg overflow-y-auto" style={{ border: '1px solid hsl(252, 50%, 28%)', maxHeight: '220px' }}>
+                {altAddresses.map((a, i) => (
+                  <button key={a.uprn || a.goldAddressKey} onClick={() => selectAltAddress(a)}
+                    className="w-full text-left px-4 py-3 text-sm text-white transition-colors"
+                    style={{ borderTop: i > 0 ? '1px solid hsl(252, 50%, 25%)' : 'none', background: 'transparent' }}
+                    onMouseOver={e => (e.currentTarget.style.background = 'hsl(260, 80%, 22%)')}
+                    onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
+                    {a.displayAddress}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Editable address fields */}
+      <div className="mb-5">
+        <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">Address Details</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{addressFields.map(renderField)}</div>
+      </div>
+
+      {/* Contact info */}
+      <div className="mb-6">
+        <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">Your Contact Details</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{contactFields.map(renderField)}</div>
+      </div>
+
+      <button onClick={onNext} disabled={!canContinue}
+        className="itc-gradient-btn w-full py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40">
+        Continue →
+      </button>
+    </div>
+  )
+}
+
+// ─── Step 2: Company Details ──────────────────────────────────────────────────
+
+function Step2({ order, setOrder, onNext, onBack }: {
   order: OrderState
   setOrder: (o: Partial<OrderState>) => void
   onNext: () => void
@@ -437,42 +601,6 @@ function Step1({ order, setOrder, onNext, onBack }: {
   const [suggestion, setSuggestion] = useState<CompanyResult | null>(null)
   const [searching, setSearching] = useState(false)
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  // Trading address search
-  const [showTradingSearch, setShowTradingSearch] = useState(false)
-  const [tradingPostcode, setTradingPostcode] = useState('')
-  const [tradingAddresses, setTradingAddresses] = useState<ZenAddress[]>([])
-  const [tradingLoading, setTradingLoading] = useState(false)
-  const [tradingError, setTradingError] = useState('')
-
-  async function searchTradingPostcode() {
-    const pc = tradingPostcode.trim().toUpperCase()
-    if (!pc) return
-    setTradingLoading(true)
-    setTradingError('')
-    setTradingAddresses([])
-    try {
-      const res = await fetch(`/api/zen/address?postcode=${encodeURIComponent(pc)}`)
-      const data = await res.json()
-      if (!data.addresses?.length) { setTradingError('No addresses found for this postcode.'); setTradingLoading(false); return }
-      setTradingAddresses(data.addresses)
-    } catch { setTradingError('Could not look up postcode. Please try again.') }
-    setTradingLoading(false)
-  }
-
-  function selectTradingAddress(addr: ZenAddress) {
-    const parts = addr.displayAddress.split(',')
-    setOrder({
-      siteAddressLine1: parts[0]?.trim() || addr.displayAddress,
-      siteAddressLine2: parts[1]?.trim() || '',
-      siteCity: parts[parts.length - 2]?.trim() || '',
-      sitePostcode: tradingPostcode.trim().toUpperCase(),
-      selectedAddress: addr,
-      zenAvailabilityRef: undefined,
-    })
-    setTradingAddresses([])
-    setShowTradingSearch(false)
-  }
 
   async function fetchSuggestion(q: string) {
     if (q.length < 2) { setSuggestion(null); return }
@@ -489,7 +617,7 @@ function Step1({ order, setOrder, onNext, onBack }: {
     const val = e.target.value
     setQuery(val)
     setSuggestion(null)
-    setOrder({ companyName: '', companyNumber: '', companyStatus: '' })
+    setOrder({ companyName: '', companyNumber: '', companyStatus: '', authorisedToSign: false })
     if (searchTimer.current) clearTimeout(searchTimer.current)
     searchTimer.current = setTimeout(() => fetchSuggestion(val), 300)
   }
@@ -505,18 +633,10 @@ function Step1({ order, setOrder, onNext, onBack }: {
       companyStatus: s.company_status || '',
     })
     setSuggestion(null)
-    // Fetch full profile to get registered_office_address
     try {
       const res = await fetch(`/api/companies-house/number?number=${s.company_number}`)
       const data = await res.json()
-      const addr = data.registered_office_address || {}
-      setOrder({
-        registeredAddress: addr,
-        siteAddressLine1: addr.address_line_1 || '',
-        siteAddressLine2: addr.address_line_2 || '',
-        siteCity: addr.locality || '',
-        sitePostcode: addr.postal_code || '',
-      })
+      setOrder({ registeredAddress: data.registered_office_address || {} })
     } catch {}
   }
 
@@ -531,15 +651,12 @@ function Step1({ order, setOrder, onNext, onBack }: {
   const ghostText = suggestion && suggestion.title.toLowerCase().startsWith(query.toLowerCase())
     ? suggestion.title.slice(query.length) : ''
 
-  const emailValid = !order.contactEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.contactEmail)
-  const phoneValid = !order.contactPhone || /^[\d\s\+\(\)\-]{7,15}$/.test(order.contactPhone)
-  const postcodeValid = !order.sitePostcode || /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(order.sitePostcode)
-  const canContinue = order.companyName && order.companyNumber && order.companyStatus === 'active' && order.contactName && order.contactEmail && emailValid && order.siteAddressLine1 && order.siteCity && order.sitePostcode && postcodeValid
+  const canContinue = order.companyName && order.companyNumber && order.companyStatus === 'active' && order.authorisedToSign
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-2">Company Details</h2>
-      <p className="text-white/55 text-sm mb-6">Start typing your company name to verify against Companies House.</p>
+      <p className="text-white/55 text-sm mb-6">Search for your company to verify it against Companies House.</p>
 
       <div className="mb-4">
         <label className="block text-sm font-medium text-white/75 mb-1">Company Name</label>
@@ -554,7 +671,6 @@ function Step1({ order, setOrder, onNext, onBack }: {
             className="w-full rounded-lg px-4 py-3 text-base text-white placeholder-purple-400 focus:outline-none relative z-10"
             style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 30%)', caretColor: 'white' }}
           />
-          {/* Ghost text — sits above input but pointer-events-none */}
           <div aria-hidden="true" className="absolute inset-0 px-4 py-3 text-base pointer-events-none flex items-center overflow-hidden rounded-lg z-20" style={{ fontFamily: 'inherit' }}>
             <span className="invisible whitespace-pre">{query}</span>
             <span style={{ color: 'rgba(192,132,252,0.7)' }}>{ghostText}</span>
@@ -573,170 +689,43 @@ function Step1({ order, setOrder, onNext, onBack }: {
       </div>
 
       {order.companyName && (
-        <>
-          <div className="rounded-lg p-3 mb-3 text-xs flex items-center gap-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
-            <span className="text-green-400 text-sm">✓</span>
-            <span className="text-white/75">{order.companyName} · {order.companyNumber} · <span className={order.companyStatus === 'active' ? 'text-green-400' : 'text-red-400'}>{order.companyStatus?.toUpperCase()}</span></span>
-          </div>
-          {order.registeredAddress && (
-            <div className="rounded-lg p-3 mb-4 text-xs" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-white/55 uppercase tracking-wide text-[10px] font-semibold">Installation Address</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const reg = order.registeredAddress
-                    if (!reg) return
-                    const usingSame = order.siteAddressLine1 === (reg.address_line_1 || '')
-                    if (usingSame) {
-                      setOrder({ siteAddressLine1: '', siteAddressLine2: '', siteCity: '', sitePostcode: '' })
-                    } else {
-                      setOrder({
-                        siteAddressLine1: reg.address_line_1 || '',
-                        siteAddressLine2: '',
-                        siteCity: reg.locality || '',
-                        sitePostcode: reg.postal_code || '',
-                      })
-                    }
-                  }}
-                  className="text-[#7be7ff] text-[10px] font-semibold hover:underline"
-                >
-                  {order.siteAddressLine1 === (order.registeredAddress?.address_line_1 || '') && order.siteAddressLine1
-                    ? '✎ Use different address'
-                    : '↩ Use registered address'}
-                </button>
-              </div>
-              {order.siteAddressLine1 && order.siteAddressLine1 === (order.registeredAddress?.address_line_1 || '') ? (
-                <span className="text-white/75">{order.siteAddressLine1}, {order.siteCity}, {order.sitePostcode}</span>
-              ) : (
-                <span className="text-white/40 italic">Enter trading/site address below</span>
-              )}
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Trading / Installation Address Search */}
-      <div className="mb-4">
-        <button
-          type="button"
-          onClick={() => { setShowTradingSearch(v => !v); setTradingAddresses([]); setTradingError('') }}
-          className="text-sm font-medium text-[#7be7ff] hover:underline flex items-center gap-1"
-        >
-          {showTradingSearch ? '✕ Cancel' : '+ Trading / installation address is different?'}
-        </button>
-
-        {showTradingSearch && (
-          <div className="mt-3 rounded-xl p-4" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
-            <p className="text-xs text-white/55 mb-3">Search the address where you want the service installed — we&apos;ll check availability there instead.</p>
-            <div className="flex gap-2 mb-3">
-              <input
-                value={tradingPostcode}
-                onChange={e => { setTradingPostcode(e.target.value.toUpperCase()); setTradingAddresses([]); setTradingError('') }}
-                onKeyDown={e => e.key === 'Enter' && searchTradingPostcode()}
-                placeholder="e.g. BD1 1AA"
-                maxLength={8}
-                className="flex-1 rounded-lg px-4 py-2.5 text-sm text-white placeholder-purple-400 font-medium tracking-widest focus:outline-none"
-                style={{ background: 'hsl(252, 60%, 20%)', border: '1px solid hsl(252, 50%, 35%)' }}
-              />
-              <button
-                onClick={searchTradingPostcode}
-                disabled={tradingLoading || tradingPostcode.trim().length < 5}
-                className="itc-gradient-btn px-5 py-2.5 rounded-lg font-semibold text-white text-sm disabled:opacity-40"
-              >
-                {tradingLoading ? 'Searching...' : 'Search'}
-              </button>
-            </div>
-            {tradingError && <p className="text-red-400 text-xs mb-2">{tradingError}</p>}
-            {tradingAddresses.length > 0 && (
-              <div className="rounded-lg overflow-y-auto" style={{ border: '1px solid hsl(252, 50%, 28%)', maxHeight: '220px' }}>
-                {tradingAddresses.map((a, i) => (
-                  <button
-                    key={a.uprn || a.goldAddressKey}
-                    onClick={() => selectTradingAddress(a)}
-                    className="w-full text-left px-4 py-3 text-sm text-white transition-colors"
-                    style={{ borderTop: i > 0 ? '1px solid hsl(252, 50%, 25%)' : 'none', background: 'transparent' }}
-                    onMouseOver={e => (e.currentTarget.style.background = 'hsl(260, 80%, 22%)')}
-                    onMouseOut={e => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    {a.displayAddress}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {order.siteAddressLine1 && (
-        <div className="rounded-lg px-4 py-3 mb-4 text-xs flex items-center gap-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
-          <span className="text-[#7be7ff]">📍</span>
-          <span className="text-white/75">Availability will be checked at: <span className="text-white font-medium">{order.siteAddressLine1}{order.siteCity ? `, ${order.siteCity}` : ''}, {order.sitePostcode}</span></span>
+        <div className="rounded-lg p-3 mb-5 text-xs flex items-center gap-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+          <span className="text-green-400 text-sm">✓</span>
+          <span className="text-white/75">{order.companyName} · {order.companyNumber} · <span className={order.companyStatus === 'active' ? 'text-green-400' : 'text-red-400'}>{order.companyStatus?.toUpperCase()}</span></span>
         </div>
       )}
 
-      {(() => {
-        const emailValid = !order.contactEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.contactEmail)
-        const phoneValid = !order.contactPhone || /^[\d\s\+\(\)\-]{7,15}$/.test(order.contactPhone)
-        const postcodeValid = !order.sitePostcode || /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(order.sitePostcode)
+      {order.companyName && order.companyStatus === 'active' && (
+        <label className="flex items-start gap-3 cursor-pointer rounded-xl p-4 mb-6"
+          style={{ background: 'hsl(252, 60%, 16%)', border: `1px solid ${order.authorisedToSign ? 'rgba(89,27,255,0.6)' : 'hsl(252, 50%, 28%)'}` }}>
+          <input
+            type="checkbox"
+            checked={order.authorisedToSign || false}
+            onChange={e => setOrder({ authorisedToSign: e.target.checked })}
+            className="mt-0.5 w-4 h-4 flex-shrink-0 accent-[#591bff]"
+          />
+          <span className="text-sm text-white/75 leading-relaxed">
+            I confirm that I am <strong className="text-white">authorised to sign</strong> on behalf of <strong className="text-white">{order.companyName}</strong> and that the information provided is accurate.
+          </span>
+        </label>
+      )}
 
-        const fields: { label: string; key: keyof OrderState; type: string; placeholder: string; validate?: (v: string) => boolean; error?: string }[] = [
-          { label: 'Contact Name', key: 'contactName', type: 'text', placeholder: 'Full name' },
-          { label: 'Contact Email', key: 'contactEmail', type: 'email', placeholder: 'email@company.com', validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), error: 'Enter a valid email address' },
-          { label: 'Contact Phone', key: 'contactPhone', type: 'tel', placeholder: '07700 000000', validate: v => /^[\d\s\+\(\)\-]{7,15}$/.test(v), error: 'Enter a valid phone number' },
-          { label: 'Site Address Line 1', key: 'siteAddressLine1', type: 'text', placeholder: '123 High Street' },
-          { label: 'Site Address Line 2', key: 'siteAddressLine2', type: 'text', placeholder: 'Suite / Floor (optional)' },
-          { label: 'Town / City', key: 'siteCity', type: 'text', placeholder: 'Bradford' },
-          { label: 'Site Postcode', key: 'sitePostcode', type: 'text', placeholder: 'BD1 1AA', validate: v => /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(v), error: 'Enter a valid UK postcode' },
-        ]
-
-        return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-            {fields.map(({ label, key, type, placeholder, validate, error }) => {
-              const val = String((order as unknown as Record<string, string>)[key] || '')
-              const touched = val.length > 0
-              const isInvalid = touched && validate && !validate(val)
-              return (
-                <div key={key}>
-                  <label className="block text-sm font-medium text-white/75 mb-1">{label}</label>
-                  <input
-                    type={type}
-                    value={val}
-                    onChange={e => {
-                      let v = e.target.value
-                      if (key === 'contactPhone') v = v.replace(/[^\d\s\+\(\)\-]/g, '')
-                      if (key === 'sitePostcode') v = v.toUpperCase()
-                      setOrder({ [key]: v })
-                    }}
-                    placeholder={placeholder}
-                    className="w-full rounded-lg px-4 py-3 text-base focus:outline-none text-white"
-                    style={{
-                      background: 'hsl(252, 60%, 18%)',
-                      border: isInvalid ? '1px solid #f94580' : '1px solid hsl(252, 50%, 30%)'
-                    }}
-                  />
-                  {isInvalid && error && (
-                    <p className="text-xs mt-1 text-[#f94580]">{error}</p>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )
-      })()}
-
-      <button
-        onClick={onNext}
-        disabled={!canContinue}
-        className="itc-gradient-btn w-full py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40"
-      >
-        Continue →
-      </button>
+      <div className="flex gap-3">
+        <button onClick={onBack}
+          className="px-6 py-4 rounded-xl font-semibold text-white/60 text-base hover:text-white transition-colors"
+          style={{ border: '1px solid hsl(252, 50%, 30%)' }}>
+          ← Back
+        </button>
+        <button onClick={onNext} disabled={!canContinue}
+          className="itc-gradient-btn flex-1 py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40">
+          Continue →
+        </button>
+      </div>
     </div>
   )
 }
 
-function Step2({ order, setOrder, onNext, onBack }: {
+function Step3({ order, setOrder, onNext, onBack }: {
   order: OrderState
   setOrder: (o: Partial<OrderState>) => void
   onNext: () => void
@@ -1207,9 +1196,9 @@ function Step2({ order, setOrder, onNext, onBack }: {
   )
 }
 
-// ─── Step 3: Quote ────────────────────────────────────────────────────────────
+// ─── Step 4: Quote ────────────────────────────────────────────────────────────
 
-function Step3({ order, setOrder, onNext, onBack }: {
+function Step4({ order, setOrder, onNext, onBack }: {
   order: OrderState
   setOrder: (o: Partial<OrderState>) => void
   onNext: () => void
@@ -1370,9 +1359,9 @@ function Step3({ order, setOrder, onNext, onBack }: {
   )
 }
 
-// ─── Step 4: E-Signature ──────────────────────────────────────────────────────
+// ─── Step 5: E-Signature ──────────────────────────────────────────────────────
 
-function Step4({ order, setOrder, onNext, onBack }: {
+function Step5({ order, setOrder, onNext, onBack }: {
   order: OrderState
   setOrder: (o: Partial<OrderState>) => void
   onNext: () => void
@@ -1516,9 +1505,9 @@ function Step4({ order, setOrder, onNext, onBack }: {
   )
 }
 
-// ─── Step 5: Direct Debit ─────────────────────────────────────────────────────
+// ─── Step 6: Direct Debit ─────────────────────────────────────────────────────
 
-function Step5({ order, setOrder, onNext, onBack }: {
+function Step6({ order, setOrder, onNext, onBack }: {
   order: OrderState
   setOrder: (o: Partial<OrderState>) => void
   onNext: () => void
@@ -1650,9 +1639,9 @@ function Step5({ order, setOrder, onNext, onBack }: {
   )
 }
 
-// ─── Step 6: Confirmation ─────────────────────────────────────────────────────
+// ─── Step 7: Confirmation ─────────────────────────────────────────────────────
 
-function Step6({ order }: { order: OrderState }) {
+function Step7({ order }: { order: OrderState }) {
   const [synced, setSynced] = useState(false)
 
   useEffect(() => {
@@ -1732,7 +1721,7 @@ const defaultOrder: OrderState = {
   siteAddressLine1: '', siteAddressLine2: '', siteCity: '', sitePostcode: '', selectedProducts: [], requiresCallback: false, quoteReference: '',
   quoteTerm: 24, monthlyTotal: 0, annualTotal: 0, quoteSent: false, signedName: '',
   signedAt: '', ddAccountHolder: '', ddSortCode: '', ddAccountNumberLast4: '',
-  ddConfirmed: false,
+  ddConfirmed: false, authorisedToSign: false,
 }
 
 export default function OrderPage() {
@@ -1745,10 +1734,9 @@ export default function OrderPage() {
 
   function next() {
     const current = step
-    setStep(s => Math.min(s + 1, 6))
-    // Leaving Step 1 (postcode entry) — clear all downstream address/availability state
-    // so a changed postcode doesn't carry over stale address/products
-    if (current === 1) {
+    setStep(s => Math.min(s + 1, 7))
+    // Leaving Step 1 (address) — clear downstream availability state if address changed
+    if (current === 0) {
       setOrder({
         selectedAddress: undefined,
         zenAvailabilityRef: undefined,
@@ -1787,7 +1775,8 @@ export default function OrderPage() {
               {step === 2 && <Step3 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
               {step === 3 && <Step4 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
               {step === 4 && <Step5 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
-              {step === 5 && <Step6 order={order} />}
+              {step === 5 && <Step6 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
+              {step === 6 && <Step7 order={order} />}
             </div>
           </>
         )}
