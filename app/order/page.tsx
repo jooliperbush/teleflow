@@ -409,61 +409,17 @@ function Step0({ order, setOrder, onNext }: {
 
       {checked && (
         <div className="mt-2">
-          {hasProducts ? (
-            <>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-green-400 text-lg">✓</span>
-                <p className="text-white font-semibold">Great news! {broadband.length} plan{broadband.length !== 1 ? 's' : ''} available at your address.</p>
-              </div>
-
-              <div className="rounded-xl px-4 py-3 mb-5 flex items-center gap-3" style={{ background: 'linear-gradient(135deg, rgba(249,69,128,0.15), rgba(89,27,255,0.15))', border: '1px solid rgba(249,69,128,0.4)' }}>
-                <span className="text-2xl">🎁</span>
-                <div>
-                  <p className="text-white font-semibold text-sm">Limited time offer</p>
-                  <p className="text-sm text-white/75">Order now and receive a <span className="text-pink-400 font-bold">FREE 30-day unlimited data SIM</span> — no strings attached.</p>
-                </div>
-              </div>
-
-              <TierCards products={broadband} />
-
-              {/* Also Available */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                <div className="rounded-xl p-4" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                  <h4 className="font-bold mb-1" style={{ fontFamily: 'Visby CF Bold, sans-serif', fontSize: '1.1rem', letterSpacing: '-0.02em', color: '#0f0a2e' }}>VoIP</h4>
-                  <p className="text-xs mb-2" style={{ color: '#6b7280' }}>Cloud phone system for your whole team. No hardware needed.</p>
-                  <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: '#f0fdf4', color: '#16a34a' }}>Always available</span>
-                </div>
-                <div className="rounded-xl p-4" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                  <h4 className="font-bold mb-1" style={{ fontFamily: 'Visby CF Bold, sans-serif', fontSize: '1.1rem', letterSpacing: '-0.02em', color: '#0f0a2e' }}>Leased Line</h4>
-                  <p className="text-xs mb-2" style={{ color: '#6b7280' }}>Dedicated uncontended bandwidth with SLA guarantee.</p>
-                  <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: '#fef3c7', color: '#d97706' }}>Quote on request</span>
-                </div>
-              </div>
-
-              <div className="rounded-xl p-5 mb-6 text-center" style={{ background: 'rgba(89,27,255,0.15)', border: '1px solid rgba(89,27,255,0.4)' }}>
-                <p className="text-white font-semibold mb-1">Ready to get connected?</p>
-                <p className="text-purple-300 text-sm mb-4">Complete your order in minutes. Our team handles the rest.</p>
-                <button
-                  onClick={onNext}
-                  className="itc-gradient-btn px-8 py-3 rounded-xl font-semibold text-white text-base"
-                >
-                  Start Your Order →
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="rounded-xl p-5 text-center" style={{ background: 'rgba(249,69,128,0.08)', border: '1px solid rgba(249,69,128,0.3)' }}>
-              <p className="text-white font-semibold mb-2">No broadband plans found</p>
-              <p className="text-purple-300 text-sm mb-4">We may still be able to help with a managed fibre or leased line solution.</p>
-              <button
-                onClick={onNext}
-                className="px-8 py-3 rounded-xl font-medium text-white text-sm"
-                style={{ border: '1px solid rgba(249,69,128,0.5)', background: 'transparent' }}
-              >
-                Talk to an advisor →
-              </button>
-            </div>
-          )}
+          <div className="rounded-xl p-6 text-center" style={{ background: 'rgba(89,27,255,0.15)', border: '1px solid rgba(89,27,255,0.4)' }}>
+            <div className="text-3xl mb-3">✅</div>
+            <p className="text-white font-bold text-lg mb-1">Great News!</p>
+            <p className="text-white/75 text-sm mb-5">ITC services are available at your address.</p>
+            <button
+              onClick={onNext}
+              className="itc-gradient-btn px-8 py-3 rounded-xl font-semibold text-white text-base"
+            >
+              Start Your Order →
+            </button>
+          </div>
         </div>
       )}
     </div>
