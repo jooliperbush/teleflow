@@ -937,7 +937,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
                 className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252,50%,35%)", background: "hsl(252,60%,18%)" }}>← Back</button>
               <button onClick={handleProductsNext} disabled={!hasSelection}
                 className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40">
-                {products.filter(p => selected[productKey(p)]).some(p => ['fttp','fttc','sogea','gfast','adsl','lease_line'].includes(p.type)) ? 'Book Installation →' : 'Get Quote →'}
+                Get Quote →
               </button>
             </div>
           </>
