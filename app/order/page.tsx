@@ -769,8 +769,23 @@ function Step2({ order, setOrder, onNext, onBack }: {
     setLoading(false)
   }
 
-  function toggle(key: string) {
-    setSelected(s => ({ ...s, [key]: !s[key] }))
+  function toggle(key: string, type: string) {
+    setSelected(s => {
+      const isBroadband = !['voip', 'mobile', 'lease_line'].includes(type)
+      if (isBroadband) {
+        // Radio: deselect all broadband, select only this one (or deselect if already selected)
+        const alreadySelected = s[key]
+        const cleared: Record<string, boolean> = {}
+        Object.keys(s).forEach(k => {
+          const p = products.find(p => productKey(p) === k)
+          if (p && !['voip', 'mobile', 'lease_line'].includes(p.type)) cleared[k] = false
+          else cleared[k] = s[k]
+        })
+        return { ...cleared, [key]: !alreadySelected }
+      }
+      // VoIP / Mobile / Lease line: toggle freely
+      return { ...s, [key]: !s[key] }
+    })
   }
   function productKey(p: Product) { return `${p.name}-${p.downloadMbps ?? p.type}` }
 
@@ -907,13 +922,13 @@ function Step2({ order, setOrder, onNext, onBack }: {
         ) : (
         <div className="space-y-3 mb-6">
           {products.map(p => p.name === '__unresolvable__' ? null : (
-            <div key={productKey(p)} onClick={() => toggle(productKey(p))}
+            <div key={productKey(p)} onClick={() => toggle(productKey(p), p.type)}
               className="border-2 rounded-xl p-5 cursor-pointer transition-all hover:border-blue-400 hover:shadow-sm"
               style={selected[productKey(p)] ? { borderColor: "#f94580", background: "rgba(249, 69, 128, 0.08)", boxShadow: "0 0 0 1px #f94580" } : { borderColor: "hsl(252, 50%, 30%)", background: "hsl(252, 60%, 16%)" }}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0"
+                    <div className={`w-4 h-4 border-2 flex items-center justify-center flex-shrink-0 ${['voip','mobile','lease_line'].includes(p.type) ? 'rounded' : 'rounded-full'}`}
                       style={{ borderColor: selected[productKey(p)] ? '#f94580' : 'hsl(252,50%,35%)', background: selected[productKey(p)] ? '#f94580' : 'transparent' }}>
                       {selected[productKey(p)] && <span className="text-white text-xs leading-none">✓</span>}
                     </div>
