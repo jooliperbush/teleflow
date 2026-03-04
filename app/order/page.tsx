@@ -1165,7 +1165,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
   onNext: () => void
   onBack: () => void
 }) {
-  const [term, setTerm] = useState<number>(order.quoteTerm || 24)
+  const [term, setTerm] = useState<number>(order.quoteTerm || 36)
   const [emailSent, setEmailSent] = useState(false)
   const [sending, setSending] = useState(false)
 
@@ -1207,7 +1207,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
 
       <div className="mb-4 flex items-center gap-3">
         <label className="text-sm font-medium text-purple-200">Contract Term:</label>
-        {[12, 24, 36].map(t => (
+        {[12, 36].map(t => (
           <button
             key={t}
             onClick={() => setTerm(t)}
@@ -1255,7 +1255,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
         </table>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-6 flex flex-col gap-2">
         <button
           onClick={emailQuote}
           disabled={sending || emailSent}
@@ -1263,6 +1263,46 @@ function Step3({ order, setOrder, onNext, onBack }: {
           style={{ border: "1.5px solid #591bff", color: emailSent ? 'white' : '#7be7ff', background: emailSent ? '#591bff' : 'transparent' }}
         >
           {emailSent ? `✓ Quote sent to ${order.contactEmail}` : sending ? 'Sending...' : `📧 Email Quote to ${order.contactEmail}`}
+        </button>
+        <button
+          onClick={() => {
+            const rows = order.selectedProducts.map(p =>
+              `${p.name} x${p.quantity} — £${p.unitMonthly ? p.unitMonthly.toFixed(2) : 'POA'}/mo each — £${p.monthlyTotal ? p.monthlyTotal.toFixed(2) : 'POA'}/mo`
+            ).join('\n')
+            const text = [
+              'ITC TELECOMS — QUOTE',
+              '====================',
+              `Ref: ${quoteRef}`,
+              `Date: ${new Date().toLocaleDateString('en-GB')}`,
+              `Valid: 30 days`,
+              `Contract: ${term} months`,
+              '',
+              'Customer: ' + order.companyName,
+              'Contact: ' + order.contactName,
+              'Email: ' + order.contactEmail,
+              'Site: ' + [order.siteAddressLine1, order.siteCity, order.sitePostcode].filter(Boolean).join(', '),
+              '',
+              'PRODUCTS',
+              '--------',
+              rows,
+              '',
+              `Monthly Total: £${monthly.toFixed(2)}`,
+              `Annual Total: £${annual.toFixed(2)}`,
+              '',
+              'ITC Telecoms Ltd · 01274 952 123 · adminteam@clickitc.co.uk',
+            ].join('\n')
+            const blob = new Blob([text], { type: 'text/plain' })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `ITC-Quote-${quoteRef}.txt`
+            a.click()
+            URL.revokeObjectURL(url)
+          }}
+          className="w-full py-2.5 rounded-xl font-medium text-sm transition-all"
+          style={{ border: "1.5px solid hsl(252,50%,35%)", color: '#c4b8f0', background: 'transparent' }}
+        >
+          💾 Save Quote
         </button>
       </div>
 
