@@ -696,7 +696,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
         if (broadband.length === 0 && !data.availabilityReference) {
           setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
         } else {
-          const filteredZen = zenProducts.filter((p: Product) => !p.downloadMbps || !p.uploadMbps || p.downloadMbps !== p.uploadMbps || !['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+          const filteredZen = zenProducts.filter((p: Product) => !['fttp','fttc','sogea','gfast','adsl'].includes(p.type) || (p.downloadMbps !== p.uploadMbps && (p.uploadMbps || 0) > 0))
           setProducts([...filteredZen,
             { type: 'lease_line', name: 'Managed Fibre', downloadMbps: 200, uploadMbps: 1000, monthlyCost: null, setupFee: null, available: true },
             { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
