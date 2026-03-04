@@ -3,10 +3,10 @@ import { motion } from "framer-motion";
 import FadeInView from "./FadeInView";
 
 const timeline = [
-  { year: "2006", label: "Founded in Bradford", desc: "Started as a voice and data reseller built on transparent pricing and genuine local support." },
-  { year: "2012", label: "Moved into hosted VoIP", desc: "Adopted cloud telephony years before most competitors — delivering better systems at lower cost." },
-  { year: "2018", label: "Registered ISP", desc: "Now supply broadband directly — removing third-party margin and giving clients faster fault resolution." },
-  { year: "2023", label: "PSTN programme launched", desc: "Proactively contacted every client about the 2027 switch-off three years before the deadline hit." },
+  { short: "06", year: "2006", label: "Founded in Bradford", desc: "Started as a voice and data reseller built on transparent pricing and genuine local support.", color: "#f94580" },
+  { short: "12", year: "2012", label: "Moved into hosted VoIP", desc: "Adopted cloud telephony years before most competitors — delivering better systems at lower cost.", color: "#8b5cf6" },
+  { short: "18", year: "2018", label: "Registered ISP", desc: "Now supply broadband directly — removing third-party margin and giving clients faster fault resolution.", color: "#7be7ff" },
+  { short: "27", year: "2023", label: "PSTN programme launched", desc: "Proactively contacted every client about the 2027 switch-off three years before the deadline hit.", color: "#34d399" },
 ]
 
 const differentiators = [
@@ -27,51 +27,59 @@ export default function WhyITCSection() {
 
       <div className="max-w-7xl mx-auto relative z-10">
 
-        {/* Header */}
-        <FadeInView>
-          <div className="mb-4">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/30">Est. 2006 · Bradford</span>
-          </div>
-          <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-6"
-            style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
-            Why do Organisations <br />
-            <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Choose ITC?</span>
-          </h2>
-          <p className="text-white/60 text-lg max-w-2xl mb-16 leading-relaxed">
-            Two decades of independent telecoms — never bought, never compromised. Founded in Bradford in 2006 to give UK businesses an honest alternative to the big carriers. Still independently owned, still in Bradford, still operating on the same principle: give people the right solution, not the most profitable one.
-          </p>
-        </FadeInView>
+        {/* Top: intro left + timeline right */}
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 mb-20">
 
-        {/* Timeline */}
-        <FadeInView delay={0.1}>
-          <div className="mb-20">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/30 mb-8">Our story</p>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {timeline.map((t, i) => (
-                <motion.div key={t.year} whileHover={{ y: -2 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="rounded-2xl p-6"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(20px)" }}>
-                  <p className="text-3xl font-black mb-2"
-                    style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontFamily: "'Visby CF', sans-serif" }}>
-                    {t.year}
-                  </p>
-                  <p className="font-bold text-sm text-white mb-1">{t.label}</p>
-                  <p className="text-xs text-white/45 leading-relaxed">{t.desc}</p>
-                </motion.div>
-              ))}
+          {/* Left — intro */}
+          <FadeInView>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-8 h-px" style={{ background: "#f94580" }} />
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#f94580]">Est. 2006 · Bradford</span>
             </div>
-          </div>
-        </FadeInView>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6 leading-tight text-white"
+              style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+              Two decades of independent telecoms — never bought, never compromised.
+            </h2>
+            <p className="text-white/55 text-lg leading-relaxed">
+              ITC was founded in Bradford in 2006 to give UK businesses an honest alternative to the big carriers. We&apos;re still independently owned, still in Bradford, and still operating on the same principle: give people the right solution, not the most profitable one.
+            </p>
+          </FadeInView>
 
-        {/* Stat + intro */}
-        <FadeInView delay={0.15}>
+          {/* Right — vertical timeline */}
+          <FadeInView delay={0.15}>
+            <div className="relative">
+              <div className="absolute left-[27px] top-8 bottom-4 w-px" style={{ background: "rgba(255,255,255,0.1)" }} />
+              <div className="space-y-8">
+                {timeline.map((t) => (
+                  <div key={t.year} className="flex items-start gap-5">
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 font-black text-lg relative z-10"
+                      style={{ border: `2px solid ${t.color}`, background: `${t.color}18`, color: t.color, fontFamily: "'Visby CF', sans-serif" }}>
+                      {t.short}
+                    </div>
+                    <div className="pt-2">
+                      <p className="text-xs font-bold uppercase tracking-[0.15em] mb-1" style={{ color: t.color }}>
+                        {t.year} — {t.label}
+                      </p>
+                      <p className="text-white/55 text-sm leading-relaxed">{t.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </FadeInView>
+        </div>
+
+        <div className="w-full h-px mb-16" style={{ background: "rgba(255,255,255,0.07)" }} />
+
+        {/* 2000+ stat */}
+        <FadeInView delay={0.1}>
           <div className="rounded-2xl px-8 py-6 mb-14 flex flex-col sm:flex-row items-center gap-4"
             style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
             <p className="text-5xl font-black flex-shrink-0"
               style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontFamily: "'Visby CF', sans-serif" }}>
               2,000+
             </p>
-            <p className="text-white/60 text-base leading-relaxed">
+            <p className="text-white/55 text-base leading-relaxed">
               UK businesses connected since 2006 — from Bradford sole traders to multi-site enterprises nationwide. Here&apos;s what sets us apart from the carriers and the resellers that answer to them.
             </p>
           </div>
