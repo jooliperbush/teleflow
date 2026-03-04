@@ -438,6 +438,42 @@ function Step1({ order, setOrder, onNext, onBack }: {
   const [searching, setSearching] = useState(false)
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Trading address search
+  const [showTradingSearch, setShowTradingSearch] = useState(false)
+  const [tradingPostcode, setTradingPostcode] = useState('')
+  const [tradingAddresses, setTradingAddresses] = useState<ZenAddress[]>([])
+  const [tradingLoading, setTradingLoading] = useState(false)
+  const [tradingError, setTradingError] = useState('')
+
+  async function searchTradingPostcode() {
+    const pc = tradingPostcode.trim().toUpperCase()
+    if (!pc) return
+    setTradingLoading(true)
+    setTradingError('')
+    setTradingAddresses([])
+    try {
+      const res = await fetch(`/api/zen/address?postcode=${encodeURIComponent(pc)}`)
+      const data = await res.json()
+      if (!data.addresses?.length) { setTradingError('No addresses found for this postcode.'); setTradingLoading(false); return }
+      setTradingAddresses(data.addresses)
+    } catch { setTradingError('Could not look up postcode. Please try again.') }
+    setTradingLoading(false)
+  }
+
+  function selectTradingAddress(addr: ZenAddress) {
+    const parts = addr.displayAddress.split(',')
+    setOrder({
+      siteAddressLine1: parts[0]?.trim() || addr.displayAddress,
+      siteAddressLine2: parts[1]?.trim() || '',
+      siteCity: parts[parts.length - 2]?.trim() || '',
+      sitePostcode: tradingPostcode.trim().toUpperCase(),
+      selectedAddress: addr,
+      zenAvailabilityRef: undefined,
+    })
+    setTradingAddresses([])
+    setShowTradingSearch(false)
+  }
+
   async function fetchSuggestion(q: string) {
     if (q.length < 2) { setSuggestion(null); return }
     setSearching(true)
@@ -578,6 +614,65 @@ function Step1({ order, setOrder, onNext, onBack }: {
             </div>
           )}
         </>
+      )}
+
+      {/* Trading / Installation Address Search */}
+      <div className="mb-4">
+        <button
+          type="button"
+          onClick={() => { setShowTradingSearch(v => !v); setTradingAddresses([]); setTradingError('') }}
+          className="text-sm font-medium text-[#7be7ff] hover:underline flex items-center gap-1"
+        >
+          {showTradingSearch ? '✕ Cancel' : '+ Trading / installation address is different?'}
+        </button>
+
+        {showTradingSearch && (
+          <div className="mt-3 rounded-xl p-4" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+            <p className="text-xs text-white/55 mb-3">Search the address where you want the service installed — we&apos;ll check availability there instead.</p>
+            <div className="flex gap-2 mb-3">
+              <input
+                value={tradingPostcode}
+                onChange={e => { setTradingPostcode(e.target.value.toUpperCase()); setTradingAddresses([]); setTradingError('') }}
+                onKeyDown={e => e.key === 'Enter' && searchTradingPostcode()}
+                placeholder="e.g. BD1 1AA"
+                maxLength={8}
+                className="flex-1 rounded-lg px-4 py-2.5 text-sm text-white placeholder-purple-400 font-medium tracking-widest focus:outline-none"
+                style={{ background: 'hsl(252, 60%, 20%)', border: '1px solid hsl(252, 50%, 35%)' }}
+              />
+              <button
+                onClick={searchTradingPostcode}
+                disabled={tradingLoading || tradingPostcode.trim().length < 5}
+                className="itc-gradient-btn px-5 py-2.5 rounded-lg font-semibold text-white text-sm disabled:opacity-40"
+              >
+                {tradingLoading ? 'Searching...' : 'Search'}
+              </button>
+            </div>
+            {tradingError && <p className="text-red-400 text-xs mb-2">{tradingError}</p>}
+            {tradingAddresses.length > 0 && (
+              <div className="rounded-lg overflow-y-auto" style={{ border: '1px solid hsl(252, 50%, 28%)', maxHeight: '220px' }}>
+                {tradingAddresses.map((a, i) => (
+                  <button
+                    key={a.uprn || a.goldAddressKey}
+                    onClick={() => selectTradingAddress(a)}
+                    className="w-full text-left px-4 py-3 text-sm text-white transition-colors"
+                    style={{ borderTop: i > 0 ? '1px solid hsl(252, 50%, 25%)' : 'none', background: 'transparent' }}
+                    onMouseOver={e => (e.currentTarget.style.background = 'hsl(260, 80%, 22%)')}
+                    onMouseOut={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    {a.displayAddress}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {order.siteAddressLine1 && (
+        <div className="rounded-lg px-4 py-3 mb-4 text-xs flex items-center gap-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+          <span className="text-[#7be7ff]">📍</span>
+          <span className="text-white/75">Availability will be checked at: <span className="text-white font-medium">{order.siteAddressLine1}{order.siteCity ? `, ${order.siteCity}` : ''}, {order.sitePostcode}</span></span>
+        </div>
       )}
 
       {(() => {
