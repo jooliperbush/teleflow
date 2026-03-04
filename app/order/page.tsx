@@ -937,7 +937,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
 
                   {/* Broadband speed info */}
                   {['fttp','fttc','sogea','gfast','adsl'].includes(p.type) && (
-                    <p className="text-xs text-gray-500 mt-1 ml-6">{p.downloadMbps}/{p.uploadMbps} Mbps · Engineer installation required</p>
+                    <p className="text-xs text-gray-500 mt-1 ml-6">{p.downloadMbps !== p.uploadMbps ? `↓ ${p.downloadMbps} / ↑ ${p.uploadMbps} Mbps · Engineer installation required` : "Engineer installation required"}</p>
                   )}
 
                   {/* Lease line — callback required for quote */}
