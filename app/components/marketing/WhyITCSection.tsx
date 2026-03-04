@@ -32,7 +32,7 @@ export default function WhyITCSection() {
 
           {/* Left - intro */}
           <FadeInView>
-            <p className="text-4xl md:text-5xl font-black tracking-tight mb-6 text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>About <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Us</span></p>
+            <p className="text-5xl md:text-7xl font-black tracking-tighter mb-6 text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>About <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Us</span></p>
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-px" style={{ background: "#f94580" }} />
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#f94580]">Est. 2006 · Bradford</span>
