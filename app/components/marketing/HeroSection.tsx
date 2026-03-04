@@ -36,11 +36,11 @@ export default function HeroSection() {
         <FadeInView delay={0.1}>
           <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black leading-[0.92] tracking-tighter mb-6 md:mb-8 text-white"
             style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif", textShadow: "0 2px 40px rgba(0,0,0,0.5)" }}>
-            VoIP, Broadband,{" "}<br />
+            VoIP, Broadband,<br />
+            Mobile, Fibre.<br />
             <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 20px rgba(249,69,128,0.6))" }}>
-              Mobile -
-            </span><br />
-            One Partner.
+              One Partner.
+            </span>
           </h1>
         </FadeInView>
 
