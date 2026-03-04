@@ -38,7 +38,7 @@ export default function HeroSection() {
             style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif", textShadow: "0 2px 40px rgba(0,0,0,0.5)" }}>
             VoIP, Broadband,<br />
             Mobile, Fibre.<br />
-            <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 20px rgba(249,69,128,0.6))" }}>
+            <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 4px 24px rgba(0,0,0,0.9)) drop-shadow(0 0 40px rgba(0,0,0,0.8))" }}>
               One Partner.
             </span>
           </h1>
