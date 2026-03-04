@@ -44,7 +44,7 @@ export default function ContactSection() {
                 <Link href="/order"
                   className="inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold text-base text-white group relative overflow-hidden"
                   style={{ background: "linear-gradient(135deg, #f94580 0%, #591bff 100%)", boxShadow: "0 0 30px rgba(249,69,128,0.35), 0 8px 32px rgba(89,27,255,0.25), inset 0 1px 0 rgba(255,255,255,0.15)" }}>
-                  Start Onboarding
+                  Request a Callback
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </motion.div>

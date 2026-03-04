@@ -68,17 +68,17 @@ export default function InvoiceAnalyser() {
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f94580] mb-5 px-4 py-2 rounded-full"
               style={{ background: "rgba(249,69,128,0.12)", border: "1px solid rgba(249,69,128,0.3)", backdropFilter: "blur(12px)" }}>
               <div className="w-2 h-2 rounded-full bg-[#f94580] animate-pulse" />
-              Free Instant Analysis
+              Free · Instant · No Sign-Up
             </div>
             <h2 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter mb-4 text-gray-900"
               style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
-              Upload Your <br />
+              Is your telecoms bill<br />
               <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                Current Bill
+                accurate? Probably not.
               </span>
             </h2>
-            <p className="text-base md:text-lg text-gray-900 font-medium max-w-xl mx-auto">
-              See exactly what you're overpaying — and what ITC would charge instead. Takes 30 seconds.
+            <p className="text-base md:text-lg text-gray-900 font-medium max-w-2xl mx-auto">
+              Upload your current bill and see exactly what you&apos;re overpaying — and what ITC would charge instead. Takes 30 seconds.
             </p>
           </div>
         </FadeInView>

@@ -36,11 +36,11 @@ export default function HeroSection() {
         <FadeInView delay={0.1}>
           <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black leading-[0.92] tracking-tighter mb-6 md:mb-8 text-white"
             style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif", textShadow: "0 2px 40px rgba(0,0,0,0.5)" }}>
-            Connectivity{" "}<br />
+            VoIP, Broadband,{" "}<br />
             <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 20px rgba(249,69,128,0.6))" }}>
-              Without the
+              Mobile —
             </span><br />
-            Complexity
+            One Partner.
           </h1>
         </FadeInView>
 
@@ -63,7 +63,7 @@ export default function HeroSection() {
               <Link href="/order"
                 className="flex items-center justify-center gap-3 px-7 py-4 rounded-full font-bold text-base text-white w-full sm:w-auto group"
                 style={{ background: "linear-gradient(135deg, #f94580 0%, #591bff 100%)", boxShadow: "0 0 30px rgba(249,69,128,0.4), 0 8px 32px rgba(89,27,255,0.3), inset 0 1px 0 rgba(255,255,255,0.15)" }}>
-                Start Onboarding <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                Get a Free Quote <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </motion.div>
 
