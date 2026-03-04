@@ -1625,7 +1625,7 @@ function Step6({ order }: { order: OrderState }) {
 
       <h2 className="text-2xl font-bold mb-2" >Order Confirmed!</h2>
       <p className="text-gray-500 mb-1">Reference: <strong>{order.quoteReference}</strong></p>
-      {synced && <p className="text-xs text-green-600 mb-4">✓ Provisioning ticket created in ConnectWise</p>}
+      
 
       <div className="rounded-xl p-4 text-sm text-left mb-6" style={{ background: "hsl(252, 60%, 16%)", border: "1px solid hsl(252, 50%, 28%)" }}>
         <div className="space-y-2">
