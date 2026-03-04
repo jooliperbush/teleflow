@@ -25,7 +25,7 @@ export default function WhyITCSection() {
             <FadeInView>
               <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 md:mb-12"
                 style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
-                Why do Businesses <br />
+                Why do Organisations <br />
                 <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Choose ITC?</span>
               </h2>
             </FadeInView>
