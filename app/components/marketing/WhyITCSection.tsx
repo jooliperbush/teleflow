@@ -78,24 +78,7 @@ export default function WhyITCSection() {
           </div>
         </FadeInView>
 
-        {/* Differentiators */}
-        <div className="grid sm:grid-cols-2 gap-4">
-          {differentiators.map((item, i) => (
-            <FadeInView key={item.title} delay={0.1 + i * 0.08}>
-              <motion.div whileHover={{ y: -2, scale: 1.01 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="rounded-[1.5rem] p-7 h-full"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", backdropFilter: "blur(20px)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.07)" }}>
-                <div className="flex items-start gap-4">
-                  <span className="text-2xl flex-shrink-0 mt-0.5">{item.icon}</span>
-                  <div>
-                    <p className="font-bold text-base mb-1.5 text-white">{item.title}</p>
-                    <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              </motion.div>
-            </FadeInView>
-          ))}
-        </div>
+
 
       </div>
     </section>
