@@ -968,111 +968,122 @@ function Step2({ order, setOrder, onNext, onBack }: {
 
   // ── Phase 2: Product picker ──────────────────────────────────────────────────
   if (phase === 'products') {
+    const broadband = products.filter(p => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type) && p.name !== '__unresolvable__')
+    const addons = products.filter(p => ['voip','mobile','lease_line'].includes(p.type))
+    const isUnresolvable = products.length === 1 && products[0].name === '__unresolvable__'
+
     return (
       <div>
-        <h2 className="text-2xl font-bold mb-2" >Available Products</h2>
-        <p className="text-sm mb-1 text-white/55">{selectedAddress?.displayAddress}</p>
-        <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
-          className="text-xs mb-5 underline" style={{ color: "#7be7ff" }}>
-          ← Change address
-        </button>
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-2xl font-bold">Select Services</h2>
+          <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
+            className="text-xs underline" style={{ color: "#7be7ff" }}>← Change address</button>
+        </div>
+        <p className="text-sm mb-5 text-white/40">{selectedAddress?.displayAddress}</p>
 
-        {/* Unresolvable address fallback */}
-        {products.length === 1 && products[0].name === '__unresolvable__' ? (
+        {isUnresolvable ? (
           <div className="rounded-xl p-6 mb-6 text-center" style={{ background: 'rgba(249,69,128,0.08)', border: '1px solid rgba(249,69,128,0.3)' }}>
             <p className="text-white font-semibold mb-2">We couldn't automatically check availability for this address</p>
             <p className="text-purple-300 text-sm mb-4">An ITC advisor will contact you within 1 business day to confirm what's available and provide a tailored quote.</p>
-            <button onClick={handleProductsNext} className="itc-gradient-btn px-6 py-3 rounded-xl font-semibold text-white text-sm">
-              Request a Callback →
-            </button>
+            <button onClick={handleProductsNext} className="itc-gradient-btn px-6 py-3 rounded-xl font-semibold text-white text-sm">Request a Callback →</button>
           </div>
         ) : (
-        <div className="space-y-3 mb-6">
-          {products.map(p => p.name === '__unresolvable__' ? null : (
-            <div key={productKey(p)} onClick={() => toggle(productKey(p), p.type)}
-              className="border-2 rounded-xl p-5 cursor-pointer transition-all hover:border-blue-400 hover:shadow-sm"
-              style={selected[productKey(p)] ? { borderColor: "#f94580", background: "rgba(249, 69, 128, 0.08)", boxShadow: "0 0 0 1px #f94580" } : { borderColor: "hsl(252, 50%, 30%)", background: "hsl(252, 60%, 16%)" }}>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-4 h-4 border-2 flex items-center justify-center flex-shrink-0 ${['voip','mobile','lease_line'].includes(p.type) ? 'rounded' : 'rounded-full'}`}
-                      style={{ borderColor: selected[productKey(p)] ? '#f94580' : 'hsl(252,50%,35%)', background: selected[productKey(p)] ? '#f94580' : 'transparent' }}>
-                      {selected[productKey(p)] && <span className="text-white text-xs leading-none">✓</span>}
-                    </div>
-                    <span className="font-semibold text-sm">{p.name}</span>
-                  </div>
-
-                  {/* Broadband speed info */}
-                  {['fttp','fttc','sogea','gfast','adsl'].includes(p.type) && (
-                    <p className="text-xs text-gray-500 mt-1 ml-6">{p.downloadMbps !== p.uploadMbps ? `↓ ${p.downloadMbps} / ↑ ${p.uploadMbps} Mbps · Engineer installation required` : "Engineer installation required"}</p>
-                  )}
-
-                  {/* Lease line — callback required for quote */}
-                  {p.type === 'lease_line' && selected[productKey(p)] && (
-                    <div className="ml-6 mt-2" onClick={e => e.stopPropagation()}>
-                      <p className="text-xs rounded-lg px-3 py-2" style={{ background: "rgba(249, 69, 128, 0.1)", border: "1px solid rgba(249, 69, 128, 0.4)", color: "#f94580" }}>
-                        📞 An ITC advisor will call you within 1 business day to discuss bandwidth options and pricing.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* VoIP seats */}
-                  {p.type === 'voip' && selected[productKey(p)] && (
-                    <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                      <label className="text-xs text-purple-200">Seats:</label>
-                      <input type="number" min={1} max={100} value={voipSeats}
-                        onChange={e => setVoipSeats(Number(e.target.value))}
-                        className="w-16 rounded px-2 py-1 text-sm text-white" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }} />
-                      <span className="text-xs text-purple-400">× £{(8 * MARGIN).toFixed(2)}/mo</span>
-                    </div>
-                  )}
-
-                  {/* Mobile SIMs */}
-                  {p.type === 'mobile' && selected[productKey(p)] && (
-                    <div className="ml-6 mt-2 flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                      <label className="text-xs text-purple-200">SIMs:</label>
-                      <input type="number" min={1} max={500} value={mobileSims}
-                        onChange={e => setMobileSims(Number(e.target.value))}
-                        className="w-16 rounded px-2 py-1 text-sm text-white" style={{ background: "hsl(252, 60%, 18%)", border: "1px solid hsl(252, 50%, 30%)" }} />
-                      <span className="text-xs text-purple-400">× £{(15 * MARGIN).toFixed(2)}/mo</span>
-                    </div>
-                  )}
+          <>
+            {/* Broadband */}
+            {broadband.length > 0 && (
+              <div className="mb-5">
+                <div className="rounded-lg px-3 py-2 mb-3 flex items-center gap-2" style={{ background: 'rgba(123,231,255,0.08)', border: '1px solid rgba(123,231,255,0.2)' }}>
+                  <span className="text-[#7be7ff] text-xs font-bold uppercase tracking-widest">✓ Full Fibre available at your address</span>
                 </div>
-
-                {/* Price column */}
-                <div className="text-right ml-4 flex-shrink-0">
-                  {p.type === 'lease_line' ? (
-                    <div className="text-xs text-purple-400">POA</div>
-                  ) : p.monthlyCost ? (
-                    <>
-                      <div className="font-bold text-sm" >£{p.monthlyCost.toFixed(2)}</div>
-                      <div className="text-xs text-purple-400">/ month</div>
-                    </>
-                  ) : (
-                    <div className="text-xs text-purple-400">—</div>
-                  )}
+                <div className="space-y-2">
+                  {broadband.map(p => (
+                    <div key={productKey(p)} onClick={() => toggle(productKey(p), p.type)}
+                      className="flex items-center justify-between rounded-xl px-4 py-3.5 cursor-pointer transition-all"
+                      style={selected[productKey(p)]
+                        ? { border: '2px solid #f94580', background: 'rgba(249,69,128,0.08)' }
+                        : { border: '1.5px solid hsl(252,50%,30%)', background: 'hsl(252,60%,16%)' }}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                          style={{ borderColor: selected[productKey(p)] ? '#f94580' : 'hsl(252,50%,35%)', background: selected[productKey(p)] ? '#f94580' : 'transparent' }}>
+                          {selected[productKey(p)] && <span className="text-white text-[9px] leading-none">✓</span>}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm text-white">{p.name}</p>
+                          <p className="text-xs text-white/40">↓ {p.downloadMbps} / ↑ {p.uploadMbps} Mbps</p>
+                        </div>
+                      </div>
+                      <span className="text-xs text-white/30">{p.monthlyCost ? `£${p.monthlyCost.toFixed(2)}/mo` : 'POA'}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-        )}
+            )}
 
-        {!(products.length === 1 && products[0]?.name === '__unresolvable__') && (
-        <div className="flex flex-col-reverse sm:flex-row gap-3">
-          <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
-            className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
-          <button onClick={handleProductsNext}
-            disabled={!hasSelection || !leaseLineReady}
-            className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40"
-            style={{ background: NAVY }}>
-            {(() => {
-              const sel = products.filter(p => selected[productKey(p)])
-              const needsInstall = sel.some(p => ['fttp','fttc','sogea','gfast','adsl','lease_line'].includes(p.type))
-              return needsInstall ? 'Book Installation →' : 'Get Quote →'
-            })()}
-          </button>
-        </div>
+            {/* Add-ons */}
+            {addons.length > 0 && (
+              <div className="mb-5">
+                <p className="text-xs font-bold uppercase tracking-widest text-white/30 mb-2">Add-ons</p>
+                <div className="space-y-2">
+                  {addons.map(p => (
+                    <div key={productKey(p)} onClick={() => toggle(productKey(p), p.type)}
+                      className="flex items-center justify-between rounded-xl px-4 py-3.5 cursor-pointer transition-all"
+                      style={selected[productKey(p)]
+                        ? { border: '2px solid #f94580', background: 'rgba(249,69,128,0.08)' }
+                        : { border: '1.5px solid hsl(252,50%,30%)', background: 'hsl(252,60%,16%)' }}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0"
+                          style={{ borderColor: selected[productKey(p)] ? '#f94580' : 'hsl(252,50%,35%)', background: selected[productKey(p)] ? '#f94580' : 'transparent' }}>
+                          {selected[productKey(p)] && <span className="text-white text-[9px] leading-none">✓</span>}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm text-white">{p.name}</p>
+                          {p.type === 'lease_line' && <p className="text-xs text-white/40">Quote on request</p>}
+                          {p.type === 'voip' && <p className="text-xs text-white/40">Cloud phone system</p>}
+                          {p.type === 'mobile' && <p className="text-xs text-white/40">O2 business SIM</p>}
+                        </div>
+                      </div>
+                      {/* Qty controls */}
+                      {p.type === 'voip' && selected[productKey(p)] && (
+                        <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                          <input type="number" min={1} max={100} value={voipSeats}
+                            onChange={e => setVoipSeats(Number(e.target.value))}
+                            className="w-14 rounded px-2 py-1 text-sm text-white text-center" style={{ background: "hsl(252,60%,18%)", border: "1px solid hsl(252,50%,30%)" }} />
+                          <span className="text-xs text-white/30">seats</span>
+                        </div>
+                      )}
+                      {p.type === 'mobile' && selected[productKey(p)] && (
+                        <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                          <input type="number" min={1} max={500} value={mobileSims}
+                            onChange={e => setMobileSims(Number(e.target.value))}
+                            className="w-14 rounded px-2 py-1 text-sm text-white text-center" style={{ background: "hsl(252,60%,18%)", border: "1px solid hsl(252,50%,30%)" }} />
+                          <span className="text-xs text-white/30">SIMs</span>
+                        </div>
+                      )}
+                      {p.type === 'lease_line' && <span className="text-xs text-white/30">POA</span>}
+                      {p.type === 'voip' && !selected[productKey(p)] && <span className="text-xs text-white/30">£{(8 * MARGIN).toFixed(2)}/seat</span>}
+                      {p.type === 'mobile' && !selected[productKey(p)] && <span className="text-xs text-white/30">£{(15 * MARGIN).toFixed(2)}/SIM</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Lease line callout */}
+            {products.some(p => p.type === 'lease_line' && selected[productKey(p)]) && (
+              <div className="rounded-lg px-4 py-3 mb-4 text-xs" style={{ background: 'rgba(249,69,128,0.08)', border: '1px solid rgba(249,69,128,0.3)', color: '#f94580' }}>
+                📞 An ITC advisor will call within 1 business day to discuss leased line options and pricing.
+              </div>
+            )}
+
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
+              <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
+                className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252,50%,35%)", background: "hsl(252,60%,18%)" }}>← Back</button>
+              <button onClick={handleProductsNext} disabled={!hasSelection}
+                className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40">
+                {products.filter(p => selected[productKey(p)]).some(p => ['fttp','fttc','sogea','gfast','adsl','lease_line'].includes(p.type)) ? 'Book Installation →' : 'Get Quote →'}
+              </button>
+            </div>
+          </>
         )}
       </div>
     )
