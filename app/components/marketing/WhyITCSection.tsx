@@ -10,10 +10,10 @@ const timeline = [
 ]
 
 const differentiators = [
-  { icon: "🏆", title: "Genuinely independent", desc: "Not owned by BT, Vodafone, or any carrier. Our only incentive is keeping your business - so we recommend what's right for you, not what pays us best." },
-  { icon: "🔧", title: "Engineers, not just resellers", desc: "We install, configure, and maintain. When something breaks, our engineers fix it - no ticket handoffs to a carrier's third-party contractor." },
-  { icon: "👤", title: "Named account manager", desc: "Same person every time. Someone who knows your setup, your contracts, and your renewal dates - not a different agent every call." },
-  { icon: "📋", title: "Ofcom registered · Ombudsman approved", desc: "Fully regulated with a formal escalation route if we ever fall short. No auto-renewal traps. No price-hike clauses in small print." },
+  { title: "Genuinely independent", desc: "Not owned by BT, Vodafone, or any carrier. Our only incentive is keeping your business - so we recommend what's right for you, not what pays us best." },
+  { title: "Engineers, not just resellers", desc: "We install, configure, and maintain. When something breaks, our engineers fix it - no ticket handoffs to a carrier's third-party contractor." },
+  { title: "Named account manager", desc: "Same person every time. Someone who knows your setup, your contracts, and your renewal dates - not a different agent every call." },
+  { title: "Ofcom registered · Ombudsman approved", desc: "Fully regulated with a formal escalation route if we ever fall short. No auto-renewal traps. No price-hike clauses in small print." },
 ]
 
 export default function WhyITCSection() {
@@ -51,7 +51,7 @@ export default function WhyITCSection() {
             <div className="space-y-6">
               {differentiators.map((item) => (
                 <div key={item.title} className="flex items-start gap-4">
-                  <span className="text-2xl flex-shrink-0 mt-0.5">{item.icon}</span>
+                  <img src="/trophy-icon.svg" alt="" className="w-8 h-8 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-bold text-base mb-1 text-white">{item.title}</p>
                     <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
