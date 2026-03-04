@@ -695,7 +695,10 @@ function Step3({ order, setOrder, onNext, onBack }: {
           ))
         }
         picked.sort((a, b) => (b.downloadMbps || 0) - (a.downloadMbps || 0))
-        setProducts([...picked, ...addons,
+        // Assign ITC prices by tier (36-month contract): fastest=£87.99, mid=£79.99, entry=£49.99
+        const ITC_PRICES = [87.99, 79.99, 49.99]
+        const pricedPicked = picked.map((p, i) => ({ ...p, monthlyCost: ITC_PRICES[i] ?? p.monthlyCost, setupFee: 0 }))
+        setProducts([...pricedPicked, ...addons,
           { type: 'lease_line', name: 'Managed Fibre', downloadMbps: 200, uploadMbps: 1000, monthlyCost: null, setupFee: null, available: true },
           { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
           { type: 'mobile', name: 'O2 Unlimited SIM', monthlyCost: 15.00 * MARGIN, setupFee: 0, available: true },
@@ -838,7 +841,10 @@ function Step3({ order, setOrder, onNext, onBack }: {
                           <p className="text-xs text-white/40">↓ {p.downloadMbps} / ↑ {p.uploadMbps} Mbps</p>
                         </div>
                       </div>
-                      <span className="text-xs text-white/30">{p.monthlyCost ? `£${p.monthlyCost.toFixed(2)}/mo` : 'POA'}</span>
+                      <div className="text-right">
+                        <span className="text-sm font-semibold text-white">{p.monthlyCost ? `£${p.monthlyCost.toFixed(2)}/mo` : 'POA'}</span>
+                        {p.monthlyCost && <p className="text-[10px] text-white/30">36-month contract</p>}
+                      </div>
                     </div>
                   ))}
                 </div>
