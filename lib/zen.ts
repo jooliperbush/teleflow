@@ -348,7 +348,7 @@ function parseAvailabilityResponse(data: RawAvailabilityResponse): ZenAvailabili
 
   if (groups?.length) {
     for (const group of groups) {
-      const type = (group.broadbandType || '').toLowerCase() as ZenProduct['type']
+      const rawType = (group.broadbandType || '').toLowerCase()
       const prods = group.products || []
       for (const p of prods) {
         const code = p.productCode || ''
@@ -356,9 +356,18 @@ function parseAvailabilityResponse(data: RawAvailabilityResponse): ZenAvailabili
         const speeds = speedFromName(name)
         const dl = speeds.dl
         const ul = speeds.ul
+        // Infer type from name/code if broadbandType is missing
+        const inferredType: ZenProduct['type'] = rawType
+          ? rawType as ZenProduct['type']
+          : (name.toLowerCase().includes('sogea') || code.toLowerCase().includes('sogea') ? 'sogea'
+            : name.toLowerCase().includes('fttc') ? 'fttc'
+            : name.toLowerCase().includes('gfast') || name.toLowerCase().includes('g.fast') ? 'gfast'
+            : name.toLowerCase().includes('adsl') ? 'adsl'
+            : 'fttp')
+        const type = inferredType
         allProducts.push({
-          type: type || 'fttp',
-          name: brandProductName(name, dl, ul, type || 'fttp'),
+          type,
+          name: brandProductName(name, dl, ul, type),
           downloadMbps: dl,
           uploadMbps: ul,
           monthlyCost: null, // pricing via separate endpoint
