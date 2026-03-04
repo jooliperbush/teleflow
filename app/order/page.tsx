@@ -435,39 +435,6 @@ function Step1({ order, setOrder, onNext, onBack }: {
   onNext: () => void
   onBack: () => void
 }) {
-  const [showDifferent, setShowDifferent] = useState(false)
-  const [altPostcode, setAltPostcode] = useState('')
-  const [altAddresses, setAltAddresses] = useState<ZenAddress[]>([])
-  const [altLoading, setAltLoading] = useState(false)
-  const [altError, setAltError] = useState('')
-
-  async function searchAltPostcode() {
-    const pc = altPostcode.trim().toUpperCase()
-    if (!pc) return
-    setAltLoading(true); setAltError(''); setAltAddresses([])
-    try {
-      const res = await fetch(`/api/zen/address?postcode=${encodeURIComponent(pc)}`)
-      const data = await res.json()
-      if (!data.addresses?.length) { setAltError('No addresses found for this postcode.'); setAltLoading(false); return }
-      setAltAddresses(data.addresses)
-    } catch { setAltError('Could not look up postcode. Please try again.') }
-    setAltLoading(false)
-  }
-
-  function selectAltAddress(addr: ZenAddress) {
-    const parts = addr.displayAddress.split(',')
-    setOrder({
-      siteAddressLine1: parts[0]?.trim() || addr.displayAddress,
-      siteAddressLine2: parts[1]?.trim() || '',
-      siteCity: parts[parts.length - 2]?.trim() || '',
-      sitePostcode: altPostcode.trim().toUpperCase(),
-      selectedAddress: addr,
-      zenAvailabilityRef: undefined,
-    })
-    setAltAddresses([])
-    setShowDifferent(false)
-  }
-
   const emailValid = !order.contactEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.contactEmail)
   const postcodeValid = !order.sitePostcode || /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(order.sitePostcode)
   const canContinue = order.contactName && order.contactEmail && emailValid && order.siteAddressLine1 && order.siteCity && order.sitePostcode && postcodeValid
@@ -523,51 +490,6 @@ function Step1({ order, setOrder, onNext, onBack }: {
           <p className="text-white/40 text-xs mt-0.5">{order.sitePostcode}</p>
         </div>
       )}
-
-      {/* Different address toggle */}
-      <div className="mb-5">
-        <button
-          type="button"
-          onClick={() => { setShowDifferent(v => !v); setAltAddresses([]); setAltError('') }}
-          className="text-sm font-medium text-[#7be7ff] hover:underline"
-        >
-          {showDifferent ? '✕ Cancel' : '+ Installation address is different?'}
-        </button>
-        {showDifferent && (
-          <div className="mt-3 rounded-xl p-4" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
-            <p className="text-xs text-white/55 mb-3">Enter the postcode for the installation address and we&apos;ll check availability there.</p>
-            <div className="flex gap-2 mb-3">
-              <input
-                value={altPostcode}
-                onChange={e => { setAltPostcode(e.target.value.toUpperCase()); setAltAddresses([]); setAltError('') }}
-                onKeyDown={e => e.key === 'Enter' && searchAltPostcode()}
-                placeholder="e.g. BD1 1AA"
-                maxLength={8}
-                className="flex-1 rounded-lg px-4 py-2.5 text-sm text-white placeholder-purple-400 font-medium tracking-widest focus:outline-none"
-                style={{ background: 'hsl(252, 60%, 20%)', border: '1px solid hsl(252, 50%, 35%)' }}
-              />
-              <button onClick={searchAltPostcode} disabled={altLoading || altPostcode.trim().length < 5}
-                className="itc-gradient-btn px-5 py-2.5 rounded-lg font-semibold text-white text-sm disabled:opacity-40">
-                {altLoading ? 'Searching...' : 'Search'}
-              </button>
-            </div>
-            {altError && <p className="text-red-400 text-xs mb-2">{altError}</p>}
-            {altAddresses.length > 0 && (
-              <div className="rounded-lg overflow-y-auto" style={{ border: '1px solid hsl(252, 50%, 28%)', maxHeight: '220px' }}>
-                {altAddresses.map((a, i) => (
-                  <button key={a.uprn || a.goldAddressKey} onClick={() => selectAltAddress(a)}
-                    className="w-full text-left px-4 py-3 text-sm text-white transition-colors"
-                    style={{ borderTop: i > 0 ? '1px solid hsl(252, 50%, 25%)' : 'none', background: 'transparent' }}
-                    onMouseOver={e => (e.currentTarget.style.background = 'hsl(260, 80%, 22%)')}
-                    onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
-                    {a.displayAddress}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
 
       {/* Editable address fields */}
       <div className="mb-5">
