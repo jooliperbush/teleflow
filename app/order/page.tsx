@@ -540,7 +540,10 @@ function Step1({ order, setOrder, onNext, onBack }: {
   const ghostText = suggestion && suggestion.title.toLowerCase().startsWith(query.toLowerCase())
     ? suggestion.title.slice(query.length) : ''
 
-  const canContinue = order.companyName && order.companyNumber && order.companyStatus === 'active' && order.contactName && order.contactEmail && order.siteAddressLine1 && order.siteCity && order.sitePostcode
+  const emailValid = !order.contactEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.contactEmail)
+  const phoneValid = !order.contactPhone || /^[\d\s\+\(\)\-]{7,15}$/.test(order.contactPhone)
+  const postcodeValid = !order.sitePostcode || /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(order.sitePostcode)
+  const canContinue = order.companyName && order.companyNumber && order.companyStatus === 'active' && order.contactName && order.contactEmail && emailValid && order.siteAddressLine1 && order.siteCity && order.sitePostcode && postcodeValid
 
   return (
     <div>
@@ -585,29 +588,55 @@ function Step1({ order, setOrder, onNext, onBack }: {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        {[
+      {(() => {
+        const emailValid = !order.contactEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.contactEmail)
+        const phoneValid = !order.contactPhone || /^[\d\s\+\(\)\-]{7,15}$/.test(order.contactPhone)
+        const postcodeValid = !order.sitePostcode || /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(order.sitePostcode)
+
+        const fields: { label: string; key: keyof OrderState; type: string; placeholder: string; validate?: (v: string) => boolean; error?: string }[] = [
           { label: 'Contact Name', key: 'contactName', type: 'text', placeholder: 'Full name' },
-          { label: 'Contact Email', key: 'contactEmail', type: 'email', placeholder: 'email@company.com' },
-          { label: 'Contact Phone', key: 'contactPhone', type: 'tel', placeholder: '07700 000000' },
+          { label: 'Contact Email', key: 'contactEmail', type: 'email', placeholder: 'email@company.com', validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), error: 'Enter a valid email address' },
+          { label: 'Contact Phone', key: 'contactPhone', type: 'tel', placeholder: '07700 000000', validate: v => /^[\d\s\+\(\)\-]{7,15}$/.test(v), error: 'Enter a valid phone number' },
           { label: 'Site Address Line 1', key: 'siteAddressLine1', type: 'text', placeholder: '123 High Street' },
           { label: 'Site Address Line 2', key: 'siteAddressLine2', type: 'text', placeholder: 'Suite / Floor (optional)' },
           { label: 'Town / City', key: 'siteCity', type: 'text', placeholder: 'Bradford' },
-          { label: 'Site Postcode', key: 'sitePostcode', type: 'text', placeholder: 'BD1 1AA' },
-        ].map(({ label, key, type, placeholder }) => (
-          <div key={key}>
-            <label className="block text-sm font-medium text-white/75 mb-1">{label}</label>
-            <input
-              type={type}
-              value={(order as unknown as Record<string, string>)[key] || ''}
-              onChange={e => setOrder({ [key]: e.target.value })}
-              placeholder={placeholder}
-              className="w-full rounded-lg px-4 py-3 text-base focus:outline-none text-white"
-              style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 30%)' }}
-            />
+          { label: 'Site Postcode', key: 'sitePostcode', type: 'text', placeholder: 'BD1 1AA', validate: v => /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(v), error: 'Enter a valid UK postcode' },
+        ]
+
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            {fields.map(({ label, key, type, placeholder, validate, error }) => {
+              const val = String((order as unknown as Record<string, string>)[key] || '')
+              const touched = val.length > 0
+              const isInvalid = touched && validate && !validate(val)
+              return (
+                <div key={key}>
+                  <label className="block text-sm font-medium text-white/75 mb-1">{label}</label>
+                  <input
+                    type={type}
+                    value={val}
+                    onChange={e => {
+                      let v = e.target.value
+                      if (key === 'contactPhone') v = v.replace(/[^\d\s\+\(\)\-]/g, '')
+                      if (key === 'sitePostcode') v = v.toUpperCase()
+                      setOrder({ [key]: v })
+                    }}
+                    placeholder={placeholder}
+                    className="w-full rounded-lg px-4 py-3 text-base focus:outline-none text-white"
+                    style={{
+                      background: 'hsl(252, 60%, 18%)',
+                      border: isInvalid ? '1px solid #f94580' : '1px solid hsl(252, 50%, 30%)'
+                    }}
+                  />
+                  {isInvalid && error && (
+                    <p className="text-xs mt-1 text-[#f94580]">{error}</p>
+                  )}
+                </div>
+              )
+            })}
           </div>
-        ))}
-      </div>
+        )
+      })()}
 
       <button
         onClick={onNext}
