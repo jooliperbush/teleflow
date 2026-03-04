@@ -582,10 +582,47 @@ function Step1({ order, setOrder, onNext, onBack }: {
       </div>
 
       {order.companyName && (
-        <div className="rounded-lg p-3 mb-4 text-xs flex items-center gap-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
-          <span className="text-green-400 text-sm">✓</span>
-          <span className="text-white/75">{order.companyName} · {order.companyNumber} · <span className={order.companyStatus === 'active' ? 'text-green-400' : 'text-red-400'}>{order.companyStatus?.toUpperCase()}</span></span>
-        </div>
+        <>
+          <div className="rounded-lg p-3 mb-3 text-xs flex items-center gap-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+            <span className="text-green-400 text-sm">✓</span>
+            <span className="text-white/75">{order.companyName} · {order.companyNumber} · <span className={order.companyStatus === 'active' ? 'text-green-400' : 'text-red-400'}>{order.companyStatus?.toUpperCase()}</span></span>
+          </div>
+          {order.registeredAddress && (
+            <div className="rounded-lg p-3 mb-4 text-xs" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-white/55 uppercase tracking-wide text-[10px] font-semibold">Installation Address</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const reg = order.registeredAddress
+                    if (!reg) return
+                    const usingSame = order.siteAddressLine1 === (reg.address_line_1 || '')
+                    if (usingSame) {
+                      setOrder({ siteAddressLine1: '', siteAddressLine2: '', siteCity: '', sitePostcode: '' })
+                    } else {
+                      setOrder({
+                        siteAddressLine1: reg.address_line_1 || '',
+                        siteAddressLine2: '',
+                        siteCity: reg.locality || '',
+                        sitePostcode: reg.postal_code || '',
+                      })
+                    }
+                  }}
+                  className="text-[#7be7ff] text-[10px] font-semibold hover:underline"
+                >
+                  {order.siteAddressLine1 === (order.registeredAddress?.address_line_1 || '') && order.siteAddressLine1
+                    ? '✎ Use different address'
+                    : '↩ Use registered address'}
+                </button>
+              </div>
+              {order.siteAddressLine1 && order.siteAddressLine1 === (order.registeredAddress?.address_line_1 || '') ? (
+                <span className="text-white/75">{order.siteAddressLine1}, {order.siteCity}, {order.sitePostcode}</span>
+              ) : (
+                <span className="text-white/40 italic">Enter trading/site address below</span>
+              )}
+            </div>
+          )}
+        </>
       )}
 
       {(() => {
