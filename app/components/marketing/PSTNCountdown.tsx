@@ -42,7 +42,7 @@ export default function PSTNCountdown() {
         <span className="opacity-50">:</span>
         {unit(t.seconds, "sec")}
       </span>
-      <span className="hidden sm:inline opacity-75 text-[11px]">— Is your business ready?</span>
+      <span className="hidden sm:inline opacity-75 text-[11px]">- Is your business ready?</span>
       <a href="#contact" className="ml-2 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/20 hover:bg-white/30 transition-colors whitespace-nowrap">
         Get Ready →
       </a>

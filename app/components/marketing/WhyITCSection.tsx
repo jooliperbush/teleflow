@@ -4,15 +4,15 @@ import FadeInView from "./FadeInView";
 
 const timeline = [
   { short: "06", year: "2006", label: "Founded in Bradford", desc: "Started as a voice and data reseller built on transparent pricing and genuine local support.", color: "#f94580" },
-  { short: "12", year: "2012", label: "Moved into hosted VoIP", desc: "Adopted cloud telephony years before most competitors — delivering better systems at lower cost.", color: "#8b5cf6" },
-  { short: "18", year: "2018", label: "Registered ISP", desc: "Now supply broadband directly — removing third-party margin and giving clients faster fault resolution.", color: "#7be7ff" },
+  { short: "12", year: "2012", label: "Moved into hosted VoIP", desc: "Adopted cloud telephony years before most competitors - delivering better systems at lower cost.", color: "#8b5cf6" },
+  { short: "18", year: "2018", label: "Registered ISP", desc: "Now supply broadband directly - removing third-party margin and giving clients faster fault resolution.", color: "#7be7ff" },
   { short: "27", year: "2023", label: "PSTN programme launched", desc: "Proactively contacted every client about the 2027 switch-off three years before the deadline hit.", color: "#34d399" },
 ]
 
 const differentiators = [
-  { icon: "🏆", title: "Genuinely independent", desc: "Not owned by BT, Vodafone, or any carrier. Our only incentive is keeping your business — so we recommend what's right for you, not what pays us best." },
-  { icon: "🔧", title: "Engineers, not just resellers", desc: "We install, configure, and maintain. When something breaks, our engineers fix it — no ticket handoffs to a carrier's third-party contractor." },
-  { icon: "👤", title: "Named account manager", desc: "Same person every time. Someone who knows your setup, your contracts, and your renewal dates — not a different agent every call." },
+  { icon: "🏆", title: "Genuinely independent", desc: "Not owned by BT, Vodafone, or any carrier. Our only incentive is keeping your business - so we recommend what's right for you, not what pays us best." },
+  { icon: "🔧", title: "Engineers, not just resellers", desc: "We install, configure, and maintain. When something breaks, our engineers fix it - no ticket handoffs to a carrier's third-party contractor." },
+  { icon: "👤", title: "Named account manager", desc: "Same person every time. Someone who knows your setup, your contracts, and your renewal dates - not a different agent every call." },
   { icon: "📋", title: "Ofcom registered · Ombudsman approved", desc: "Fully regulated with a formal escalation route if we ever fall short. No auto-renewal traps. No price-hike clauses in small print." },
 ]
 
@@ -30,7 +30,7 @@ export default function WhyITCSection() {
         {/* Top: intro left + timeline right */}
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 mb-20">
 
-          {/* Left — intro */}
+          {/* Left - intro */}
           <FadeInView>
             <p className="text-4xl md:text-5xl font-black tracking-tight mb-6 text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>About <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Us</span></p>
             <div className="flex items-center gap-3 mb-5">
@@ -39,14 +39,14 @@ export default function WhyITCSection() {
             </div>
             <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6 leading-tight text-white"
               style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
-              Two decades of independent telecoms — never bought, never compromised.
+              Two decades of independent telecoms - never bought, never compromised.
             </h2>
             <p className="text-white/55 text-lg leading-relaxed">
               ITC was founded in Bradford in 2006 to give UK businesses an honest alternative to the big carriers. We&apos;re still independently owned, still in Bradford, and still operating on the same principle: give people the right solution, not the most profitable one.
             </p>
           </FadeInView>
 
-          {/* Right — vertical timeline */}
+          {/* Right - vertical timeline */}
           <FadeInView delay={0.15}>
             <div className="relative">
               <div className="absolute left-[27px] top-8 bottom-4 w-px" style={{ background: "rgba(255,255,255,0.1)" }} />
@@ -59,7 +59,7 @@ export default function WhyITCSection() {
                     </div>
                     <div className="pt-2">
                       <p className="text-xs font-bold uppercase tracking-[0.15em] mb-1" style={{ color: t.color }}>
-                        {t.year} — {t.label}
+                        {t.year} - {t.label}
                       </p>
                       <p className="text-white/55 text-sm leading-relaxed">{t.desc}</p>
                     </div>
@@ -81,7 +81,7 @@ export default function WhyITCSection() {
               2,000+
             </p>
             <p className="text-white/55 text-base leading-relaxed">
-              UK businesses connected since 2006 — from Bradford sole traders to multi-site enterprises nationwide. Here&apos;s what sets us apart from the carriers and the resellers that answer to them.
+              UK businesses connected since 2006 - from Bradford sole traders to multi-site enterprises nationwide. Here&apos;s what sets us apart from the carriers and the resellers that answer to them.
             </p>
           </div>
         </FadeInView>

@@ -48,7 +48,7 @@ export default function InvoiceAnalyser() {
 
   return (
     <section id="invoice-analyser" className="relative overflow-hidden py-20 md:py-32 px-5 md:px-20">
-      {/* Background image — light, optimised */}
+      {/* Background image - light, optimised */}
       <div className="absolute inset-0 z-0">
         <img
           src="/invoice-bg.jpg"
@@ -78,7 +78,7 @@ export default function InvoiceAnalyser() {
               </span>
             </h2>
             <p className="text-base md:text-lg text-gray-900 font-medium max-w-2xl mx-auto">
-              Upload your current bill and see exactly what you&apos;re overpaying — and what ITC would charge instead. Takes 30 seconds.
+              Upload your current bill and see exactly what you&apos;re overpaying - and what ITC would charge instead. Takes 30 seconds.
             </p>
           </div>
         </FadeInView>
