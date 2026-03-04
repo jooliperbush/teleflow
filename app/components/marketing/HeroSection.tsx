@@ -6,7 +6,7 @@ import FadeInView from "./FadeInView";
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 md:pt-24 px-5 md:px-20">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-28 md:pt-32 px-5 md:px-20">
       {/* Background image */}
       <div className="absolute inset-0 z-0">
         <img src="/hero-bg.jpg" alt="" className="w-full h-full object-cover object-center" />

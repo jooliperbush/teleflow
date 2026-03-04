@@ -29,7 +29,7 @@ export default function MarketingNavbar() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-20 py-4 transition-all duration-500"
+        className="w-full flex items-center justify-between px-6 md:px-20 py-4 transition-all duration-500"
         style={{
           backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)",
