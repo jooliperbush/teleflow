@@ -472,10 +472,11 @@ function Step0({ order, setOrder, onNext }: {
 
 // ─── Step 1: Company Details ──────────────────────────────────────────────────
 
-function Step1({ order, setOrder, onNext }: {
+function Step1({ order, setOrder, onNext, onBack }: {
   order: OrderState
   setOrder: (o: Partial<OrderState>) => void
   onNext: () => void
+  onBack: () => void
 }) {
   const [query, setQuery] = useState(order.companyName || '')
   const [suggestion, setSuggestion] = useState<CompanyResult | null>(null)
@@ -1534,7 +1535,7 @@ export default function OrderPage() {
           <>
             <StepIndicator current={step} />
             <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
-              {step === 0 && <Step1 order={order} setOrder={setOrder} onNext={next} />}
+              {step === 0 && <Step1 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
               {step === 1 && <Step2 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
               {step === 2 && <Step3 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
               {step === 3 && <Step4 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
