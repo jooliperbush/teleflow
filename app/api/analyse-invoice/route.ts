@@ -34,6 +34,12 @@ export async function POST(req: NextRequest) {
     if (!file) return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
     if (file.size > 10 * 1024 * 1024) return NextResponse.json({ error: 'File too large (max 10MB)' }, { status: 400 })
 
+    // Early ITC detection from filename
+    const filenameLower = file.name.toLowerCase()
+    if (ITC_NAMES.some(n => filenameLower.includes(n)) || filenameLower.includes('itc125') || filenameLower.includes('itctelecoms')) {
+      return NextResponse.json({ alreadyITC: true, provider: 'ITC Telecoms', totalMonthly: 0 })
+    }
+
     const bytes = await file.arrayBuffer()
     const base64 = Buffer.from(bytes).toString('base64')
     const mimeType = file.type || 'application/pdf'
