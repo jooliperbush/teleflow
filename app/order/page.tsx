@@ -642,17 +642,12 @@ function Step3({ order, setOrder, onNext, onBack }: {
   const [selectedAddress] = useState<ZenAddress | null>(order.selectedAddress || null)
   const [products, setProducts] = useState<Product[]>([])
   const [availRef, setAvailRef] = useState<string | null>(order.zenAvailabilityRef || null)
-  const [phase, setPhase] = useState<'products' | 'appointment'>('products')
+  const [phase] = useState<'products'>('products')
   const [loading, setLoading] = useState(false)
   const [voipSeats, setVoipSeats] = useState(1)
   const [mobileSims, setMobileSims] = useState(1)
   const [selected, setSelected] = useState<Record<string, boolean>>({})
-  // Lease line — no live pricing (requires indirect-quote scope not yet enabled)
   const [selectedTerm, setSelectedTerm] = useState(order.leaseLine?.term || 36)
-  // Appointment state
-  const [slots, setSlots] = useState<AppointmentSlot[]>([])
-  const [slotsLoading, setSlotsLoading] = useState(false)
-  const [selectedSlot, setSelectedSlot] = useState<AppointmentSlot | null>(order.appointment || null)
 
   // Load products on mount using the address from Step 0
   useEffect(() => {
@@ -711,16 +706,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
   }, [order.selectedAddress])
 
 
-  // Load appointment slots when entering appointment phase
-  useEffect(() => {
-    if (phase !== 'appointment' || slots.length > 0) return
-    setSlotsLoading(true)
-    const ref = availRef || 'MOCK'
-    fetch(`/api/zen/appointments?availabilityReference=${encodeURIComponent(ref)}`)
-      .then(r => r.json())
-      .then(d => { setSlots(d.slots || []); setSlotsLoading(false) })
-      .catch(() => setSlotsLoading(false))
-  }, [phase, availRef, slots.length])
+
 
   function toggle(key: string, type: string) {
     setSelected(s => {
@@ -764,20 +750,9 @@ function Step3({ order, setOrder, onNext, onBack }: {
     const sel = buildSelected()
     setOrder({
       selectedProducts: sel,
-      requiresCallback: products.some(p => p.type === 'lease_line' && selected[p.name]) || false,
+      requiresCallback: products.some(p => p.type === 'lease_line' && selected[productKey(p)]) || false,
       leaseLine: undefined,
     })
-    // Show appointment picker if broadband or lease line selected
-    const needsInstall = sel.some(p => ['fttp','fttc','sogea','gfast','adsl','lease_line'].includes(p.type))
-    if (needsInstall) {
-      setPhase('appointment')
-    } else {
-      onNext()
-    }
-  }
-
-  function handleAppointmentNext() {
-    setOrder({ appointment: selectedSlot || undefined })
     onNext()
   }
 
@@ -957,72 +932,6 @@ function Step3({ order, setOrder, onNext, onBack }: {
     )
   }
 
-  // ── Phase 3: Appointment picker ──────────────────────────────────────────────
-  return (
-    <div>
-      <h2 className="text-2xl font-bold mb-2" >Book Installation</h2>
-      <p className="text-sm mb-6 text-white/55">
-        Select an engineer appointment for <strong>{selectedAddress?.displayAddress}</strong>.
-        Half-day slots available — engineer will arrive within the window.
-      </p>
-
-      {slotsLoading ? (
-        <div className="text-center py-10">
-          <div className="inline-block w-7 h-7 border-4 rounded-full animate-spin" style={{ borderColor: "hsl(252, 50%, 28%)", borderTopColor: "#f94580" }} />
-          <p className="text-gray-400 text-sm mt-3">Fetching available slots from Zen...</p>
-        </div>
-      ) : slots.length === 0 ? (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6 text-sm text-amber-800">
-          No appointment slots are currently available. Our team will contact you to arrange installation.
-        </div>
-      ) : (
-        <div className="space-y-2 mb-6 max-h-80 overflow-y-auto pr-1">
-          {(() => {
-            // Group slots by date
-            const byDate: Record<string, AppointmentSlot[]> = {}
-            slots.forEach(s => { byDate[s.date] = byDate[s.date] || []; byDate[s.date].push(s) })
-            return Object.entries(byDate).map(([date, daySlots]) => (
-              <div key={date}>
-                <p className="text-xs font-semibold uppercase tracking-wide mb-1 mt-3" style={{ color: "#7be7ff" }}>
-                  {new Date(date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
-                </p>
-                <div className="flex gap-2 flex-wrap">
-                  {daySlots.map((slot, i) => {
-                    const isSelected = selectedSlot?.date === slot.date && selectedSlot?.startTime === slot.startTime
-                    return (
-                      <button key={i} onClick={() => setSelectedSlot(slot)}
-                        className="flex-1 min-w-[130px] border-2 rounded-xl px-4 py-3 text-sm font-medium transition-all"
-                        style={isSelected ? { borderColor: "#7be7ff", background: "rgba(123, 231, 255, 0.12)", color: "#7be7ff" } : { borderColor: "hsl(252, 50%, 30%)", color: "#c4b8f0", background: "hsl(252, 60%, 16%)" }}>
-                        {slot.type === 'AM' ? '🌅' : '☀️'} {slot.type}
-                        <span className="block text-xs font-normal text-gray-400">{slot.startTime}–{slot.endTime}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            ))
-          })()}
-        </div>
-      )}
-
-      {selectedSlot && (
-        <div className="rounded-lg p-3 mb-4 text-sm" style={{ background: "rgba(123, 231, 255, 0.1)", border: "1px solid rgba(123, 231, 255, 0.4)", color: "#7be7ff" }}>
-          ✓ {new Date(selectedSlot.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })} — {selectedSlot.type} ({selectedSlot.startTime}–{selectedSlot.endTime})
-        </div>
-      )}
-
-      <div className="flex flex-col-reverse sm:flex-row gap-3">
-        <button onClick={() => { setPhase('products'); setSelectedSlot(null) }}
-          className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
-        <button onClick={handleAppointmentNext}
-          disabled={slots.length > 0 && !selectedSlot}
-          className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40"
-          style={{ background: NAVY }}>
-          {selectedSlot ? 'Get Quote →' : 'Skip — team will contact me'}
-        </button>
-      </div>
-    </div>
-  )
 }
 
 // ─── Step 4: Quote ────────────────────────────────────────────────────────────
