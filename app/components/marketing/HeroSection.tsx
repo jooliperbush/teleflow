@@ -26,9 +26,9 @@ export default function HeroSection() {
 
       <div className="max-w-7xl mx-auto w-full relative z-10">
         <FadeInView>
-          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f94580] mb-6 md:mb-8 px-3 py-1.5 md:px-4 md:py-2 rounded-full"
-            style={{ background: "rgba(249,69,128,0.12)", border: "1px solid rgba(249,69,128,0.25)", backdropFilter: "blur(12px)" }}>
-            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-[#f94580] animate-pulse" />
+          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-white/80 mb-6 md:mb-8 px-3 py-1.5 md:px-4 md:py-2 rounded-full"
+            style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(12px)" }}>
+            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white/70 animate-pulse" />
             Trusted by 2,000+ UK Businesses
           </div>
         </FadeInView>
