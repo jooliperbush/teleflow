@@ -8,9 +8,9 @@ const stats = [
 ];
 
 const gradientStyle = {
-  backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)",
-  WebkitBackgroundClip: "text" as const,
-  WebkitTextFillColor: "transparent" as const,
+  
+
+  color: "#111" as const,
 }
 
 export default function ProofBar() {
