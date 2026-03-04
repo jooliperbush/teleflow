@@ -59,12 +59,26 @@ RULES:
       ? [{ type: 'image', source: { type: 'base64', media_type: mimeType as 'image/jpeg'|'image/png'|'image/gif'|'image/webp', data: base64 } }, { type: 'text', text: userPrompt }]
       : [{ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } }, { type: 'text', text: userPrompt }]
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5',
-      max_tokens: 2000,
-      system: systemPrompt,
-      messages: [{ role: 'user', content }]
-    })
+    let message: Awaited<ReturnType<typeof client.messages.create>> | null = null
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        message = await client.messages.create({
+          model: 'claude-haiku-4-5',
+          max_tokens: 2000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content }]
+        })
+        break
+      } catch (e: unknown) {
+        const status = (e as { status?: number }).status
+        if (attempt < 3 && (status === 529 || status === 503 || status === 529)) {
+          await new Promise(r => setTimeout(r, attempt * 2000))
+          continue
+        }
+        throw e
+      }
+    }
+    if (!message) throw new Error('Analysis failed after retries')
 
     const raw = message.content[0].type === 'text' ? message.content[0].text : ''
     const analysis = repairAndParseJson(raw)
