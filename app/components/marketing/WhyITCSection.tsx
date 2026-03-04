@@ -32,15 +32,17 @@ export default function WhyITCSection() {
 
           {/* Left - intro */}
           <FadeInView>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/40 mb-3">About Us</p>
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-px" style={{ background: "#f94580" }} />
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#f94580]">Est. 2006 · Bradford</span>
             </div>
             <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 leading-tight text-white"
               style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
-              Two decades of independent telecoms - never bought, never compromised.
+              About Us
             </h2>
+            <p className="text-white/70 text-xl leading-snug mb-6 font-semibold">
+              Two decades of independent telecoms — never bought, never compromised.
+            </p>
             <p className="text-white/55 text-lg leading-relaxed">
               ITC was founded in Bradford in 2006 to give UK businesses an honest alternative to the big carriers. We&apos;re still independently owned, still in Bradford, and still operating on the same principle: give people the right solution, not the most profitable one.
             </p>
