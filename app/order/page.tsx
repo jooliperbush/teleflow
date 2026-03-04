@@ -639,11 +639,10 @@ function Step3({ order, setOrder, onNext, onBack }: {
   onNext: () => void
   onBack: () => void
 }) {
-  const [addresses, setAddresses] = useState<ZenAddress[]>([])
-  const [selectedAddress, setSelectedAddress] = useState<ZenAddress | null>(order.selectedAddress || null)
+  const [selectedAddress] = useState<ZenAddress | null>(order.selectedAddress || null)
   const [products, setProducts] = useState<Product[]>([])
   const [availRef, setAvailRef] = useState<string | null>(order.zenAvailabilityRef || null)
-  const [phase, setPhase] = useState<'address' | 'products' | 'appointment'>(order.selectedAddress ? 'products' : 'address')
+  const [phase, setPhase] = useState<'products' | 'appointment'>('products')
   const [loading, setLoading] = useState(false)
   const [voipSeats, setVoipSeats] = useState(1)
   const [mobileSims, setMobileSims] = useState(1)
@@ -655,80 +654,58 @@ function Step3({ order, setOrder, onNext, onBack }: {
   const [slotsLoading, setSlotsLoading] = useState(false)
   const [selectedSlot, setSelectedSlot] = useState<AppointmentSlot | null>(order.appointment || null)
 
-  // Load addresses on mount — or load products if address already selected
+  // Load products on mount using the address from Step 0
   useEffect(() => {
-    if (order.selectedAddress) {
-      // Address already chosen (came from pre-onboarding checker) — load products
-      if (products.length > 0) return
-      setLoading(true)
-      const addr = order.selectedAddress
-      const uprn = addr.uprn
-      const loadProducts = async () => {
-        let resolvedUprn = uprn
-        if (!resolvedUprn) {
-          try {
-            const epcRes = await fetch(`/api/epc/uprn?postcode=${encodeURIComponent(order.sitePostcode)}&address=${encodeURIComponent(addr.displayAddress)}`)
-            const epcData = await epcRes.json()
-            resolvedUprn = epcData.uprn || ''
-          } catch {}
-        }
-        const uprnParam = resolvedUprn ? `uprn=${encodeURIComponent(resolvedUprn)}` : `goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}`
-        const res = await fetch(`/api/zen/availability?${uprnParam}`)
-        const data = await res.json()
-        const zenProducts: Product[] = data.products || []
-        const broadband = zenProducts.filter((p: Product) => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
-        if (broadband.length === 0 && !data.availabilityReference) {
-          setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
-        } else {
-          const filteredZen = (() => {
-            // First filter: remove symmetric/zero-upload
-            const valid = zenProducts.filter((p: Product) =>
-              !['fttp','fttc','sogea','gfast','adsl'].includes(p.type) ||
-              (p.downloadMbps !== p.uploadMbps && (p.uploadMbps || 0) > 0)
-            )
-
-            // Split broadband vs add-ons
-            const broadband = valid.filter((p: Product) => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
-            const addons = valid.filter((p: Product) => !['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
-
-            // Pick 3 tiers: fastest ≤1000, closest to 550, closest to 115
-            const targets = [1000, 550, 115]
-            const picked: Product[] = []
-            const sorted = [...broadband].sort((a, b) => (b.downloadMbps || 0) - (a.downloadMbps || 0))
-
-            for (const target of targets) {
-              // Find closest available that hasn't been picked yet
-              const remaining = sorted.filter(p => !picked.includes(p))
-              if (!remaining.length) break
-              const closest = remaining.reduce((best, p) =>
-                Math.abs((p.downloadMbps || 0) - target) < Math.abs((best.downloadMbps || 0) - target) ? p : best
-              )
-              picked.push(closest)
-            }
-
-            // Sort picked descending by speed
-            picked.sort((a, b) => (b.downloadMbps || 0) - (a.downloadMbps || 0))
-            return [...picked, ...addons]
-          })()
-          setProducts([...filteredZen,
-            { type: 'lease_line', name: 'Managed Fibre', downloadMbps: 200, uploadMbps: 1000, monthlyCost: null, setupFee: null, available: true },
-            { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
-            { type: 'mobile', name: 'O2 Unlimited SIM', monthlyCost: 15.00 * MARGIN, setupFee: 0, available: true },
-          ])
-        }
-        setAvailRef(data.availabilityReference || null)
-        setLoading(false)
-      }
-      loadProducts().catch(() => setLoading(false))
-      return
-    }
-    if (!order.sitePostcode) return
+    if (!order.selectedAddress) return
+    if (products.length > 0) return
     setLoading(true)
-    fetch(`/api/zen/address?postcode=${encodeURIComponent(order.sitePostcode)}`)
-      .then(r => r.json())
-      .then(d => { setAddresses(d.addresses || []); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [order.sitePostcode, order.selectedAddress])
+    const addr = order.selectedAddress
+    const uprn = addr.uprn
+    const loadProducts = async () => {
+      let resolvedUprn = uprn
+      if (!resolvedUprn) {
+        try {
+          const epcRes = await fetch(`/api/epc/uprn?postcode=${encodeURIComponent(order.sitePostcode)}&address=${encodeURIComponent(addr.displayAddress)}`)
+          const epcData = await epcRes.json()
+          resolvedUprn = epcData.uprn || ''
+        } catch {}
+      }
+      const uprnParam = resolvedUprn ? `uprn=${encodeURIComponent(resolvedUprn)}` : `goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}`
+      const res = await fetch(`/api/zen/availability?${uprnParam}`)
+      const data = await res.json()
+      const zenProducts: Product[] = data.products || []
+      const broadband = zenProducts.filter((p: Product) => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+      if (broadband.length === 0 && !data.availabilityReference) {
+        setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
+      } else {
+        const valid = zenProducts.filter((p: Product) =>
+          !['fttp','fttc','sogea','gfast','adsl'].includes(p.type) ||
+          (p.downloadMbps !== p.uploadMbps && (p.uploadMbps || 0) > 0)
+        )
+        const bb = valid.filter((p: Product) => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+        const addons = valid.filter((p: Product) => !['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+        const targets = [1000, 550, 115]
+        const picked: Product[] = []
+        const sorted = [...bb].sort((a, b) => (b.downloadMbps || 0) - (a.downloadMbps || 0))
+        for (const target of targets) {
+          const remaining = sorted.filter(p => !picked.includes(p))
+          if (!remaining.length) break
+          picked.push(remaining.reduce((best, p) =>
+            Math.abs((p.downloadMbps || 0) - target) < Math.abs((best.downloadMbps || 0) - target) ? p : best
+          ))
+        }
+        picked.sort((a, b) => (b.downloadMbps || 0) - (a.downloadMbps || 0))
+        setProducts([...picked, ...addons,
+          { type: 'lease_line', name: 'Managed Fibre', downloadMbps: 200, uploadMbps: 1000, monthlyCost: null, setupFee: null, available: true },
+          { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
+          { type: 'mobile', name: 'O2 Unlimited SIM', monthlyCost: 15.00 * MARGIN, setupFee: 0, available: true },
+        ])
+      }
+      setAvailRef(data.availabilityReference || null)
+      setLoading(false)
+    }
+    loadProducts().catch(() => setLoading(false))
+  }, [order.selectedAddress])
 
 
   // Load appointment slots when entering appointment phase
@@ -741,47 +718,6 @@ function Step3({ order, setOrder, onNext, onBack }: {
       .then(d => { setSlots(d.slots || []); setSlotsLoading(false) })
       .catch(() => setSlotsLoading(false))
   }, [phase, availRef, slots.length])
-
-  async function handleAddressSelect(addr: ZenAddress) {
-    setSelectedAddress(addr)
-    setOrder({ selectedAddress: addr })
-    setLoading(true)
-    setPhase('products')
-    try {
-      // If no UPRN, look it up via EPC register
-      let uprn = addr.uprn
-      if (!uprn) {
-        try {
-          const epcRes = await fetch(`/api/epc/uprn?postcode=${encodeURIComponent(order.sitePostcode)}&address=${encodeURIComponent(addr.displayAddress)}`)
-          const epcData = await epcRes.json()
-          uprn = epcData.uprn || ''
-        } catch {}
-      }
-      const uprnParam = uprn ? `uprn=${encodeURIComponent(uprn)}` : `goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}`
-      const res = await fetch(`/api/zen/availability?${uprnParam}`)
-      const data = await res.json()
-      const zenProducts: Product[] = (data.products || [])
-      const allProducts: Product[] = [
-        ...zenProducts,
-        { type: 'lease_line', name: 'Managed Fibre', downloadMbps: 200, uploadMbps: 1000, monthlyCost: null, setupFee: null, available: true },
-        { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
-        { type: 'mobile', name: 'O2 Unlimited SIM', monthlyCost: 15.00 * MARGIN, setupFee: 0, available: true },
-      ]
-      const broadbandProducts = zenProducts.filter(p => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
-      if (broadbandProducts.length === 0 && !data.availabilityReference) {
-        // No ref at all — UPRN unresolvable, show callback
-        setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
-      } else {
-        setProducts(allProducts)
-      }
-      setAvailRef(data.availabilityReference || null)
-      setOrder({ zenAvailabilityRef: data.availabilityReference || undefined })
-    } catch {
-      // Could not resolve UPRN or check availability — show callback notice
-      setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
-    }
-    setLoading(false)
-  }
 
   function toggle(key: string, type: string) {
     setSelected(s => {
@@ -853,67 +789,12 @@ function Step3({ order, setOrder, onNext, onBack }: {
     return (
       <div className="text-center py-12">
         <div className="inline-block w-8 h-8 border-4 rounded-full animate-spin mb-3" style={{ borderColor: "hsl(252, 50%, 28%)", borderTopColor: "#f94580" }} />
-        <p className="text-purple-300 text-sm">
-          {phase === 'address'
-            ? `Finding addresses for ${order.sitePostcode}...`
-            : `Checking availability at ${selectedAddress?.displayAddress}...`}
-        </p>
+        <p className="text-purple-300 text-sm">Checking availability at {selectedAddress?.displayAddress}...</p>
       </div>
     )
   }
 
-  // ── Phase 1: Address picker ──────────────────────────────────────────────────
-  if (phase === 'address') {
-    return (
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Select Installation Address</h2>
-
-        {/* Postcode search — pre-filled from CH but editable */}
-        <div className="flex gap-2 mb-4">
-          <input
-            defaultValue={order.sitePostcode || ''}
-            id="step2-postcode"
-            placeholder="Installation postcode"
-            maxLength={8}
-            className="flex-1 rounded-xl px-4 py-3 text-base text-white placeholder-purple-400 font-medium tracking-widest focus:outline-none"
-            style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 35%)' }}
-            onKeyDown={e => { if (e.key === 'Enter') {
-              const pc = (e.target as HTMLInputElement).value.trim().toUpperCase()
-              if (pc) { setOrder({ sitePostcode: pc }); setAddresses([]); setLoading(true)
-                fetch(`/api/zen/address?postcode=${encodeURIComponent(pc)}`).then(r=>r.json()).then(d=>{setAddresses(d.addresses||[]);setLoading(false)}).catch(()=>setLoading(false)) }
-            }}}
-          />
-          <button
-            onClick={() => {
-              const pc = (document.getElementById('step2-postcode') as HTMLInputElement)?.value.trim().toUpperCase()
-              if (pc) { setOrder({ sitePostcode: pc }); setAddresses([]); setLoading(true)
-                fetch(`/api/zen/address?postcode=${encodeURIComponent(pc)}`).then(r=>r.json()).then(d=>{setAddresses(d.addresses||[]);setLoading(false)}).catch(()=>setLoading(false)) }
-            }}
-            className="itc-gradient-btn px-5 py-3 rounded-xl font-semibold text-white text-sm"
-          >Search</button>
-        </div>
-
-        <div className="space-y-2 mb-6 max-h-80 overflow-y-auto">
-          {loading ? (
-            <p className="text-purple-400 text-sm text-center py-8">Loading addresses…</p>
-          ) : addresses.length === 0 ? (
-            <p className="text-purple-400 text-sm text-center py-8">{order.sitePostcode ? 'No addresses found — try a different postcode.' : 'Enter your installation postcode above.'}</p>
-          ) : addresses.map(a => (
-            <button key={a.goldAddressKey} onClick={() => handleAddressSelect(a)}
-              className="w-full text-left rounded-xl px-5 py-4 transition-all text-base text-white"
-              style={{ background: "hsl(252, 60%, 16%)", border: "1.5px solid hsl(252, 50%, 28%)" }}
-              onMouseOver={e => (e.currentTarget.style.borderColor = "#f94580")}
-              onMouseOut={e => (e.currentTarget.style.borderColor = "hsl(252, 50%, 28%)")}>
-              {a.displayAddress}
-            </button>
-          ))}
-        </div>
-        <button onClick={onBack} className="w-full py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
-      </div>
-    )
-  }
-
-  // ── Phase 2: Product picker ──────────────────────────────────────────────────
+  // ── Products ─────────────────────────────────────────────────────────────────
   if (phase === 'products') {
     const broadband = products.filter(p => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type) && p.name !== '__unresolvable__')
     const addons = products.filter(p => ['voip','mobile','lease_line'].includes(p.type))
@@ -923,8 +804,6 @@ function Step3({ order, setOrder, onNext, onBack }: {
       <div>
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-2xl font-bold">Select Services</h2>
-          <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
-            className="text-xs underline" style={{ color: "#7be7ff" }}>← Change address</button>
         </div>
         <p className="text-sm mb-5 text-white/40">{selectedAddress?.displayAddress}</p>
 
@@ -1023,7 +902,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
             )}
 
             <div className="flex flex-col-reverse sm:flex-row gap-3">
-              <button onClick={() => { setPhase('address'); setProducts([]); setSelected({}) }}
+              <button onClick={onBack}
                 className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252,50%,35%)", background: "hsl(252,60%,18%)" }}>← Back</button>
               <button onClick={handleProductsNext} disabled={!hasSelection}
                 className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40">
@@ -1641,19 +1520,7 @@ export default function OrderPage() {
   }
 
   function next() {
-    const current = step
     setStep(s => Math.min(s + 1, 7))
-    // Leaving Step 1 (address) — clear downstream availability state if address changed
-    if (current === 0) {
-      setOrder({
-        selectedAddress: undefined,
-        zenAvailabilityRef: undefined,
-        selectedProducts: [],
-        requiresCallback: false,
-        appointment: undefined,
-        leaseLine: undefined,
-      })
-    }
   }
   function back() { setStep(s => Math.max(s - 1, -1)) }
 
