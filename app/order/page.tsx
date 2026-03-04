@@ -485,7 +485,7 @@ function Step1({ order, setOrder, onNext, onBack }: {
 
       {/* Contact info */}
       <div className="mb-6">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-3">Your Contact Details</p>
+        <h3 className="text-2xl font-bold text-white mb-3">Your Contact Details</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{contactFields.map(renderField)}</div>
       </div>
 
