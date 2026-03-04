@@ -5,7 +5,6 @@ import ProofBar from "./components/marketing/ProofBar";
 import ServicesSection from "./components/marketing/ServicesSection";
 import InvoiceAnalyser from "./components/marketing/InvoiceAnalyser";
 import WhyITCSection from "./components/marketing/WhyITCSection";
-import FounderQuote from "./components/marketing/FounderQuote";
 import ContactSection from "./components/marketing/ContactSection";
 import MarketingFooter from "./components/marketing/MarketingFooter";
 
@@ -18,7 +17,6 @@ export default function Home() {
       <ServicesSection />
       <InvoiceAnalyser />
       <WhyITCSection />
-      <FounderQuote />
       <ContactSection />
       <MarketingFooter />
     </div>
