@@ -1457,7 +1457,7 @@ const defaultOrder: OrderState = {
   companyName: '', companyNumber: '', companyReference: '', registeredAddress: undefined,
   incorporatedDate: '', companyStatus: '', contactName: '', contactEmail: '', contactPhone: '',
   siteAddressLine1: '', siteAddressLine2: '', siteCity: '', sitePostcode: '', selectedProducts: [], requiresCallback: false, quoteReference: '',
-  quoteTerm: 24, monthlyTotal: 0, annualTotal: 0, quoteSent: false, signedName: '',
+  quoteTerm: 36, monthlyTotal: 0, annualTotal: 0, quoteSent: false, signedName: '',
   signedAt: '', ddAccountHolder: '', ddSortCode: '', ddAccountNumberLast4: '',
   ddConfirmed: false, authorisedToSign: false,
 }
