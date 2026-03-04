@@ -823,6 +823,32 @@ function Step3({ order, setOrder, onNext, onBack }: {
               </div>
             )}
 
+            {/* Why ITC / What's included */}
+            <div className="rounded-xl p-4 mb-5" style={{ background: 'hsl(252, 60%, 14%)', border: '1px solid hsl(252, 50%, 25%)' }}>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/30 mb-3">Every ITC package includes</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {[
+                  { icon: '🔧', title: 'Professional installation', desc: 'Our engineers handle everything — no DIY.' },
+                  { icon: '📡', title: 'Business-grade router', desc: 'Pre-configured and ready on day one.' },
+                  { icon: '🛡️', title: 'Premium UK support', desc: 'Real people, not bots. Mon–Fri 8am–6pm.' },
+                  { icon: '⚡', title: 'Static IP included', desc: 'Essential for VoIP, VPN, and remote access.' },
+                  { icon: '📊', title: 'Proactive monitoring', desc: 'We spot issues before they affect you.' },
+                  { icon: '🤝', title: 'Named account manager', desc: 'One person who knows your business.' },
+                ].map(({ icon, title, desc }) => (
+                  <div key={title} className="flex items-start gap-2.5">
+                    <span className="text-base mt-0.5 flex-shrink-0">{icon}</span>
+                    <div>
+                      <p className="text-xs font-semibold text-white">{title}</p>
+                      <p className="text-[11px] text-white/40 leading-snug">{desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 pt-3" style={{ borderTop: '1px solid hsl(252, 50%, 22%)' }}>
+                <p className="text-[11px] text-white/30 leading-relaxed">ITC is an independent ISP — not owned by BT, Vodafone, or any carrier. We supply fibre directly with no third-party middlemen, which means faster fault resolution, honest pricing, and a team that actually picks up the phone.</p>
+              </div>
+            </div>
+
             {/* Special Offer: Unlimited SIM */}
             {(() => {
               const hasFibre = broadband.some(p => selected[productKey(p)])
