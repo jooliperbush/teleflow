@@ -744,23 +744,20 @@ function Step3({ order, setOrder, onNext, onBack }: {
 
 
   function buildSelected(): SelectedProduct[] {
-    return products
-      .filter(p => selected[p.name])
+    const items: SelectedProduct[] = products
+      .filter(p => selected[productKey(p)])
       .map(p => {
         if (p.type === 'lease_line') {
-          return {
-            type: p.type,
-            name: 'Managed Fibre (Leased Line)',
-            quantity: 1,
-            unitMonthly: 0,
-            monthlyTotal: 0,
-            requiresCallback: true,
-          }
+          return { type: p.type, name: 'Managed Fibre (Leased Line)', quantity: 1, unitMonthly: 0, monthlyTotal: 0, requiresCallback: true }
         }
         const qty = p.type === 'voip' ? voipSeats : p.type === 'mobile' ? mobileSims : 1
         const unitMonthly = p.monthlyCost || 0
         return { type: p.type, name: p.name, quantity: qty, unitMonthly, monthlyTotal: unitMonthly * qty }
       })
+    if (selected['sim-offer']) {
+      items.push({ type: 'mobile', name: 'Unlimited Data SIM', quantity: 1, unitMonthly: 20, monthlyTotal: 20 })
+    }
+    return items
   }
 
   function handleProductsNext() {
@@ -850,6 +847,34 @@ function Step3({ order, setOrder, onNext, onBack }: {
                 </div>
               </div>
             )}
+
+            {/* Special Offer: Unlimited SIM */}
+            <div
+              onClick={() => toggle('sim-offer', 'mobile')}
+              className="rounded-xl p-4 mb-5 cursor-pointer transition-all"
+              style={selected['sim-offer']
+                ? { border: '2px solid #f94580', background: 'rgba(249,69,128,0.12)' }
+                : { border: '1.5px solid rgba(249,69,128,0.5)', background: 'linear-gradient(135deg, rgba(249,69,128,0.08), rgba(89,27,255,0.08))' }}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-4 h-4 mt-0.5 rounded border-2 flex items-center justify-center flex-shrink-0"
+                    style={{ borderColor: selected['sim-offer'] ? '#f94580' : 'rgba(249,69,128,0.6)', background: selected['sim-offer'] ? '#f94580' : 'transparent' }}>
+                    {selected['sim-offer'] && <span className="text-white text-[9px] leading-none">✓</span>}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-white font-semibold text-sm">Unlimited Data SIM</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg,#f94580,#591bff)', color: 'white' }}>🎁 Special Offer</span>
+                    </div>
+                    <p className="text-xs text-white/50">Unlimited calls, texts &amp; data. Perfect for your team on the go.</p>
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <span className="text-sm font-semibold text-white">£20.00/mo</span>
+                  <p className="text-[10px] text-white/30">per SIM</p>
+                </div>
+              </div>
+            </div>
 
             {/* Add-ons */}
             {addons.length > 0 && (
