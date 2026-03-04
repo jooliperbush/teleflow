@@ -733,7 +733,36 @@ function Step2({ order, setOrder, onNext, onBack }: {
         if (broadband.length === 0 && !data.availabilityReference) {
           setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
         } else {
-          const filteredZen = zenProducts.filter((p: Product) => !['fttp','fttc','sogea','gfast','adsl'].includes(p.type) || (p.downloadMbps !== p.uploadMbps && (p.uploadMbps || 0) > 0))
+          const filteredZen = (() => {
+            // First filter: remove symmetric/zero-upload
+            const valid = zenProducts.filter((p: Product) =>
+              !['fttp','fttc','sogea','gfast','adsl'].includes(p.type) ||
+              (p.downloadMbps !== p.uploadMbps && (p.uploadMbps || 0) > 0)
+            )
+
+            // Split broadband vs add-ons
+            const broadband = valid.filter((p: Product) => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+            const addons = valid.filter((p: Product) => !['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
+
+            // Pick 3 tiers: fastest ≤1000, closest to 550, closest to 115
+            const targets = [1000, 550, 115]
+            const picked: Product[] = []
+            const sorted = [...broadband].sort((a, b) => (b.downloadMbps || 0) - (a.downloadMbps || 0))
+
+            for (const target of targets) {
+              // Find closest available that hasn't been picked yet
+              const remaining = sorted.filter(p => !picked.includes(p))
+              if (!remaining.length) break
+              const closest = remaining.reduce((best, p) =>
+                Math.abs((p.downloadMbps || 0) - target) < Math.abs((best.downloadMbps || 0) - target) ? p : best
+              )
+              picked.push(closest)
+            }
+
+            // Sort picked descending by speed
+            picked.sort((a, b) => (b.downloadMbps || 0) - (a.downloadMbps || 0))
+            return [...picked, ...addons]
+          })()
           setProducts([...filteredZen,
             { type: 'lease_line', name: 'Managed Fibre', downloadMbps: 200, uploadMbps: 1000, monthlyCost: null, setupFee: null, available: true },
             { type: 'voip', name: 'VoIP Seat', monthlyCost: 8.00 * MARGIN, setupFee: 25.00, available: true },
