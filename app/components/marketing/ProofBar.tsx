@@ -2,10 +2,16 @@
 import FadeInView from "./FadeInView";
 
 const stats = [
-  { value: "20+", label: "Years in Business" },
-  { value: "2,000+", label: "Clients Connected" },
-  { value: "99.99%", label: "Average Uptime" },
+  { prefix: "20", suffix: "+", label: "Years in Business" },
+  { prefix: "2,000", suffix: "+", label: "Clients Connected" },
+  { prefix: "99.99", suffix: "%", label: "Average Uptime" },
 ];
+
+const gradientStyle = {
+  backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)",
+  WebkitBackgroundClip: "text" as const,
+  WebkitTextFillColor: "transparent" as const,
+}
 
 export default function ProofBar() {
   return (
@@ -15,9 +21,13 @@ export default function ProofBar() {
           <div className="grid grid-cols-3 gap-3 md:gap-8">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
-                <p className="text-xl sm:text-3xl md:text-5xl font-black mb-0.5 md:mb-2"
-                  style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
-                  {stat.value}
+                <p className="text-xl sm:text-3xl md:text-5xl font-black mb-0.5 md:mb-2 inline-flex items-baseline gap-0">
+                  <span style={{ ...gradientStyle, fontFamily: "\'Visby CF\', \'Poppins\', sans-serif" }}>
+                    {stat.prefix}
+                  </span>
+                  <span style={{ ...gradientStyle, fontFamily: "\'Manrope\', \'Poppins\', sans-serif" }}>
+                    {stat.suffix}
+                  </span>
                 </p>
                 <p className="text-[10px] sm:text-xs md:text-sm text-gray-500 font-medium leading-tight">{stat.label}</p>
               </div>
