@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function ContactSection() {
   return (
     <section id="contact" className="py-20 md:py-32 px-6 md:px-20 relative overflow-hidden"
-      style={{ background: "linear-gradient(135deg, hsl(252,92%,8%) 0%, hsl(260,80%,11%) 100%)" }}>
+      style={{ background: "#fff" }}>
       <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(to right, transparent, rgba(249,69,128,0.3), rgba(89,27,255,0.3), transparent)" }} />
       <div className="absolute top-1/4 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
         style={{ background: "radial-gradient(circle, rgba(89,27,255,0.12) 0%, transparent 70%)", filter: "blur(60px)" }} />
@@ -16,7 +16,7 @@ export default function ContactSection() {
         <div className="grid md:grid-cols-2 gap-10 md:gap-16">
           <FadeInView>
             <div>
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 text-white"
+              <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 text-gray-900"
                 style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
                 Ready to <br />
                 <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Talk?</span>
@@ -33,8 +33,8 @@ export default function ContactSection() {
                       <item.icon className="w-6 h-6" style={{ color: item.color }} />
                     </div>
                     <div>
-                      <p className="text-sm text-white/40">{item.label}</p>
-                      <p className="text-lg font-bold text-white">{item.value}</p>
+                      <p className="text-sm text-gray-500">{item.label}</p>
+                      <p className="text-lg font-bold text-gray-900">{item.value}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -53,14 +53,14 @@ export default function ContactSection() {
 
           <FadeInView delay={0.2}>
             <form onSubmit={(e) => e.preventDefault()}
-              className="rounded-[2rem] p-8 sm:p-10 space-y-5"
+              className="rounded-[2rem] p-8 sm:p-10 space-y-5 bg-gray-50 border border-gray-100"
               style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", backdropFilter: "blur(24px)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.07), 0 8px 40px rgba(0,0,0,0.2)" }}>
               <div className="grid sm:grid-cols-2 gap-5">
                 {["Name", "Email"].map((label) => (
                   <div key={label} className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-white/35">{label}</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">{label}</label>
                     <input type={label === "Email" ? "email" : "text"} placeholder={label === "Email" ? "you@company.com" : "Your name"}
-                      className="w-full px-5 py-3.5 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-all"
+                      className="w-full px-5 py-3.5 rounded-xl text-gray-900 text-sm placeholder-gray-300 focus:outline-none transition-all bg-white border border-gray-200"
                       style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
                       onFocus={(e) => e.target.style.border = "1px solid rgba(249,69,128,0.5)"}
                       onBlur={(e) => e.target.style.border = "1px solid rgba(255,255,255,0.08)"} />
@@ -68,9 +68,9 @@ export default function ContactSection() {
                 ))}
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-white/35">Message</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Message</label>
                 <textarea rows={5} placeholder="Tell us about your communication needs..."
-                  className="w-full px-5 py-3.5 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-all resize-none"
+                  className="w-full px-5 py-3.5 rounded-xl text-white text-sm placeholder-gray-300 focus:outline-none text-gray-900 transition-all resize-none"
                   style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
                   onFocus={(e) => e.target.style.border = "1px solid rgba(249,69,128,0.5)"}
                   onBlur={(e) => e.target.style.border = "1px solid rgba(255,255,255,0.08)"} />
