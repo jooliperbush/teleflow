@@ -436,20 +436,12 @@ function Step1({ order, setOrder, onNext, onBack }: {
   onBack: () => void
 }) {
   const emailValid = !order.contactEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.contactEmail)
-  const postcodeValid = !order.sitePostcode || /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(order.sitePostcode)
-  const canContinue = order.contactName && order.contactEmail && emailValid && order.siteAddressLine1 && order.siteCity && order.sitePostcode && postcodeValid
+  const canContinue = order.contactName && order.contactEmail && emailValid
 
   const contactFields: { label: string; key: keyof OrderState; type: string; placeholder: string; validate?: (v: string) => boolean; error?: string }[] = [
     { label: 'Contact Name', key: 'contactName', type: 'text', placeholder: 'Full name' },
     { label: 'Contact Email', key: 'contactEmail', type: 'email', placeholder: 'email@company.com', validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), error: 'Enter a valid email address' },
     { label: 'Contact Phone', key: 'contactPhone', type: 'tel', placeholder: '07700 000000' },
-  ]
-
-  const addressFields: { label: string; key: keyof OrderState; type: string; placeholder: string; validate?: (v: string) => boolean; error?: string }[] = [
-    { label: 'Address Line 1', key: 'siteAddressLine1', type: 'text', placeholder: '123 High Street' },
-    { label: 'Address Line 2', key: 'siteAddressLine2', type: 'text', placeholder: 'Suite / Floor (optional)' },
-    { label: 'Town / City', key: 'siteCity', type: 'text', placeholder: 'Bradford' },
-    { label: 'Postcode', key: 'sitePostcode', type: 'text', placeholder: 'BD1 1AA', validate: v => /^[A-Z]{1,2}\d[\d A-Z]?\s*\d[A-Z]{2}$/i.test(v), error: 'Enter a valid UK postcode' },
   ]
 
   function renderField({ label, key, type, placeholder, validate, error }: typeof contactFields[0]) {
@@ -485,21 +477,15 @@ function Step1({ order, setOrder, onNext, onBack }: {
       {/* Address from availability check */}
       {order.selectedAddress && (
         <div className="rounded-xl p-4 mb-4" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-1">Installation Address</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-1">Installation Address</p>
           <p className="text-white font-medium text-sm">{order.selectedAddress.displayAddress}</p>
           <p className="text-white/40 text-xs mt-0.5">{order.sitePostcode}</p>
         </div>
       )}
 
-      {/* Editable address fields */}
-      <div className="mb-5">
-        <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">Address Details</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{addressFields.map(renderField)}</div>
-      </div>
-
       {/* Contact info */}
       <div className="mb-6">
-        <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">Your Contact Details</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-3">Your Contact Details</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{contactFields.map(renderField)}</div>
       </div>
 
