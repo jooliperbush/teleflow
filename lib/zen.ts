@@ -188,21 +188,12 @@ export interface ZenAvailabilityResult {
 function brandProductName(rawName: string, dl: number, ul: number, type: string): string {
   const n = rawName.toLowerCase()
 
-  // FTTP / CityFibre → Internet Fibre
+  // FTTP / CityFibre → Internet Fibre <actual dl speed>
   if (n.includes('cityfibre') || n.includes('city fibre') || type === 'fttp') {
-    if (dl >= 2000) return `Internet Fibre 2000`
-    if (dl >= 1000) return `Internet Fibre 1000`
-    if (dl >= 900)  return `Internet Fibre 900`
-    if (dl >= 500)  return `Internet Fibre 500`
-    if (dl >= 330)  return `Internet Fibre 330`
-    if (dl >= 200)  return `Internet Fibre 200`
-    if (dl >= 150)  return `Internet Fibre 150`
-    if (dl >= 100)  return `Internet Fibre 100`
-    if (dl >= 50)   return `Internet Fibre 50`
     return `Internet Fibre ${dl}`
   }
 
-  // SOGEA → Internet Broadband
+  // SOGEA → Internet Broadband <dl>/<ul>
   if (type === 'sogea') return `Internet Broadband ${dl}/${ul}`
 
   // FTTC/G.fast
@@ -215,7 +206,7 @@ function brandProductName(rawName: string, dl: number, ul: number, type: string)
   if (type === 'adsl') return `ADSL ${dl}/${ul}`
 
   // Replace CityFibre anywhere in string
-  return rawName.replace(/cityfibre/gi, 'Internet Fibre').replace(/city fibre/gi, 'Internet Fibre')
+  return `Internet Fibre ${dl}`
 }
 
 export async function checkAvailability(
