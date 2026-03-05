@@ -120,7 +120,7 @@ export default function EnterprisePage() {
         <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(89,27,255,0.15) 0%, transparent 70%)', filter: 'blur(60px)' }} />
         <div className="max-w-5xl mx-auto relative z-10 text-center">
           <FadeIn>
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-white/80 mb-6 px-4 py-2 rounded-full" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)', textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-white mb-6 px-4 py-2 rounded-full" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)', textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>
               Enterprise Communications
             </div>
           </FadeIn>
@@ -133,7 +133,7 @@ export default function EnterprisePage() {
             </h1>
           </FadeIn>
           <FadeIn delay={0.2}>
-            <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto mb-10 leading-relaxed" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.9)' }}>
+            <p className="text-lg md:text-xl text-white max-w-3xl mx-auto mb-10 leading-relaxed" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.9)' }}>
               Multi-site connectivity, managed VoIP, mobile fleet, and PSTN migration - handled by a dedicated team who know your account. No call centres. No ticket queues. No carrier bias.
             </p>
           </FadeIn>
@@ -149,7 +149,7 @@ export default function EnterprisePage() {
           <FadeIn delay={0.4}>
             <div className="flex flex-wrap items-center justify-center gap-3 md:gap-5">
               {trustBadges.map((b) => (
-                <span key={b} className="text-xs font-semibold text-white/50 flex items-center gap-1.5">
+                <span key={b} className="text-xs font-semibold text-white flex items-center gap-1.5" style={{ textShadow: '0 1px 6px rgba(0,0,0,0.8)' }}>
                   <span className="w-1 h-1 rounded-full bg-[#f94580] inline-block" />{b}
                 </span>
               ))}
