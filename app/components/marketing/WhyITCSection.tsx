@@ -71,7 +71,7 @@ export default function WhyITCSection() {
           <div className="rounded-2xl px-8 py-6 mb-14 flex flex-col sm:flex-row items-center gap-4"
             style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
             <p className="text-5xl font-black flex-shrink-0"
-              style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontFamily: "'Visby CF', sans-serif" }}>
+              style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontFamily: "'Manrope', sans-serif" }}>
               2,000+
             </p>
             <p className="text-white/55 text-base leading-relaxed">
