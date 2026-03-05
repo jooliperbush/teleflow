@@ -114,7 +114,7 @@ export default function EnterprisePage() {
       {/* ── HERO ───────────────────────────────── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 pb-20 px-5 md:px-20">
         <div className="absolute inset-0 z-0">
-          <Image src="/hero-bg.jpg" alt="" fill className="object-cover object-center opacity-30" />
+          <Image src="/enterprise-hero.jpg" alt="" fill className="object-cover object-center opacity-55" />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(8,4,25,0.92) 0%, rgba(8,4,25,0.75) 60%, rgba(8,4,25,0.50) 100%)' }} />
         </div>
         <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(89,27,255,0.15) 0%, transparent 70%)', filter: 'blur(60px)' }} />
