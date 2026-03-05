@@ -8,6 +8,7 @@ import { ArrowRight, Menu, X } from "lucide-react";
 const navItems = [
   { label: "Services", href: "#services" },
   { label: "Why ITC", href: "#why-itc" },
+  { label: "Enterprise", href: "/enterprise" },
   { label: "Invoice Analysis", href: "#invoice-analyser" },
   { label: "About", href: "#about" },
   { label: "Contact", href: "#contact" },
@@ -42,13 +43,15 @@ export default function MarketingNavbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          {navItems.map((item) => (
-            <a key={item.label} href={item.href}
-              className={`text-sm font-medium transition-colors duration-200 ${scrolled ? "hover:text-gray-900" : "text-white/55 hover:text-white"}`}
-              style={scrolled ? { color: '#374151' } : {}}>
-              {item.label}
-            </a>
-          ))}
+          {navItems.map((item) => {
+            const cls = `text-sm font-medium transition-colors duration-200 ${scrolled ? "hover:text-gray-900" : "text-white/55 hover:text-white"}`;
+            const st = scrolled ? { color: '#374151' } : {};
+            return item.href.startsWith('/') ? (
+              <Link key={item.label} href={item.href} className={cls} style={st}>{item.label}</Link>
+            ) : (
+              <a key={item.label} href={item.href} className={cls} style={st}>{item.label}</a>
+            );
+          })}
         </div>
 
         {/* Phone number */}
@@ -83,14 +86,18 @@ export default function MarketingNavbar() {
             transition={{ duration: 0.25, ease: "easeOut" }}
             className="fixed inset-0 z-40 pt-20 px-6 flex flex-col gap-1 md:hidden"
             style={{ background: "rgba(10,5,30,0.96)", backdropFilter: "blur(24px)" }}>
-            {navItems.map((item, i) => (
-              <motion.a key={item.label} href={item.href}
-                onClick={() => setMobileOpen(false)}
-                initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
-                className="text-2xl font-bold py-4 border-b text-white" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                {item.label}
-              </motion.a>
-            ))}
+            {navItems.map((item, i) => {
+              const motionProps = { key: item.label, initial: { opacity: 0, x: -16 }, animate: { opacity: 1, x: 0 }, transition: { delay: i * 0.05 } };
+              const cls = "text-2xl font-bold py-4 border-b text-white block";
+              const st = { borderColor: "rgba(255,255,255,0.06)" };
+              return item.href.startsWith('/') ? (
+                <motion.div {...motionProps}>
+                  <Link href={item.href} onClick={() => setMobileOpen(false)} className={cls} style={st}>{item.label}</Link>
+                </motion.div>
+              ) : (
+                <motion.a {...motionProps} href={item.href} onClick={() => setMobileOpen(false)} className={cls} style={st}>{item.label}</motion.a>
+              );
+            })}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
               <Link href="/order" onClick={() => setMobileOpen(false)}
                 className="mt-8 flex items-center justify-center gap-2 py-4 rounded-full font-bold text-lg text-white"
