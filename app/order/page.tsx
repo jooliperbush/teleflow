@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import MarketingNavbar from '@/app/components/marketing/MarketingNavbar'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -1505,11 +1506,12 @@ export default function OrderPage() {
   function back() { setStep(s => Math.max(s - 1, -1)) }
 
   return (
-    <div className="min-h-screen py-6 px-4 sm:py-10 sm:px-6" style={{ background: "hsl(252, 92%, 10%)" }}>
+    <div className="min-h-screen" style={{ background: "hsl(252, 92%, 10%)" }}>
+      <MarketingNavbar />
+      <div className="pt-20 py-6 px-4 sm:py-10 sm:px-6">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <img src="/itc-logo.svg" alt="ITC Telecoms" className="h-10 mx-auto mb-2" />
           {step === -1 ? <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Availability Checker</h1> : <h1 className="text-lg font-semibold text-white">Get Connected</h1>}
         </div>
 
@@ -1539,6 +1541,7 @@ export default function OrderPage() {
         <p className="text-center text-xs text-gray-400 mt-6">
           Powered by TeleFlow · ITC Telecoms Ltd · All data is encrypted and securely stored
         </p>
+      </div>
       </div>
     </div>
   )
