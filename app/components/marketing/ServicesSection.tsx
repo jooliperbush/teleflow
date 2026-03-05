@@ -1,21 +1,21 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, Wifi, Smartphone, CheckCircle2, ChevronRight, ArrowRight, FileSearch } from "lucide-react";
+import { CheckCircle2, ChevronRight, ArrowRight } from "lucide-react";
 import FadeInView from "./FadeInView";
 import Link from "next/link";
 
 const services = [
-  { id: "internet", icon: Wifi, label: "Internet", title: "Unpredictable Business, Predictable Connection",
+  { id: "internet", iconSrc: "/icons/icon-internet.svg", label: "Internet", title: "Unpredictable Business, Predictable Connection",
     desc: "Business-grade connectivity with proactive monitoring and guaranteed speeds to keep you moving.",
     features: ["99.99% Uptime", "24/7 Support", "Scalable"] },
-  { id: "voip", icon: Phone, label: "VoIP", title: "Talk with Freedom",
+  { id: "voip", iconSrc: "/icons/icon-voip.svg", label: "VoIP", title: "Talk with Freedom",
     desc: "Cloud-based telephony that scales with your business. Enjoy 99.99% uptime and crystal-clear communication.",
     features: ["99.99% Uptime", "24/7 Support", "Scalable"] },
-  { id: "mobile", icon: Smartphone, label: "Mobile", title: "Stay Connected Anywhere",
+  { id: "mobile", iconSrc: "/icons/icon-mobile.svg", label: "Mobile", title: "Stay Connected Anywhere",
     desc: "Customised mobile plans across major networks, ensuring your team stays productive on the go.",
     features: ["99.99% Uptime", "24/7 Support", "Scalable"] },
-  { id: "migration", icon: FileSearch, label: "Landline Migration Review", title: "Still using PSTN or ISDN? The 2027 switchoff is coming.",
+  { id: "migration", iconSrc: "/icons/icon-landline.svg", label: "Landline Migration Review", title: "Still using PSTN or ISDN? The 2027 switchoff is coming.",
     desc: "Openreach is phasing out legacy copper-based services. We'll assess your current setup and recommend the right future-proof solution.",
     features: ["Full audit of your current lines", "Availability check for fibre or Ethernet", "Clear installation timeline"] },
 ];
@@ -52,13 +52,13 @@ export default function ServicesSection() {
         <div className="grid lg:grid-cols-2 gap-8">
           <div className="flex flex-wrap gap-2 lg:flex-col lg:gap-4">
             {services.map((s, i) => {
-              const Icon = s.icon;
+
               return (
                 <button key={s.id} onClick={() => setActive(i)}
                   className={`text-left p-3 lg:p-8 rounded-xl lg:rounded-[2rem] transition-all duration-500 flex items-center gap-2 lg:gap-5 lg:justify-between group lg:w-full ${active === i ? "bg-white text-black shadow-2xl" : "bg-white/5 hover:bg-white/10 text-white"}`}>
                   <div className="flex items-center gap-2 lg:gap-5">
                     <div className={`w-8 h-8 lg:w-12 lg:h-12 rounded-lg lg:rounded-2xl flex items-center justify-center shrink-0 ${active === i ? "bg-[#f94580]/20" : "bg-white/10"}`}>
-                      <Icon className={`w-4 h-4 lg:w-6 lg:h-6 ${active === i ? "text-[#f94580]" : ""}`} />
+                      <img src={s.iconSrc} alt={s.label} className="w-5 h-5 lg:w-7 lg:h-7" />
                     </div>
                     <span className="text-sm lg:text-xl font-bold whitespace-nowrap">{s.label}</span>
                   </div>
