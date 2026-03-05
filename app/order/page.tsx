@@ -1456,21 +1456,22 @@ function Step7({ order }: { order: OrderState }) {
         </div>
       )}
 
-      <div className="rounded-xl p-5 mt-2 text-sm space-y-3" style={{ background: "hsl(252,60%,16%)", border: "1px solid hsl(252,50%,28%)" }}>
-        <p className="text-white font-semibold">What happens next?</p>
-        <div className="flex items-start gap-3">
-          <span className="text-[#f94580] font-bold flex-shrink-0">1.</span>
-          <p className="text-white/75">Your order is being processed — a confirmation will be sent to <strong className="text-white">{order.contactEmail}</strong> shortly.</p>
+      <div className="rounded-xl p-5 mt-2 text-sm" style={{ background: "hsl(252,60%,16%)", border: "1px solid hsl(252,50%,28%)" }}>
+        <h3 className="text-2xl font-bold text-white mb-4 text-left">What happens next?</h3>
+        <div className="space-y-4">
+          {[
+            `Your order is being processed — a confirmation will be sent to ${order.contactEmail} shortly.`,
+            'Your dedicated account manager will call you within 1 business day to walk you through the next steps.',
+            "An engineer will be scheduled for installation. You'll receive a date confirmation by email.",
+          ].map((text, i) => (
+            <div key={i} className="flex items-start gap-4 text-left">
+              <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-white mt-0.5"
+                style={{ background: '#f94580', minWidth: '1.5rem' }}>{i + 1}</span>
+              <p className="text-white/75 text-sm leading-relaxed">{text}</p>
+            </div>
+          ))}
         </div>
-        <div className="flex items-start gap-3">
-          <span className="text-[#f94580] font-bold flex-shrink-0">2.</span>
-          <p className="text-white/75">Your dedicated account manager will call you within <strong className="text-white">1 business day</strong> to walk you through the next steps.</p>
-        </div>
-        <div className="flex items-start gap-3">
-          <span className="text-[#f94580] font-bold flex-shrink-0">3.</span>
-          <p className="text-white/75">An engineer will be scheduled for installation. You'll receive a date confirmation by email.</p>
-        </div>
-        <div className="mt-4 pt-4 border-t flex items-center gap-2" style={{ borderColor: "hsl(252,50%,28%)" }}>
+        <div className="mt-5 pt-4 flex items-center gap-2" style={{ borderTop: "1px solid hsl(252,50%,28%)" }}>
           <span className="text-white/40 text-xs">Need to speak to us now?</span>
           <a href="tel:01274952123" className="text-[#7be7ff] text-xs font-semibold hover:underline">01274 952 123</a>
         </div>
