@@ -945,6 +945,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
   const [term, setTerm] = useState<number>(order.quoteTerm || 36)
   const [emailSent, setEmailSent] = useState(false)
   const [sending, setSending] = useState(false)
+  const [saveExpanded, setSaveExpanded] = useState(false)
 
   const monthly = order.selectedProducts.reduce((sum, p) => sum + p.monthlyTotal, 0)
   const annual = monthly * 12
@@ -1076,11 +1077,27 @@ function Step4({ order, setOrder, onNext, onBack }: {
             a.click()
             URL.revokeObjectURL(url)
           }}
+          onClick={() => setSaveExpanded(v => !v)}
           className="w-full py-2.5 rounded-xl font-medium text-sm transition-all"
-          style={{ border: "1.5px solid hsl(252,50%,35%)", color: '#c4b8f0', background: 'transparent' }}
+          style={{ border: saveExpanded ? '1.5px solid #591bff' : '1.5px solid hsl(252,50%,35%)', color: saveExpanded ? 'white' : '#c4b8f0', background: saveExpanded ? 'rgba(89,27,255,0.15)' : 'transparent' }}
         >
           💾 Save Quote
         </button>
+
+        {saveExpanded && (
+          <div className="rounded-xl p-4 mt-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+            <p className="text-sm font-semibold text-white mb-1">Your quote is saved when you create an account.</p>
+            <p className="text-xs text-white/55 leading-relaxed mb-3">
+              We&apos;ll use the email and details you already provided — <strong className="text-white/80">{order.contactEmail}</strong> — so all you need to do is create a password.
+            </p>
+            <button
+              className="itc-gradient-btn w-full py-2.5 rounded-lg font-semibold text-white text-sm"
+              onClick={onNext}
+            >
+              Create Account &amp; Save Quote →
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col-reverse sm:flex-row gap-3">
