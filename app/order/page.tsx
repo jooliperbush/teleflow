@@ -1025,10 +1025,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
               <td colSpan={3} className="px-4 py-3 font-bold text-right">Monthly Total</td>
               <td className="px-4 py-3 font-bold text-right" >£{monthly.toFixed(2)}</td>
             </tr>
-            <tr style={{ borderTop: "1px solid hsl(252, 50%, 28%)", background: "hsl(252, 60%, 16%)" }}>
-              <td colSpan={3} className="px-4 py-2 text-right text-purple-400 text-xs">Annual ({term} months)</td>
-              <td className="px-4 py-2 text-right text-purple-400 text-xs">£{annual.toFixed(2)}</td>
-            </tr>
+
           </tfoot>
         </table>
       </div>
