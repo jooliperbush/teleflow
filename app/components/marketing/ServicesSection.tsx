@@ -1,26 +1,23 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, Wifi, Landmark, Smartphone, CheckCircle2, ChevronRight, ArrowRight, FileSearch } from "lucide-react";
+import { Phone, Wifi, Smartphone, CheckCircle2, ChevronRight, ArrowRight, FileSearch } from "lucide-react";
 import FadeInView from "./FadeInView";
 import Link from "next/link";
 
 const services = [
-  { id: "voip", icon: Phone, label: "VoIP", title: "Talk with Freedom",
-    desc: "Cloud-based telephony that scales with your business. Enjoy 99.99% uptime and crystal-clear communication.",
-    features: ["99.99% Uptime", "24/7 Support", "Scalable"] },
   { id: "internet", icon: Wifi, label: "Internet", title: "Unpredictable Business, Predictable Connection",
     desc: "Business-grade connectivity with proactive monitoring and guaranteed speeds to keep you moving.",
     features: ["99.99% Uptime", "24/7 Support", "Scalable"] },
-  { id: "migration", icon: FileSearch, label: "Migration Review", title: "Still using PSTN or ISDN? The 2027 switchoff is coming.",
-    desc: "Openreach is phasing out legacy copper-based services. We'll assess your current setup and recommend the right future-proof solution.",
-    features: ["Full audit of your current lines", "Availability check for fibre or Ethernet", "Clear installation timeline"] },
-  { id: "landline", icon: Landmark, label: "Landline", title: "The Landline Legacy, Modernised",
-    desc: "Expert guidance through the PSTN switchoff, maintaining value while transitioning to digital.",
+  { id: "voip", icon: Phone, label: "VoIP", title: "Talk with Freedom",
+    desc: "Cloud-based telephony that scales with your business. Enjoy 99.99% uptime and crystal-clear communication.",
     features: ["99.99% Uptime", "24/7 Support", "Scalable"] },
   { id: "mobile", icon: Smartphone, label: "Mobile", title: "Stay Connected Anywhere",
     desc: "Customised mobile plans across major networks, ensuring your team stays productive on the go.",
     features: ["99.99% Uptime", "24/7 Support", "Scalable"] },
+  { id: "migration", icon: FileSearch, label: "Migration Review", title: "Still using PSTN or ISDN? The 2027 switchoff is coming.",
+    desc: "Openreach is phasing out legacy copper-based services. We'll assess your current setup and recommend the right future-proof solution.",
+    features: ["Full audit of your current lines", "Availability check for fibre or Ethernet", "Clear installation timeline"] },
 ];
 
 export default function ServicesSection() {
