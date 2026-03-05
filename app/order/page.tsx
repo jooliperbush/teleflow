@@ -1546,7 +1546,7 @@ export default function OrderPage() {
 
         {step >= 0 && (
           <p className="text-center text-xs text-gray-400 mt-6">
-            Powered by TeleFlow · ITC Telecoms Ltd · All data is encrypted and securely stored
+            ITC Telecoms Ltd · All data is encrypted and securely stored
           </p>
         )}
       </div>
