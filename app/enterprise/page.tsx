@@ -115,7 +115,7 @@ export default function EnterprisePage() {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 pb-20 px-5 md:px-20">
         <div className="absolute inset-0 z-0">
           <Image src="/enterprise-hero.jpg" alt="" fill className="object-cover object-center" />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(8,4,25,0.55) 0%, rgba(8,4,25,0.35) 60%, rgba(8,4,25,0.15) 100%)' }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(8,4,25,0.25) 0%, rgba(8,4,25,0.10) 60%, rgba(8,4,25,0.05) 100%)' }} />
         </div>
         <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(89,27,255,0.15) 0%, transparent 70%)', filter: 'blur(60px)' }} />
         <div className="max-w-5xl mx-auto relative z-10 text-center">
