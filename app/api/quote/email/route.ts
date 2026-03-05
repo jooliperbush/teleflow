@@ -4,8 +4,8 @@ import { generateQuotePDF, type QuotePDFData } from '@/lib/quote-pdf'
 export async function POST(req: NextRequest) {
   const { orderId, order, signed = false } = await req.json()
 
-  if (!orderId || !order) {
-    return NextResponse.json({ error: 'orderId and order required' }, { status: 400 })
+  if (!order) {
+    return NextResponse.json({ error: 'order required' }, { status: 400 })
   }
 
   const resendKey = process.env.RESEND_API_KEY
@@ -33,12 +33,16 @@ export async function POST(req: NextRequest) {
     signedIp: isSigned ? (order.signed_ip || order.signedIp) : undefined,
   }
 
-  // Generate PDF
+  // Generate PDF (best-effort — email still sends without it if generation fails)
   let pdfBuffer: Buffer | null = null
   try {
-    pdfBuffer = await generateQuotePDF(pdfData)
+    pdfBuffer = await Promise.race([
+      generateQuotePDF(pdfData),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('PDF timeout')), 12000)),
+    ]) as Buffer
   } catch (err) {
-    console.error('PDF generation error:', err)
+    console.error('PDF generation error (non-fatal):', err)
+    pdfBuffer = null
   }
 
   const quoteRef = pdfData.quoteReference
@@ -118,14 +122,16 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error
 
-    // Update Supabase if available
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      const { getServiceClient } = await import('@/lib/supabase')
-      const db = getServiceClient()
-      await db.from('orders')
-        .update({ quote_sent_at: new Date().toISOString() })
-        .eq('id', orderId)
-    }
+    // Update Supabase if available (best-effort)
+    try {
+      if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY && orderId !== 'preview') {
+        const { getServiceClient } = await import('@/lib/supabase')
+        const db = getServiceClient()
+        await db.from('orders')
+          .update({ quote_sent_at: new Date().toISOString() })
+          .eq('id', orderId)
+      }
+    } catch { /* non-fatal */ }
 
     return NextResponse.json({ success: true, sent: true, emailId: data?.id, hasPdf: !!pdfBuffer })
   } catch (err) {
