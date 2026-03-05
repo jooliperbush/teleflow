@@ -1123,41 +1123,55 @@ function Step5({ order, setOrder, onNext, onBack }: {
   const [authorised, setAuthorised] = useState(false)
   const [signing, setSigning] = useState(false)
   const [signed, setSigned] = useState(!!order.signedAt)
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle')
 
   async function handleSign() {
     setSigning(true)
+    const signedAt = new Date().toISOString()
+    const orderId = order.id || 'preview'
+    const signedOrder = {
+      quote_reference: order.quoteReference,
+      quote_term_months: order.quoteTerm,
+      company_name: order.companyName,
+      company_number: order.companyNumber,
+      company_reference: order.companyReference,
+      registered_address: order.registeredAddress,
+      contact_name: order.contactName,
+      contact_email: order.contactEmail,
+      contact_phone: order.contactPhone,
+      site_postcode: order.sitePostcode,
+      selected_products: order.selectedProducts,
+      monthly_total: order.monthlyTotal,
+      annual_total: order.annualTotal,
+      signed_name: signedName,
+      signed_at: signedAt,
+    }
     try {
       const res = await fetch('/api/sign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId: order.id || 'preview',
-          signedName,
-          order: {
-            quote_reference: order.quoteReference,
-            quote_term_months: order.quoteTerm,
-            company_name: order.companyName,
-            company_number: order.companyNumber,
-            company_reference: order.companyReference,
-            registered_address: order.registeredAddress,
-            contact_name: order.contactName,
-            contact_email: order.contactEmail,
-            contact_phone: order.contactPhone,
-            site_postcode: order.sitePostcode,
-            selected_products: order.selectedProducts,
-            monthly_total: order.monthlyTotal,
-            annual_total: order.annualTotal,
-          },
-        }),
+        body: JSON.stringify({ orderId, signedName, order: signedOrder }),
       })
       const data = await res.json()
-      setOrder({ signedName, signedAt: data.signedAt })
-      setSigned(true)
+      setOrder({ signedName, signedAt: data.signedAt || signedAt })
     } catch {
-      setOrder({ signedName, signedAt: new Date().toISOString() })
-      setSigned(true)
+      setOrder({ signedName, signedAt })
     }
+    setSigned(true)
     setSigning(false)
+    // Auto-send signed copy by email
+    setEmailStatus('sending')
+    try {
+      const emailRes = await fetch('/api/quote/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, order: signedOrder, signed: true }),
+      })
+      const emailData = await emailRes.json()
+      setEmailStatus(emailData.success ? 'sent' : 'failed')
+    } catch {
+      setEmailStatus('failed')
+    }
   }
 
   const canSign = signedName.trim().length > 2 && authorised && !signed
@@ -1219,20 +1233,20 @@ function Step5({ order, setOrder, onNext, onBack }: {
       )}
 
       {signed && (
-        <div className="rounded-lg p-3 mb-4 flex items-center justify-between gap-3"
+        <div className="rounded-lg p-3 mb-4 flex items-center gap-3"
           style={{ background: "hsl(252,60%,16%)", border: "1px solid hsl(252,50%,28%)" }}>
-          <div>
-            <p className="text-sm font-medium text-white">📧 Send signed copy by email</p>
-            <p className="text-xs text-white/40 mt-0.5">A copy of the signed agreement will be sent to {order.contactEmail}</p>
-          </div>
-          <button
-            disabled
-            className="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-semibold text-white/40 cursor-not-allowed"
-            style={{ background: "hsl(252,60%,22%)", border: "1px solid hsl(252,50%,30%)" }}
-            title="Email delivery coming soon — Resend domain verification pending"
-          >
-            Coming Soon
-          </button>
+          {emailStatus === 'sending' && (
+            <><div className="w-4 h-4 border-2 rounded-full animate-spin flex-shrink-0" style={{ borderColor: 'hsl(252,50%,40%)', borderTopColor: '#7be7ff' }} />
+            <p className="text-xs text-white/50">Sending signed copy to {order.contactEmail}...</p></>
+          )}
+          {emailStatus === 'sent' && (
+            <><span className="text-green-400 flex-shrink-0">✓</span>
+            <p className="text-xs text-white/60">Signed copy sent to <strong className="text-white">{order.contactEmail}</strong></p></>
+          )}
+          {emailStatus === 'failed' && (
+            <><span className="text-amber-400 flex-shrink-0">⚠</span>
+            <p className="text-xs text-white/60">Couldn&apos;t send email — your agreement is still valid. Contact us on 01274 952 123.</p></>
+          )}
         </div>
       )}
 
