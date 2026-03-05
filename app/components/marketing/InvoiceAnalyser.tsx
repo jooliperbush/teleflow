@@ -58,7 +58,7 @@ export default function InvoiceAnalyser() {
           decoding="async"
         />
         {/* Very subtle white wash to soften image under content */}
-        <div className="absolute inset-0" style={{ background: "rgba(240,238,255,0.45)" }} />
+        <div className="absolute inset-0" style={{ background: "rgba(240,238,255,0.82)" }} />
 
       </div>
 
