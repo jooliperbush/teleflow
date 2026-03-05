@@ -126,9 +126,9 @@ export default function EnterprisePage() {
           </FadeIn>
           <FadeIn delay={0.1}>
             <h1 className="text-5xl sm:text-6xl md:text-8xl font-black leading-[0.9] tracking-tighter mb-8 text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
-              Enterprise telecoms<br />
+              Enterprise telecoms.<br />
               <span style={{ backgroundImage: 'linear-gradient(to right, #f94580, #591bff, #7be7ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                without the enterprise runaround.
+                Without the runaround.
               </span>
             </h1>
           </FadeIn>
@@ -437,6 +437,25 @@ export default function EnterprisePage() {
               </form>
             )}
           </FadeIn>
+        </div>
+      </section>
+
+      {/* ── INTERNAL LINKS ─────────────────────── */}
+      <section className="py-12 px-5 md:px-20" style={{ background: 'hsl(252,92%,13%)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="max-w-7xl mx-auto">
+          <p className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5 text-center">Detailed service guides</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {[
+              { label: 'PSTN Migration', href: '/enterprise/pstn-migration' },
+              { label: 'Business Leased Lines', href: '/enterprise/leased-lines' },
+              { label: 'Enterprise VoIP', href: '/enterprise/voip' },
+            ].map(l => (
+              <Link key={l.href} href={l.href} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white/70 hover:text-white transition-colors"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                {l.label} <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
