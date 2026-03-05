@@ -115,18 +115,17 @@ export default function EnterprisePage() {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 pb-20 px-5 md:px-20">
         <div className="absolute inset-0 z-0">
           <Image src="/enterprise-hero.jpg" alt="" fill className="object-cover object-center" />
-          <div className="absolute inset-0 md:hidden" style={{ background: 'linear-gradient(160deg, rgba(8,4,25,0.92) 0%, rgba(8,4,25,0.80) 60%, rgba(8,4,25,0.60) 100%)' }} />
-          <div className="absolute inset-0 hidden md:block" style={{ background: 'linear-gradient(160deg, rgba(8,4,25,0.88) 0%, rgba(8,4,25,0.72) 60%, rgba(8,4,25,0.50) 100%)' }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(8,4,25,0.55) 0%, rgba(8,4,25,0.35) 60%, rgba(8,4,25,0.15) 100%)' }} />
         </div>
         <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(89,27,255,0.15) 0%, transparent 70%)', filter: 'blur(60px)' }} />
         <div className="max-w-5xl mx-auto relative z-10 text-center">
           <FadeIn>
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-white/80 mb-6 px-4 py-2 rounded-full" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)' }}>
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-white/80 mb-6 px-4 py-2 rounded-full" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)', textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>
               Enterprise Communications
             </div>
           </FadeIn>
           <FadeIn delay={0.1}>
-            <h1 className="text-5xl sm:text-6xl md:text-8xl font-black leading-[0.9] tracking-tighter mb-8 text-white" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
+            <h1 className="text-5xl sm:text-6xl md:text-8xl font-black leading-[0.9] tracking-tighter mb-8 text-white" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif", textShadow: '0 2px 20px rgba(0,0,0,0.9), 0 4px 40px rgba(0,0,0,0.6)' }}>
               Enterprise telecoms.<br />
               <span style={{ backgroundImage: 'linear-gradient(to right, #f94580, #591bff, #7be7ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 Without the runaround.
@@ -134,7 +133,7 @@ export default function EnterprisePage() {
             </h1>
           </FadeIn>
           <FadeIn delay={0.2}>
-            <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto mb-10 leading-relaxed">
+            <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto mb-10 leading-relaxed" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.9)' }}>
               Multi-site connectivity, managed VoIP, mobile fleet, and PSTN migration - handled by a dedicated team who know your account. No call centres. No ticket queues. No carrier bias.
             </p>
           </FadeIn>
