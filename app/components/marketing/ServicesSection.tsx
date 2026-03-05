@@ -90,7 +90,9 @@ export default function ServicesSection() {
                     </div>
                   </div>
                 </div>
-                <Link href={(services[active] as {cta?: {href: string}}).cta?.href ?? "/order"} className="inline-flex items-center gap-2 text-[#f94580] font-bold hover:gap-3 transition-all">
+                <Link href={(services[active] as {cta?: {href: string}}).cta?.href ?? "/order"}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm text-white transition-all hover:opacity-90"
+                  style={{ background: "linear-gradient(135deg, #f94580, #591bff)" }}>
                   {(services[active] as {cta?: {label: string}}).cta?.label ?? "Get a Quote"} <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
