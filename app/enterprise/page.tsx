@@ -278,7 +278,7 @@ export default function EnterprisePage() {
               <AlertTriangle className="w-3.5 h-3.5" /> January 31, 2027
             </div>
             <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-white mb-4" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
-              The UK's PSTN and ISDN network switches off permanently.
+              The UK<span style={{ fontFamily: "'Manrope', sans-serif" }}>'s</span> PSTN and ISDN network switches off permanently.
             </h2>
             <p className="text-white/60 text-lg mb-10 max-w-2xl mx-auto">
               If your organisation has not completed its migration, your phone lines, alarm systems, and payment terminals will stop working.
