@@ -44,7 +44,7 @@ export default function MarketingNavbar() {
 
         <div className="hidden md:flex items-center gap-8">
           {navItems.map((item) => {
-            const cls = `text-sm font-medium transition-colors duration-200 ${scrolled ? "hover:text-gray-900" : "text-white/55 hover:text-white"}`;
+            const cls = `text-sm font-bold transition-colors duration-200 ${scrolled ? "hover:text-gray-900" : "text-white/55 hover:text-white"}`;
             const st = scrolled ? { color: '#374151' } : {};
             return item.href.startsWith('/') ? (
               <Link key={item.label} href={item.href} className={cls} style={st}>{item.label}</Link>
