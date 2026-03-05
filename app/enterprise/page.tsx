@@ -144,10 +144,7 @@ export default function EnterprisePage() {
                 style={{ background: 'linear-gradient(135deg, #f94580 0%, #591bff 100%)', boxShadow: '0 0 30px rgba(249,69,128,0.4), inset 0 1px 0 rgba(255,255,255,0.15)' }}>
                 Speak to an enterprise specialist <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </a>
-              <a href="/ITC-Services-Brochure.pdf" download className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full font-bold text-base text-white/90"
-                style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(20px)' }}>
-                <Download className="w-4 h-4" /> Download our enterprise brochure
-              </a>
+
             </div>
           </FadeIn>
           <FadeIn delay={0.4}>
