@@ -37,7 +37,7 @@ export default function WhyITCSection() {
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#f94580]">Est. 2006 · Bradford</span>
             </div>
             <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 leading-tight text-white"
-              style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+              style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
               About Us
             </h2>
             <p className="text-white/70 text-xl leading-snug mb-6 font-semibold">

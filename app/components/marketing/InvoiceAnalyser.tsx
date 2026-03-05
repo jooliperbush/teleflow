@@ -71,7 +71,7 @@ export default function InvoiceAnalyser() {
               Free · Instant · No Sign-Up
             </div>
             <h2 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter mb-4 text-gray-900"
-              style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+              style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
               Is your telecoms bill<br />
               <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 accurate? Probably not.
@@ -151,7 +151,7 @@ export default function InvoiceAnalyser() {
                 <div className="p-6 md:p-8 text-white text-center"
                   style={{ background: "linear-gradient(135deg, #f94580, #591bff)" }}>
                   <p className="text-xs font-bold uppercase tracking-widest opacity-70 mb-2">Your Potential Saving</p>
-                  <p className="text-5xl font-black mb-1" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+                  <p className="text-5xl font-black mb-1" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
                     {fmt(result.monthlySaving)}<span className="text-xl">/mo</span>
                   </p>
                   <p className="text-base opacity-80">{fmt(result.annualSaving)}/yr · {result.savingPercent}% less</p>

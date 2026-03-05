@@ -8,7 +8,7 @@ export default function FounderQuote() {
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: "rgba(249,69,128,0.08)", filter: "blur(120px)" }} />
       <div className="max-w-7xl mx-auto relative z-10">
         <FadeInView>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter mb-12 md:mb-16" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter mb-12 md:mb-16" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
             About <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Us</span>
           </h2>
         </FadeInView>

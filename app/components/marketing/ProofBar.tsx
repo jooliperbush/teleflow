@@ -22,10 +22,10 @@ export default function ProofBar() {
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <p className="text-xl sm:text-3xl md:text-5xl font-black mb-0.5 md:mb-2 inline-flex items-baseline gap-0">
-                  <span style={{ ...gradientStyle, fontFamily: "\'Visby CF\', \'Poppins\', sans-serif" }}>
+                  <span style={{ ...gradientStyle, fontFamily: "\'Visby CF\', \'Manrope\', sans-serif" }}>
                     {stat.prefix}
                   </span>
-                  <span style={{ ...gradientStyle, fontFamily: "\'Manrope\', \'Poppins\', sans-serif" }}>
+                  <span style={{ ...gradientStyle, fontFamily: "\'Manrope\', sans-serif" }}>
                     {stat.suffix}
                   </span>
                 </p>

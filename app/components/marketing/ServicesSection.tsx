@@ -31,7 +31,7 @@ export default function ServicesSection() {
         <FadeInView>
           <div className="text-center mb-12 md:mb-20">
             <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 text-white"
-              style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+              style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
               What We <br />
               <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Offer</span>
             </h2>
@@ -74,7 +74,7 @@ export default function ServicesSection() {
               <motion.div key={active} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}
                 className="bg-white/5 border border-white/10 rounded-[2rem] p-6 sm:p-10 h-full flex flex-col justify-between relative overflow-hidden">
                 <div>
-                  <h3 className="text-3xl md:text-4xl font-black tracking-tight mb-4 text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+                  <h3 className="text-3xl md:text-4xl font-black tracking-tight mb-4 text-white" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
                     {services[active].title}
                   </h3>
                   <p className="text-white/60 text-lg leading-relaxed mb-8">{services[active].desc}</p>

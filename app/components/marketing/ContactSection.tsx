@@ -17,7 +17,7 @@ export default function ContactSection() {
           <FadeInView>
             <div>
               <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8 text-gray-900"
-                style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+                style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
                 Ready to <br />
                 <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Talk?</span>
               </h2>
@@ -58,20 +58,20 @@ export default function ContactSection() {
               <div className="grid sm:grid-cols-2 gap-5">
                 {["Name", "Email"].map((label) => (
                   <div key={label} className="space-y-2">
-                    <label className="text-sm font-bold uppercase tracking-wider" style={{ color: "#111827", fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>{label}</label>
+                    <label className="text-sm font-bold uppercase tracking-wider" style={{ color: "#111827", fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>{label}</label>
                     <input type={label === "Email" ? "email" : "text"} placeholder={label === "Email" ? "you@company.com" : "Your name"}
                       className="w-full px-5 py-3.5 rounded-xl focus:outline-none transition-all"
-                      style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#111827", fontSize: "16px", fontFamily: "'Visby CF', 'Poppins', sans-serif" }}
+                      style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#111827", fontSize: "16px", fontFamily: "'Visby CF', 'Manrope', sans-serif" }}
                       onFocus={(e) => { e.target.style.border = "1px solid rgba(249,69,128,0.5)"; }}
                       onBlur={(e) => { e.target.style.border = "1px solid rgba(255,255,255,0.15)"; }} />
                   </div>
                 ))}
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold uppercase tracking-wider" style={{ color: "#111827", fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Message</label>
+                <label className="text-sm font-bold uppercase tracking-wider" style={{ color: "#111827", fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>Message</label>
                 <textarea rows={5} placeholder="Tell us about your communication needs..."
                   className="w-full px-5 py-3.5 rounded-xl focus:outline-none transition-all resize-none"
-                  style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#111827", fontSize: "16px", fontFamily: "'Visby CF', 'Poppins', sans-serif" }}
+                  style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#111827", fontSize: "16px", fontFamily: "'Visby CF', 'Manrope', sans-serif" }}
                   onFocus={(e) => { e.target.style.border = "1px solid rgba(249,69,128,0.5)"; }}
                   onBlur={(e) => { e.target.style.border = "1px solid rgba(255,255,255,0.15)"; }} />
               </div>
