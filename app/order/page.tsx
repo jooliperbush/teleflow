@@ -1544,11 +1544,9 @@ export default function OrderPage() {
           </>
         )}
 
-        {step >= 0 && (
-          <p className="text-center text-xs text-gray-400 mt-6">
-            ITC Telecoms Ltd · All data is encrypted and securely stored
-          </p>
-        )}
+        <p className="text-center text-xs text-gray-400 mt-6">
+          ITC Telecoms Ltd · All data is encrypted and securely stored
+        </p>
       </div>
       </div>
     </div>
