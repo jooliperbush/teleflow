@@ -9,7 +9,7 @@ const services = [
   { id: "internet", iconSrc: "/icons/icon-internet.svg", label: "Internet", title: "Business grade broadband. Proactively managed not just delivered.",
     desc: "We monitor your connection around the clock — most faults are resolved before you notice them. Registered ISP, so no middleman, no excuses.",
     features: ["Full fibre from 115 Mbps to 1 Gbps", "Managed installation with business SLA", "Unlimited usage, no throttling, no fair use catches"],
-    cta: { label: "Check availability at your postcode →", href: "/order" } },
+    cta: { label: "Check availability at your postcode", href: "/order" } },
   { id: "voip", iconSrc: "/icons/icon-voip.svg", label: "VoIP", title: "Talk with Freedom",
     desc: "Cloud-based telephony that scales with your business. Enjoy 99.99% uptime and crystal-clear communication.",
     features: ["99.99% Uptime", "24/7 Support", "Scalable"] },
