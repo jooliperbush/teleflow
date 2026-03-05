@@ -6,9 +6,10 @@ import FadeInView from "./FadeInView";
 import Link from "next/link";
 
 const services = [
-  { id: "internet", iconSrc: "/icons/icon-internet.svg", label: "Internet", title: "Unpredictable Business, Predictable Connection",
-    desc: "Business-grade connectivity with proactive monitoring and guaranteed speeds to keep you moving.",
-    features: ["99.99% Uptime", "24/7 Support", "Scalable"] },
+  { id: "internet", iconSrc: "/icons/icon-internet.svg", label: "Internet", title: "Business-grade broadband. Proactively managed, not just delivered.",
+    desc: "We monitor your connection around the clock — most faults are resolved before you notice them. Registered ISP, so no middleman, no excuses.",
+    features: ["Full fibre from 115 Mbps to 1 Gbps", "Managed installation with business SLA", "Unlimited usage, no throttling, no fair use catches"],
+    cta: { label: "Check availability at your postcode →", href: "/order" } },
   { id: "voip", iconSrc: "/icons/icon-voip.svg", label: "VoIP", title: "Talk with Freedom",
     desc: "Cloud-based telephony that scales with your business. Enjoy 99.99% uptime and crystal-clear communication.",
     features: ["99.99% Uptime", "24/7 Support", "Scalable"] },
@@ -88,8 +89,8 @@ export default function ServicesSection() {
                     </div>
                   </div>
                 </div>
-                <Link href="/order" className="inline-flex items-center gap-2 text-[#f94580] font-bold hover:gap-3 transition-all">
-                  Get a Quote <ArrowRight className="w-4 h-4" />
+                <Link href={(services[active] as {cta?: {href: string}}).cta?.href ?? "/order"} className="inline-flex items-center gap-2 text-[#f94580] font-bold hover:gap-3 transition-all">
+                  {(services[active] as {cta?: {label: string}}).cta?.label ?? "Get a Quote"} <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
             </AnimatePresence>
