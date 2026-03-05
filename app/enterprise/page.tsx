@@ -50,13 +50,13 @@ function Countdown() {
   )
 }
 
-const trustBadges = ['Ofcom Registered', 'Ombudsman Approved', 'BT Openreach Partner', 'Gamma Partner', 'Official Supplier — Bradford UK City of Culture']
+const trustBadges = ['Ofcom Registered', 'Ombudsman Approved', 'BT Openreach Partner', 'Gamma Partner', 'Official Supplier - Bradford UK City of Culture']
 
 const services = [
   {
     tag: 'Internet & Connectivity',
     title: "Enterprise connectivity that's proactively managed, not just delivered.",
-    body: "From dedicated leased lines to multi-site full fibre, we design and manage connectivity that meets your SLA requirements — not a generic business package with a business price tag. Proactive 24/7 monitoring means most faults are identified and escalated before you're aware of them.",
+    body: "From dedicated leased lines to multi-site full fibre, we design and manage connectivity that meets your SLA requirements - not a generic business package with a business price tag. Proactive 24/7 monitoring means most faults are identified and escalated before you're aware of them.",
     bullets: ['Leased lines, FTTP, and EFM across all major UK carriers', 'Business SLA with guaranteed response and fix times', 'Proactive monitoring with named engineer escalation', 'Scalable from a single site to 100+ locations', 'Direct Openreach relationship for faster fault resolution'],
     cta: 'Check availability at your postcode', href: '/order',
     gradient: 'linear-gradient(135deg, #591bff 0%, #7be7ff 100%)',
@@ -64,41 +64,41 @@ const services = [
   {
     tag: 'Hosted VoIP & Unified Communications',
     title: 'Phone systems built for how enterprise teams actually work.',
-    body: "Cloud-based telephony that works across desk phones, softphones, and mobiles — with call recording, IVR, hunt groups, and analytics included as standard. With the PSTN switching off in January 2027, we manage the migration from audit to go-live, across every site.",
-    bullets: ['100% uptime SLA with fully redundant infrastructure', 'Unlimited UK calls across landlines and major mobile networks', 'Microsoft Teams Direct Routing available', 'Multi-site rollout with dedicated project management', "Full 2027 PSTN compliance — we've migrated 80% of our client base already"],
+    body: "Cloud-based telephony that works across desk phones, softphones, and mobiles - with call recording, IVR, hunt groups, and analytics included as standard. With the PSTN switching off in January 2027, we manage the migration from audit to go-live, across every site.",
+    bullets: ['100% uptime SLA with fully redundant infrastructure', 'Unlimited UK calls across landlines and major mobile networks', 'Microsoft Teams Direct Routing available', 'Multi-site rollout with dedicated project management', "Full 2027 PSTN compliance - we've migrated 80% of our client base already"],
     cta: 'Get a VoIP quote', href: '/order',
     gradient: 'linear-gradient(135deg, #f94580 0%, #591bff 100%)',
   },
   {
     tag: 'Mobile Fleet Management',
     title: 'One fleet. Multiple networks. Complete visibility.',
-    body: "We're not tied to one network, so we put your team on the tariff that actually fits — across O2, Vodafone, EE, and Three. Fleet management portal, spend controls, and usage alerts give your operations team full visibility without the admin overhead.",
-    bullets: ['Network-agnostic — we recommend based on coverage, not commission', 'Unlimited data, calls, and texts as standard', 'Hardware procurement and device management', 'Spend caps and usage alerts across the entire fleet', 'Consolidated onto your monthly ITC invoice'],
+    body: "We're not tied to one network, so we put your team on the tariff that actually fits - across O2, Vodafone, EE, and Three. Fleet management portal, spend controls, and usage alerts give your operations team full visibility without the admin overhead.",
+    bullets: ['Network-agnostic - we recommend based on coverage, not commission', 'Unlimited data, calls, and texts as standard', 'Hardware procurement and device management', 'Spend caps and usage alerts across the entire fleet', 'Consolidated onto your monthly ITC invoice'],
     cta: 'Talk to a mobile specialist', href: '/order',
     gradient: 'linear-gradient(135deg, #f94580 0%, #f9a030 100%)',
   },
   {
     tag: 'PSTN & ISDN Migration',
     title: 'The 2027 deadline isn\'t optional. We make the transition risk-free.',
-    body: 'BT Openreach is switching off the PSTN and ISDN network on 31 January 2027. For multi-site organisations, that means every phone system, fire alarm dialler, lift phone, CCTV line, and payment terminal needs auditing and migrating. We manage the full process — from estate audit to final cutover.',
-    bullets: ['Full site-by-site estate audit — free of charge', 'Migration planning across voice, alarms, lifts, and EPOS', 'Direct Openreach engineering support for complex sites', 'No disruption to live services during cutover', 'Fixed-price migration packages available'],
+    body: 'BT Openreach is switching off the PSTN and ISDN network on 31 January 2027. For multi-site organisations, that means every phone system, fire alarm dialler, lift phone, CCTV line, and payment terminal needs auditing and migrating. We manage the full process - from estate audit to final cutover.',
+    bullets: ['Full site-by-site estate audit - free of charge', 'Migration planning across voice, alarms, lifts, and EPOS', 'Direct Openreach engineering support for complex sites', 'No disruption to live services during cutover', 'Fixed-price migration packages available'],
     cta: 'Book a free estate audit', href: '#contact',
     gradient: 'linear-gradient(135deg, #f94580 0%, #591bff 100%)',
   },
 ]
 
 const whyITC = [
-  { icon: Shield, title: 'Independent and unbiased', body: "We're not owned by or financially tied to any single carrier. That means we recommend the right solution for your organisation — not the one that pays us the highest margin. Every recommendation comes with our reasoning, in plain English." },
+  { icon: Shield, title: 'Independent and unbiased', body: "We're not owned by or financially tied to any single carrier. That means we recommend the right solution for your organisation - not the one that pays us the highest margin. Every recommendation comes with our reasoning, in plain English." },
   { icon: User, title: 'A named account manager who stays', body: 'Enterprise clients at large providers often cycle through account managers. At ITC, you have a named contact who knows your estate, your contracts, your renewal dates, and your escalation preferences. Same person. Direct line.' },
-  { icon: Receipt, title: 'Transparent billing, always', body: "We've built an in-house billing audit capability because we know how often telecoms bills contain errors — and we apply the same rigour to our own invoicing. One consolidated monthly invoice, itemised and accurate." },
-  { icon: Building2, title: 'Scale without losing the personal touch', body: 'We work with organisations from single-site SMEs to multi-location enterprises. The difference isn\'t a different product set — it\'s dedicated resource, senior account oversight, and SLAs that mean something.' },
+  { icon: Receipt, title: 'Transparent billing, always', body: "We've built an in-house billing audit capability because we know how often telecoms bills contain errors - and we apply the same rigour to our own invoicing. One consolidated monthly invoice, itemised and accurate." },
+  { icon: Building2, title: 'Scale without losing the personal touch', body: 'We work with organisations from single-site SMEs to multi-location enterprises. The difference isn\'t a different product set - it\'s dedicated resource, senior account oversight, and SLAs that mean something.' },
 ]
 
 const testimonials = [
   {
     quote: "The multi-site dedicated internet connectivity ensures seamless, high-speed access across all our locations. Their VoIP platform has streamlined collaboration for both office-based and remote teams. ITC's commitment to simplicity and reliability is evident in every interaction.",
     name: "Miriam O'Keeffe",
-    role: "Operations Director — Bradford UK City of Culture",
+    role: "Operations Director - Bradford UK City of Culture",
     initials: "MO",
   },
 ]
@@ -135,7 +135,7 @@ export default function EnterprisePage() {
           </FadeIn>
           <FadeIn delay={0.2}>
             <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto mb-10 leading-relaxed">
-              Multi-site connectivity, managed VoIP, mobile fleet, and PSTN migration — handled by a dedicated team who know your account. No call centres. No ticket queues. No carrier bias.
+              Multi-site connectivity, managed VoIP, mobile fleet, and PSTN migration - handled by a dedicated team who know your account. No call centres. No ticket queues. No carrier bias.
             </p>
           </FadeIn>
           <FadeIn delay={0.3}>
@@ -174,7 +174,7 @@ export default function EnterprisePage() {
               <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0" style={{ background: 'linear-gradient(135deg, #f94580, #591bff)' }}>MO</div>
               <div className="text-left">
                 <p className="font-semibold text-sm" style={{ color: '#111827' }}>Miriam O'Keeffe</p>
-                <p className="text-xs" style={{ color: '#6b7280' }}>Operations Director — Bradford UK City of Culture</p>
+                <p className="text-xs" style={{ color: '#6b7280' }}>Operations Director - Bradford UK City of Culture</p>
               </div>
             </div>
           </FadeIn>
@@ -194,10 +194,10 @@ export default function EnterprisePage() {
           </FadeIn>
           <FadeIn delay={0.15}>
             <p className="text-white/70 text-lg leading-relaxed mb-6">
-              Most large providers offer enterprise-grade infrastructure — and a support experience that doesn't match it. Tickets go unanswered. Account managers change every six months. Billing errors take quarters to resolve. And when you escalate, you're told it's a carrier issue, not theirs.
+              Most large providers offer enterprise-grade infrastructure - and a support experience that doesn't match it. Tickets go unanswered. Account managers change every six months. Billing errors take quarters to resolve. And when you escalate, you're told it's a carrier issue, not theirs.
             </p>
             <p className="text-white font-semibold text-lg leading-relaxed">
-              ITC operates differently. We're independently owned, carrier-neutral, and structured so that every enterprise client has a named account manager with the authority to act — not just log a ticket.
+              ITC operates differently. We're independently owned, carrier-neutral, and structured so that every enterprise client has a named account manager with the authority to act - not just log a ticket.
             </p>
           </FadeIn>
         </div>
@@ -212,7 +212,7 @@ export default function EnterprisePage() {
               <span style={{ backgroundImage: 'linear-gradient(to right, #f94580, #591bff, #7be7ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>One partner, one invoice.</span>
             </h2>
             <p className="text-lg max-w-2xl mx-auto" style={{ color: '#6b7280' }}>
-              We supply and manage the full communications stack for multi-site UK organisations — broadband, voice, mobile, and infrastructure — with a single point of accountability across all of it.
+              We supply and manage the full communications stack for multi-site UK organisations - broadband, voice, mobile, and infrastructure - with a single point of accountability across all of it.
             </p>
           </FadeIn>
           <div className="space-y-8">
@@ -341,7 +341,7 @@ export default function EnterprisePage() {
               Talk to an enterprise<br />specialist today.
             </h2>
             <p className="text-white/60 text-lg leading-relaxed mb-10">
-              Not a sales team. A specialist who understands multi-site connectivity, PSTN migration, and enterprise procurement — and can give you a straight answer on what it would cost.
+              Not a sales team. A specialist who understands multi-site connectivity, PSTN migration, and enterprise procurement - and can give you a straight answer on what it would cost.
             </p>
             <div className="space-y-5">
               <a href="tel:01274952123" className="flex items-center gap-4 group">
@@ -374,7 +374,7 @@ export default function EnterprisePage() {
             </div>
           </FadeIn>
 
-          {/* Right — form */}
+          {/* Right - form */}
           <FadeIn delay={0.15}>
             {submitted ? (
               <div className="rounded-[2rem] p-10 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
