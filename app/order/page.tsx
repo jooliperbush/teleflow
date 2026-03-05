@@ -358,7 +358,7 @@ function Step0({ order, setOrder, onNext }: {
   return (
     <div>
       <div className="text-center mb-6">
-        <p className="text-base font-medium text-white/75">Enter the postcode you want to check, to see if ITC services are available to you!</p>
+        <p className="text-base font-semibold text-white/75">Enter the postcode you want to check, to see if ITC services are available to you!</p>
       </div>
 
       <div className="flex gap-2 mb-4">
@@ -368,7 +368,7 @@ function Step0({ order, setOrder, onNext }: {
           onKeyDown={e => e.key === 'Enter' && checkPostcode()}
           placeholder="e.g. BD1 1AA"
           maxLength={8}
-          className="flex-1 rounded-xl px-4 py-3 text-base text-white placeholder-purple-400 font-medium tracking-widest"
+          className="flex-1 rounded-xl px-4 py-3 text-base text-white placeholder-purple-400 font-semibold tracking-widest"
           style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 35%)' }}
         />
         <button
@@ -451,7 +451,7 @@ function Step1({ order, setOrder, onNext, onBack }: {
     const isInvalid = touched && validate && !validate(val)
     return (
       <div key={key}>
-        <label className="block text-sm font-medium text-white/75 mb-1">{label}</label>
+        <label className="block text-sm font-semibold text-white/75 mb-1">{label}</label>
         <input
           type={type}
           value={val}
@@ -480,7 +480,7 @@ function Step1({ order, setOrder, onNext, onBack }: {
         <>
           <div className="rounded-xl p-4 mb-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-1">Installation Address</p>
-            <p className="text-white font-medium text-sm">{order.selectedAddress.displayAddress}</p>
+            <p className="text-white font-semibold text-sm">{order.selectedAddress.displayAddress}</p>
             <p className="text-white/40 text-xs mt-0.5">{order.sitePostcode}</p>
           </div>
           <p className="text-xs text-white/40 mb-4">
@@ -574,7 +574,7 @@ function Step2({ order, setOrder, onNext, onBack }: {
       <p className="text-white/55 text-sm mb-6">Search for your company to verify it against Companies House.</p>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium text-white/75 mb-1">Company Name</label>
+        <label className="block text-sm font-semibold text-white/75 mb-1">Company Name</label>
         <div className="relative">
           <input
             value={query}
@@ -927,7 +927,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
 
             <div className="flex flex-col-reverse sm:flex-row gap-3">
               <button onClick={onBack}
-                className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252,50%,35%)", background: "hsl(252,60%,18%)" }}>← Back</button>
+                className="flex-1 py-4 rounded-xl font-semibold text-base text-purple-200" style={{ border: "1px solid hsl(252,50%,35%)", background: "hsl(252,60%,18%)" }}>← Back</button>
               <button onClick={handleProductsNext} disabled={!hasSelection}
                 className="flex-1 py-4 rounded-xl font-semibold text-white text-base itc-gradient-btn disabled:opacity-40">
                 Get Quote →
@@ -991,12 +991,12 @@ function Step4({ order, setOrder, onNext, onBack }: {
       <p className="text-sm mb-2 text-white/55">Ref: <strong>{quoteRef}</strong> · Valid 30 days</p>
 
       <div className="mb-4 flex items-center gap-3">
-        <label className="text-sm font-medium text-purple-200">Contract Term:</label>
+        <label className="text-sm font-semibold text-purple-200">Contract Term:</label>
         {[12, 36].map(t => (
           <button
             key={t}
             onClick={() => setTerm(t)}
-            className="px-4 py-1.5 rounded-lg text-sm font-medium border-2 transition-all"
+            className="px-4 py-1.5 rounded-lg text-sm font-semibold border-2 transition-all"
             style={term === t ? { background: NAVY, borderColor: NAVY, color: 'white' } : { borderColor: '#E5E7EB', color: '#6B7280' }}
           >
             {t}m
@@ -1041,7 +1041,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
         <button
           onClick={emailQuote}
           disabled={sending || emailSent}
-          className="w-full py-2.5 rounded-xl font-medium text-sm transition-all disabled:opacity-50"
+          className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-50"
           style={{ border: "1.5px solid #591bff", color: emailSent ? 'white' : '#7be7ff', background: emailSent ? '#591bff' : 'transparent' }}
         >
           {emailSent ? `✓ Quote sent to ${order.contactEmail}` : sending ? 'Sending...' : `📧 Email Quote to ${order.contactEmail}`}
@@ -1082,7 +1082,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
             URL.revokeObjectURL(url)
             setSaveExpanded(v => !v)
           }}
-          className="w-full py-2.5 rounded-xl font-medium text-sm transition-all"
+          className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all"
           style={{ border: saveExpanded ? '1.5px solid #591bff' : '1.5px solid hsl(252,50%,35%)', color: saveExpanded ? 'white' : '#c4b8f0', background: saveExpanded ? 'rgba(89,27,255,0.15)' : 'transparent' }}
         >
           💾 Save Quote
@@ -1105,7 +1105,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
       </div>
 
       <div className="flex flex-col-reverse sm:flex-row gap-3">
-        <button onClick={onBack} className="flex-1 py-4 rounded-xl font-medium text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
+        <button onClick={onBack} className="flex-1 py-4 rounded-xl font-semibold text-base text-purple-200" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         <button
           onClick={onNext}
           className="flex-1 py-3 rounded-lg font-semibold text-white"
@@ -1208,13 +1208,13 @@ function Step5({ order, setOrder, onNext, onBack }: {
       </div>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium text-white/75 mb-1">Type your full name to sign</label>
+        <label className="block text-sm font-semibold text-white/75 mb-1">Type your full name to sign</label>
         <input
           value={signedName}
           onChange={e => setSignedName(e.target.value)}
           placeholder="Your full name"
           disabled={signed}
-          className="w-full border rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 disabled:opacity-50"
+          className="w-full border rounded-lg px-3 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 disabled:opacity-50"
           style={{ fontStyle: 'italic', fontSize: '16px' }}
         />
       </div>
@@ -1258,7 +1258,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
       )}
 
       <div className="flex flex-col-reverse sm:flex-row gap-3">
-        <button onClick={onBack} disabled={signing} className="flex-1 py-3 rounded-xl font-medium text-base text-purple-200 disabled:opacity-40" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
+        <button onClick={onBack} disabled={signing} className="flex-1 py-3 rounded-xl font-semibold text-base text-purple-200 disabled:opacity-40" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         {!signed ? (
           <button
             onClick={handleSign}
@@ -1339,7 +1339,7 @@ function Step6({ order, setOrder, onNext, onBack }: {
 
       <div className="space-y-3 mb-4">
         <div>
-          <label className="block text-sm font-medium text-white/75 mb-1">Account Holder Name</label>
+          <label className="block text-sm font-semibold text-white/75 mb-1">Account Holder Name</label>
           <input
             value={accountHolder}
             onChange={e => setAccountHolder(e.target.value)}
@@ -1350,7 +1350,7 @@ function Step6({ order, setOrder, onNext, onBack }: {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-white/75 mb-1">Sort Code</label>
+            <label className="block text-sm font-semibold text-white/75 mb-1">Sort Code</label>
             <input
               value={sortCode}
               onChange={e => setSortCode(formatSortCode(e.target.value))}
@@ -1360,7 +1360,7 @@ function Step6({ order, setOrder, onNext, onBack }: {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-white/75 mb-1">Account Number</label>
+            <label className="block text-sm font-semibold text-white/75 mb-1">Account Number</label>
             <input
               value={accountNumber}
               onChange={e => setAccountNumber(e.target.value.replace(/\D/g, '').slice(0, 8))}
@@ -1392,7 +1392,7 @@ function Step6({ order, setOrder, onNext, onBack }: {
       )}
 
       <div className="flex flex-col-reverse sm:flex-row gap-3">
-        <button onClick={onBack} disabled={confirmed} className="flex-1 py-3 rounded-xl font-medium text-base text-purple-200 disabled:opacity-40" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
+        <button onClick={onBack} disabled={confirmed} className="flex-1 py-3 rounded-xl font-semibold text-base text-purple-200 disabled:opacity-40" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         {!confirmed ? (
           <button
             onClick={handleSetup}
