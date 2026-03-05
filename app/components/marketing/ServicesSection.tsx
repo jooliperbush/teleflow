@@ -36,9 +36,20 @@ export default function ServicesSection() {
               What We <br />
               <span style={{ backgroundImage: "linear-gradient(to right, #f94580, #591bff, #7be7ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Offer</span>
             </h2>
-            <p className="text-lg text-white/60 max-w-xl mx-auto">
+            <p className="text-lg text-white/60 max-w-xl mx-auto mb-8">
               A complete suite of communication solutions designed to keep your organisation seamlessly connected.
             </p>
+            <a
+              href="/ITC-Services-Brochure.pdf"
+              download="ITC-Services-Brochure.pdf"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white text-sm transition-all hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg, #f94580, #591bff)', boxShadow: '0 4px 20px rgba(249,69,128,0.25)' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Download Our Services Brochure
+            </a>
           </div>
         </FadeInView>
         <div className="grid lg:grid-cols-2 gap-8">
