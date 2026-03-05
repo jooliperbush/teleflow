@@ -15,7 +15,7 @@ const services = [
   { id: "mobile", icon: Smartphone, label: "Mobile", title: "Stay Connected Anywhere",
     desc: "Customised mobile plans across major networks, ensuring your team stays productive on the go.",
     features: ["99.99% Uptime", "24/7 Support", "Scalable"] },
-  { id: "migration", icon: FileSearch, label: "Migration Review", title: "Still using PSTN or ISDN? The 2027 switchoff is coming.",
+  { id: "migration", icon: FileSearch, label: "Landline Migration Review", title: "Still using PSTN or ISDN? The 2027 switchoff is coming.",
     desc: "Openreach is phasing out legacy copper-based services. We'll assess your current setup and recommend the right future-proof solution.",
     features: ["Full audit of your current lines", "Availability check for fibre or Ethernet", "Clear installation timeline"] },
 ];
