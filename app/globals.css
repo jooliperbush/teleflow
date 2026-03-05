@@ -64,3 +64,16 @@ input::placeholder, textarea::placeholder {
 
 /* Force dark bg on all table cells */
 td, th { background-color: inherit; color: inherit; }
+
+/* Lift grey text so it's legible on the dark background */
+.text-gray-400 { color: rgba(255,255,255,0.55) !important; }
+.text-gray-500 { color: rgba(255,255,255,0.62) !important; }
+.text-gray-600 { color: rgba(255,255,255,0.70) !important; }
+.text-gray-700 { color: rgba(255,255,255,0.78) !important; }
+
+/* Exception: light-background sections (InvoiceAnalyser, Contact form) restore dark text */
+.bg-white .text-gray-400, .bg-white .text-gray-500, .bg-white .text-gray-600, .bg-white .text-gray-700,
+[style*="background: white"] .text-gray-400, [style*="background: white"] .text-gray-500,
+[style*="background:#f"] .text-gray-400, [style*="background:#f"] .text-gray-500 {
+  color: inherit !important;
+}
