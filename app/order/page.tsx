@@ -1428,7 +1428,7 @@ function Step7({ order }: { order: OrderState }) {
         <span className="text-4xl">✓</span>
       </div>
 
-      <h2 className="text-2xl font-bold mb-2" >Order Confirmed!</h2>
+      <h2 className="text-2xl font-bold mb-2">Order Confirmed<span style={{ fontFamily: "'Manrope', sans-serif" }}>!</span></h2>
       <p className="text-gray-500 mb-1">Reference: <strong>{order.quoteReference}</strong></p>
       
 
