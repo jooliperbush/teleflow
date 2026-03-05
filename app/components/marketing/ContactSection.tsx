@@ -58,22 +58,22 @@ export default function ContactSection() {
               <div className="grid sm:grid-cols-2 gap-5">
                 {["Name", "Email"].map((label) => (
                   <div key={label} className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">{label}</label>
+                    <label className="text-sm font-bold uppercase tracking-wider" style={{ color: "#111827", fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>{label}</label>
                     <input type={label === "Email" ? "email" : "text"} placeholder={label === "Email" ? "you@company.com" : "Your name"}
-                      className="w-full px-5 py-3.5 rounded-xl text-sm focus:outline-none transition-all"
-                      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "#111827" }}
-                      onFocus={(e) => { e.target.style.border = "1px solid rgba(249,69,128,0.5)"; e.target.style.color = "#111827" }}
-                      onBlur={(e) => { e.target.style.border = "1px solid rgba(255,255,255,0.08)"; e.target.style.color = "#111827" }} />
+                      className="w-full px-5 py-3.5 rounded-xl focus:outline-none transition-all"
+                      style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#111827", fontSize: "16px", fontFamily: "'Visby CF', 'Poppins', sans-serif" }}
+                      onFocus={(e) => { e.target.style.border = "1px solid rgba(249,69,128,0.5)"; }}
+                      onBlur={(e) => { e.target.style.border = "1px solid rgba(255,255,255,0.15)"; }} />
                   </div>
                 ))}
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Message</label>
+                <label className="text-sm font-bold uppercase tracking-wider" style={{ color: "#111827", fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Message</label>
                 <textarea rows={5} placeholder="Tell us about your communication needs..."
-                  className="w-full px-5 py-3.5 rounded-xl text-sm focus:outline-none transition-all resize-none"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "#111827" }}
-                  onFocus={(e) => { e.target.style.border = "1px solid rgba(249,69,128,0.5)"; e.target.style.color = "#111827" }}
-                  onBlur={(e) => { e.target.style.border = "1px solid rgba(255,255,255,0.08)"; e.target.style.color = "#111827" }} />
+                  className="w-full px-5 py-3.5 rounded-xl focus:outline-none transition-all resize-none"
+                  style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#111827", fontSize: "16px", fontFamily: "'Visby CF', 'Poppins', sans-serif" }}
+                  onFocus={(e) => { e.target.style.border = "1px solid rgba(249,69,128,0.5)"; }}
+                  onBlur={(e) => { e.target.style.border = "1px solid rgba(255,255,255,0.15)"; }} />
               </div>
               <motion.button type="submit" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
