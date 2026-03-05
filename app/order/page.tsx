@@ -1076,8 +1076,8 @@ function Step4({ order, setOrder, onNext, onBack }: {
             a.download = `ITC-Quote-${quoteRef}.txt`
             a.click()
             URL.revokeObjectURL(url)
+            setSaveExpanded(v => !v)
           }}
-          onClick={() => setSaveExpanded(v => !v)}
           className="w-full py-2.5 rounded-xl font-medium text-sm transition-all"
           style={{ border: saveExpanded ? '1.5px solid #591bff' : '1.5px solid hsl(252,50%,35%)', color: saveExpanded ? 'white' : '#c4b8f0', background: saveExpanded ? 'rgba(89,27,255,0.15)' : 'transparent' }}
         >
