@@ -6,7 +6,7 @@ import FadeInView from "./FadeInView";
 import Link from "next/link";
 
 const services = [
-  { id: "internet", iconSrc: "/icons/icon-internet.svg", label: "Internet", title: "Business-grade broadband. Proactively managed not just delivered.",
+  { id: "internet", iconSrc: "/icons/icon-internet.svg", label: "Internet", title: "Business grade broadband. Proactively managed not just delivered.",
     desc: "We monitor your connection around the clock — most faults are resolved before you notice them. Registered ISP, so no middleman, no excuses.",
     features: ["Full fibre from 115 Mbps to 1 Gbps", "Managed installation with business SLA", "Unlimited usage, no throttling, no fair use catches"],
     cta: { label: "Check availability at your postcode →", href: "/order" } },
