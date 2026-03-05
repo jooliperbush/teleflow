@@ -1,6 +1,16 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Manrope:wght@700;800&display=swap');
 
+/* Manrope handles punctuation/symbols that Visby CF renders incorrectly */
+@font-face {
+  font-family: 'Visby CF';
+  src: url('https://fonts.gstatic.com/s/manrope/v15/xn7gYHE41ni1AdIRggexSg.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A0-00BF, U+2018-201F, U+2032-2033;
+}
+
 @font-face {
   font-family: 'Visby CF';
   src: url('/fonts/visby-cf-bold.otf') format('opentype');
