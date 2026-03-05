@@ -161,19 +161,19 @@ export default function EnterprisePage() {
         </div>
       </section>
 
-      {/* ── PULL QUOTE ─────────────────────────── */}
-      <section className="py-16 md:py-24 px-5 md:px-20" style={{ background: 'hsl(252, 92%, 13%)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      {/* ── PULL QUOTE · WHITE ─────────────────── */}
+      <section className="py-16 md:py-24 px-5 md:px-20" style={{ background: '#ffffff', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
         <div className="max-w-4xl mx-auto text-center">
           <FadeIn>
             <div className="w-12 h-1 mx-auto mb-8 rounded-full" style={{ background: 'linear-gradient(to right, #f94580, #591bff)' }} />
-            <blockquote className="text-2xl md:text-4xl font-black tracking-tight text-white leading-tight mb-8" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+            <blockquote className="text-2xl md:text-4xl font-black tracking-tight leading-tight mb-8" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif", color: '#111827' }}>
               "ITC's commitment to simplicity, reliability, and doing the right thing is evident in every interaction."
             </blockquote>
             <div className="flex items-center justify-center gap-3">
               <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm flex-shrink-0" style={{ background: 'linear-gradient(135deg, #f94580, #591bff)' }}>MO</div>
               <div className="text-left">
-                <p className="text-white font-semibold text-sm">Miriam O'Keeffe</p>
-                <p className="text-white/50 text-xs">Operations Director — Bradford UK City of Culture</p>
+                <p className="font-semibold text-sm" style={{ color: '#111827' }}>Miriam O'Keeffe</p>
+                <p className="text-xs" style={{ color: '#6b7280' }}>Operations Director — Bradford UK City of Culture</p>
               </div>
             </div>
           </FadeIn>
@@ -202,37 +202,35 @@ export default function EnterprisePage() {
         </div>
       </section>
 
-      {/* ── SERVICES ───────────────────────────── */}
-      <section className="py-20 md:py-32 px-5 md:px-20" style={{ background: 'linear-gradient(135deg, hsl(252,92%,12%) 0%, hsl(260,80%,14%) 100%)' }}>
+      {/* ── SERVICES · WHITE ───────────────────── */}
+      <section className="py-20 md:py-32 px-5 md:px-20" style={{ background: '#f8f9ff' }}>
         <div className="max-w-7xl mx-auto">
           <FadeIn className="text-center mb-16 md:mb-24">
-            <h2 className="text-4xl md:text-7xl font-black tracking-tighter text-white mb-4" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+            <h2 className="text-4xl md:text-7xl font-black tracking-tighter mb-4" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif", color: '#111827' }}>
               Everything your organisation needs.<br />
               <span style={{ backgroundImage: 'linear-gradient(to right, #f94580, #591bff, #7be7ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>One partner, one invoice.</span>
             </h2>
-            <p className="text-white/60 text-lg max-w-2xl mx-auto">
+            <p className="text-lg max-w-2xl mx-auto" style={{ color: '#6b7280' }}>
               We supply and manage the full communications stack for multi-site UK organisations — broadband, voice, mobile, and infrastructure — with a single point of accountability across all of it.
             </p>
           </FadeIn>
           <div className="space-y-8">
             {services.map((s, i) => (
               <FadeIn key={s.tag} delay={i * 0.08}>
-                <div className="rounded-[2rem] p-8 md:p-12 grid md:grid-cols-2 gap-10 items-start" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div className="rounded-[2rem] p-8 md:p-12 grid md:grid-cols-2 gap-10 items-start bg-white" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}>
                   <div>
                     <span className="text-xs font-bold uppercase tracking-[0.2em] mb-3 inline-block text-[#f94580]">{s.tag}</span>
-                    <h3 className="text-2xl md:text-3xl font-black text-white mb-4 leading-tight" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>{s.title}</h3>
-                    <p className="text-white/65 leading-relaxed mb-6">{s.body}</p>
-                    <a href={s.href.startsWith('#') ? s.href : undefined} onClick={s.href.startsWith('#') ? undefined : undefined}>
-                      <Link href={s.href.startsWith('/') ? s.href : '#contact'} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm text-white transition-all hover:opacity-90" style={{ background: s.gradient }}>
-                        {s.cta} <ArrowRight className="w-4 h-4" />
-                      </Link>
-                    </a>
+                    <h3 className="text-2xl md:text-3xl font-black mb-4 leading-tight" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif", color: '#111827' }}>{s.title}</h3>
+                    <p className="leading-relaxed mb-6" style={{ color: '#4b5563' }}>{s.body}</p>
+                    <Link href={s.href.startsWith('/') ? s.href : '#contact'} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm text-white transition-all hover:opacity-90" style={{ background: s.gradient }}>
+                      {s.cta} <ArrowRight className="w-4 h-4" />
+                    </Link>
                   </div>
                   <div className="space-y-3 pt-2">
                     <p className="text-xs font-bold uppercase tracking-widest text-[#f94580] mb-4">Included</p>
                     {s.bullets.map((b) => (
-                      <div key={b} className="flex items-start gap-3 text-white/85">
-                        <CheckCircle2 className="w-5 h-5 text-[#7be7ff] shrink-0 mt-0.5" />
+                      <div key={b} className="flex items-start gap-3" style={{ color: '#374151' }}>
+                        <CheckCircle2 className="w-5 h-5 text-[#591bff] shrink-0 mt-0.5" />
                         <span className="text-sm leading-relaxed">{b}</span>
                       </div>
                     ))}
@@ -295,11 +293,11 @@ export default function EnterprisePage() {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ───────────────────────── */}
-      <section className="py-20 md:py-32 px-5 md:px-20" style={{ background: 'hsl(252,92%,13%)' }}>
+      {/* ── TESTIMONIALS · WHITE ───────────────── */}
+      <section className="py-20 md:py-32 px-5 md:px-20" style={{ background: '#ffffff', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
         <div className="max-w-7xl mx-auto">
           <FadeIn className="mb-16 text-center">
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif", color: '#111827' }}>
               Trusted by organisations<br />
               <span style={{ backgroundImage: 'linear-gradient(to right, #f94580, #591bff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>across Yorkshire and beyond</span>
             </h2>
@@ -307,23 +305,22 @@ export default function EnterprisePage() {
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((t) => (
               <FadeIn key={t.name}>
-                <div className="rounded-2xl p-8 h-full flex flex-col justify-between" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <blockquote className="text-white/80 text-sm leading-relaxed mb-6 italic">"{t.quote}"</blockquote>
+                <div className="rounded-2xl p-8 h-full flex flex-col justify-between bg-white" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}>
+                  <blockquote className="text-sm leading-relaxed mb-6 italic" style={{ color: '#374151' }}>"{t.quote}"</blockquote>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-xs flex-shrink-0" style={{ background: 'linear-gradient(135deg, #f94580, #591bff)' }}>{t.initials}</div>
                     <div>
-                      <p className="text-white font-semibold text-sm">{t.name}</p>
-                      <p className="text-white/40 text-xs">{t.role}</p>
+                      <p className="font-semibold text-sm" style={{ color: '#111827' }}>{t.name}</p>
+                      <p className="text-xs" style={{ color: '#9ca3af' }}>{t.role}</p>
                     </div>
                   </div>
                 </div>
               </FadeIn>
             ))}
-            {/* Placeholder slots */}
             {[1, 2].map((n) => (
               <FadeIn key={n} delay={n * 0.1}>
-                <div className="rounded-2xl p-8 h-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)' }}>
-                  <p className="text-white/20 text-sm text-center">Enterprise client testimonial<br />coming soon</p>
+                <div className="rounded-2xl p-8 h-full flex items-center justify-center bg-white" style={{ border: '1px dashed rgba(0,0,0,0.1)' }}>
+                  <p className="text-sm text-center" style={{ color: '#d1d5db' }}>Enterprise client testimonial<br />coming soon</p>
                 </div>
               </FadeIn>
             ))}
