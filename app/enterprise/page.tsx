@@ -126,7 +126,7 @@ export default function EnterprisePage() {
             </div>
           </FadeIn>
           <FadeIn delay={0.1}>
-            <h1 className="text-5xl sm:text-6xl md:text-8xl font-black leading-[0.9] tracking-tighter mb-8 text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+            <h1 className="text-5xl sm:text-6xl md:text-8xl font-black leading-[0.9] tracking-tighter mb-8 text-white" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
               Enterprise telecoms.<br />
               <span style={{ backgroundImage: 'linear-gradient(to right, #f94580, #591bff, #7be7ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 Without the runaround.
@@ -167,7 +167,7 @@ export default function EnterprisePage() {
         <div className="max-w-4xl mx-auto text-center">
           <FadeIn>
             <div className="w-12 h-1 mx-auto mb-8 rounded-full" style={{ background: 'linear-gradient(to right, #f94580, #591bff)' }} />
-            <blockquote className="text-2xl md:text-4xl font-black tracking-tight leading-tight mb-8" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif", color: '#111827' }}>
+            <blockquote className="text-2xl md:text-4xl font-black tracking-tight leading-tight mb-8" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif", color: '#111827' }}>
               "ITC's commitment to simplicity, reliability, and doing the right thing is evident in every interaction."
             </blockquote>
             <div className="flex items-center justify-center gap-3">
@@ -188,7 +188,7 @@ export default function EnterprisePage() {
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f94580] mb-5">
               <span className="w-8 h-px bg-[#f94580]" /> The Problem
             </div>
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
               The problem with most enterprise telecoms providers
             </h2>
           </FadeIn>
@@ -207,7 +207,7 @@ export default function EnterprisePage() {
       <section className="py-20 md:py-32 px-5 md:px-20" style={{ background: '#f8f9ff' }}>
         <div className="max-w-7xl mx-auto">
           <FadeIn className="text-center mb-16 md:mb-24">
-            <h2 className="text-4xl md:text-7xl font-black tracking-tighter mb-4" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif", color: '#111827' }}>
+            <h2 className="text-4xl md:text-7xl font-black tracking-tighter mb-4" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif", color: '#111827' }}>
               Everything your organisation needs.<br />
               <span style={{ backgroundImage: 'linear-gradient(to right, #f94580, #591bff, #7be7ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>One partner, one invoice.</span>
             </h2>
@@ -221,7 +221,7 @@ export default function EnterprisePage() {
                 <div className="rounded-[2rem] p-8 md:p-12 grid md:grid-cols-2 gap-10 items-start bg-white" style={{ border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.05)' }}>
                   <div>
                     <span className="text-xs font-bold uppercase tracking-[0.2em] mb-3 inline-block text-[#f94580]">{s.tag}</span>
-                    <h3 className="text-2xl md:text-3xl font-black mb-4 leading-tight" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif", color: '#111827' }}>{s.title}</h3>
+                    <h3 className="text-2xl md:text-3xl font-black mb-4 leading-tight" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif", color: '#111827' }}>{s.title}</h3>
                     <p className="leading-relaxed mb-6" style={{ color: '#4b5563' }}>{s.body}</p>
                     <Link href={s.href.startsWith('/') ? s.href : '#contact'} className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm text-white transition-all hover:opacity-90" style={{ background: s.gradient }}>
                       {s.cta} <ArrowRight className="w-4 h-4" />
@@ -250,7 +250,7 @@ export default function EnterprisePage() {
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f94580] mb-5">
               <span className="w-8 h-px bg-[#f94580]" /> The Difference
             </div>
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
               Why organisations choose ITC<br />over the national carriers
             </h2>
           </FadeIn>
@@ -261,7 +261,7 @@ export default function EnterprisePage() {
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style={{ background: 'linear-gradient(135deg, rgba(249,69,128,0.2), rgba(89,27,255,0.2))', border: '1px solid rgba(249,69,128,0.2)' }}>
                     <w.icon className="w-6 h-6 text-[#f94580]" />
                   </div>
-                  <h3 className="text-xl font-black text-white mb-3" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>{w.title}</h3>
+                  <h3 className="text-xl font-black text-white mb-3" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>{w.title}</h3>
                   <p className="text-white/60 leading-relaxed text-sm">{w.body}</p>
                 </div>
               </FadeIn>
@@ -277,7 +277,7 @@ export default function EnterprisePage() {
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f94580] mb-6 px-4 py-2 rounded-full" style={{ background: 'rgba(249,69,128,0.12)', border: '1px solid rgba(249,69,128,0.3)' }}>
               <AlertTriangle className="w-3.5 h-3.5" /> January 31, 2027
             </div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-white mb-4" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-white mb-4" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
               The UK's PSTN and ISDN network switches off permanently.
             </h2>
             <p className="text-white/60 text-lg mb-10 max-w-2xl mx-auto">
@@ -298,7 +298,7 @@ export default function EnterprisePage() {
       <section className="py-20 md:py-32 px-5 md:px-20" style={{ background: '#ffffff', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
         <div className="max-w-7xl mx-auto">
           <FadeIn className="mb-16 text-center">
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif", color: '#111827' }}>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif", color: '#111827' }}>
               Trusted by organisations<br />
               <span style={{ backgroundImage: 'linear-gradient(to right, #f94580, #591bff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>across Yorkshire and beyond</span>
             </h2>
@@ -337,7 +337,7 @@ export default function EnterprisePage() {
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f94580] mb-5">
               <span className="w-8 h-px bg-[#f94580]" /> Get in Touch
             </div>
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-6" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-6" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
               Talk to an enterprise<br />specialist today.
             </h2>
             <p className="text-white/60 text-lg leading-relaxed mb-10">
@@ -381,7 +381,7 @@ export default function EnterprisePage() {
                 <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: 'linear-gradient(135deg, #f94580, #591bff)' }}>
                   <CheckCircle2 className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-black text-white mb-3" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Request received</h3>
+                <h3 className="text-2xl font-black text-white mb-3" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>Request received</h3>
                 <p className="text-white/60">We'll respond within one business day with a named specialist assigned to your enquiry.</p>
               </div>
             ) : (
@@ -390,27 +390,27 @@ export default function EnterprisePage() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   {[{ key: 'name', label: 'Name', placeholder: 'Your name', type: 'text' }, { key: 'org', label: 'Organisation', placeholder: 'Company name', type: 'text' }].map(f => (
                     <div key={f.key} className="space-y-2">
-                      <label className="text-sm font-bold text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>{f.label}</label>
+                      <label className="text-sm font-bold text-white" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>{f.label}</label>
                       <input type={f.type} placeholder={f.placeholder} value={form[f.key as keyof typeof form]}
                         onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
                         className="w-full px-4 py-3 rounded-xl focus:outline-none transition-all text-white placeholder-white/30 text-sm"
-                        style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: "'Visby CF', 'Poppins', sans-serif" }} />
+                        style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: "'Visby CF', 'Manrope', sans-serif" }} />
                     </div>
                   ))}
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Number of Sites</label>
+                    <label className="text-sm font-bold text-white" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>Number of Sites</label>
                     <input type="text" placeholder="e.g. 3" value={form.sites}
                       onChange={e => setForm(p => ({ ...p, sites: e.target.value }))}
                       className="w-full px-4 py-3 rounded-xl focus:outline-none transition-all text-white placeholder-white/30 text-sm"
-                      style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: "'Visby CF', 'Poppins', sans-serif" }} />
+                      style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: "'Visby CF', 'Manrope', sans-serif" }} />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Primary Need</label>
+                    <label className="text-sm font-bold text-white" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>Primary Need</label>
                     <select value={form.need} onChange={e => setForm(p => ({ ...p, need: e.target.value }))}
                       className="w-full px-4 py-3 rounded-xl focus:outline-none transition-all text-white text-sm"
-                      style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>
+                      style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>
                       <option value="" className="bg-gray-900">Select...</option>
                       <option value="connectivity" className="bg-gray-900">Connectivity</option>
                       <option value="voip" className="bg-gray-900">VoIP</option>
@@ -421,11 +421,11 @@ export default function EnterprisePage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-white" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Message</label>
+                  <label className="text-sm font-bold text-white" style={{ fontFamily: "'Visby CF', 'Manrope', sans-serif" }}>Message</label>
                   <textarea rows={4} placeholder="Tell us about your requirements..." value={form.message}
                     onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
                     className="w-full px-4 py-3 rounded-xl focus:outline-none transition-all text-white placeholder-white/30 text-sm resize-none"
-                    style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: "'Visby CF', 'Poppins', sans-serif" }} />
+                    style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: "'Visby CF', 'Manrope', sans-serif" }} />
                 </div>
                 <button type="submit" className="w-full py-4 rounded-full font-bold text-base text-white transition-all hover:opacity-90"
                   style={{ background: 'linear-gradient(135deg, #f94580 0%, #591bff 100%)', boxShadow: '0 0 24px rgba(249,69,128,0.3)' }}>
