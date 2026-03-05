@@ -1251,7 +1251,7 @@ function Step5({ order, setOrder, onNext, onBack }: {
       )}
 
       <div className="flex flex-col-reverse sm:flex-row gap-3">
-        <button onClick={onBack} disabled={signed} className="flex-1 py-3 rounded-xl font-medium text-base text-purple-200 disabled:opacity-40" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
+        <button onClick={onBack} disabled={signing} className="flex-1 py-3 rounded-xl font-medium text-base text-purple-200 disabled:opacity-40" style={{ border: "1px solid hsl(252, 50%, 35%)", background: "hsl(252, 60%, 18%)" }}>← Back</button>
         {!signed ? (
           <button
             onClick={handleSign}
