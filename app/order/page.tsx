@@ -477,11 +477,17 @@ function Step1({ order, setOrder, onNext, onBack }: {
 
       {/* Address from availability check */}
       {order.selectedAddress && (
-        <div className="rounded-xl p-4 mb-4" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-1">Installation Address</p>
-          <p className="text-white font-medium text-sm">{order.selectedAddress.displayAddress}</p>
-          <p className="text-white/40 text-xs mt-0.5">{order.sitePostcode}</p>
-        </div>
+        <>
+          <div className="rounded-xl p-4 mb-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-1">Installation Address</p>
+            <p className="text-white font-medium text-sm">{order.selectedAddress.displayAddress}</p>
+            <p className="text-white/40 text-xs mt-0.5">{order.sitePostcode}</p>
+          </div>
+          <p className="text-xs text-white/40 mb-4">
+            Not the right installation address?{' '}
+            <button onClick={onBack} className="text-[#f94580] hover:underline focus:outline-none">click here to start again</button>
+          </p>
+        </>
       )}
 
       {/* Contact info */}
