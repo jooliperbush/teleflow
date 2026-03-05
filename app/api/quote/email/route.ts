@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   const pdfData: QuotePDFData = {
     quoteReference: order.quote_reference || order.quoteReference,
     quoteDate: new Date().toISOString(),
-    quoteTerm: order.quote_term_months || order.quoteTerm || 24,
+    quoteTerm: order.quote_term_months || order.quoteTerm || 36,
     companyName: order.company_name || order.companyName,
     companyNumber: order.company_number || order.companyNumber,
     companyReference: order.company_reference || order.companyReference,

@@ -948,7 +948,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
   const [saveExpanded, setSaveExpanded] = useState(false)
 
   const monthly = order.selectedProducts.reduce((sum, p) => sum + p.monthlyTotal, 0)
-  const annual = monthly * 12
+  const annual = monthly * term
   const quoteRef = order.quoteReference || generateQuoteRef()
 
   useEffect(() => {
