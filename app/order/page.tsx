@@ -629,6 +629,182 @@ function MobileBuilder({ onBack, onComplete }: {
   )
 }
 
+// ─── PSTN Migration Builder ──────────────────────────────────────────────────
+
+interface CLIResult {
+  lineType: string
+  lineTypeLabel: string
+  bestAvailable: { type: string; typeLabel: string; name: string; downloadMbps: number; uploadMbps: number } | null
+  availableProducts: { type: string; name: string; downloadMbps: number; uploadMbps: number }[]
+  remainingChecks?: number
+}
+
+const MIGRATION_PATHS: Record<string, { title: string; desc: string; badge: string; color: string; paths: { label: string; sub: string; action: 'internet' | 'voip' | 'callback' }[] }> = {
+  fttp: {
+    title: 'Full Fibre Available',
+    badge: '⚡ Best Option',
+    color: '#22c55e',
+    desc: 'You already have access to full fibre. Migrate to FTTP broadband + VoIP for crystal-clear calls and the fastest speeds.',
+    paths: [
+      { label: 'Get Fibre + VoIP Bundle',     sub: 'Recommended — fastest & future-proof', action: 'internet' },
+      { label: 'VoIP Phone System Only',       sub: 'Keep existing broadband, migrate phone line', action: 'voip' },
+    ],
+  },
+  fttc: {
+    title: 'FTTC Fibre Available',
+    badge: '✓ Good Option',
+    color: '#3b82f6',
+    desc: 'Fibre to the cabinet is available at your premises. Upgrade to FTTC + VoIP to replace your PSTN line before the 2027 deadline.',
+    paths: [
+      { label: 'Get Fibre Broadband + VoIP',  sub: 'Upgrade broadband and migrate phone line', action: 'internet' },
+      { label: 'VoIP Phone System Only',       sub: 'Keep existing broadband, migrate phone line', action: 'voip' },
+    ],
+  },
+  sogea: {
+    title: 'SOGEA Available',
+    badge: '✓ Ready to Migrate',
+    color: '#3b82f6',
+    desc: 'Single-order fibre is available — ideal for PSTN migration. No separate phone line needed.',
+    paths: [
+      { label: 'Get SOGEA Broadband + VoIP',  sub: 'Clean migration, no analogue line needed', action: 'internet' },
+      { label: 'VoIP Phone System Only',       sub: 'Keep existing broadband, migrate phone line', action: 'voip' },
+    ],
+  },
+  gfast: {
+    title: 'G.fast Available',
+    badge: '✓ Fast Option',
+    color: '#3b82f6',
+    desc: 'G.fast ultrafast broadband is available. A great option for PSTN migration with high-speed connectivity.',
+    paths: [
+      { label: 'Get G.fast + VoIP',            sub: 'High-speed broadband + phone migration', action: 'internet' },
+      { label: 'VoIP Phone System Only',        sub: 'Keep existing broadband, migrate phone line', action: 'voip' },
+    ],
+  },
+  adsl: {
+    title: 'ADSL Available',
+    badge: '⚠ Basic Option',
+    color: '#f59e0b',
+    desc: 'ADSL broadband is available at your premises. You can still migrate your phone to VoIP, though we\'d recommend checking if fibre is available at a nearby address.',
+    paths: [
+      { label: 'Get ADSL Broadband + VoIP',   sub: 'Basic migration — works, but limited speeds', action: 'internet' },
+      { label: 'VoIP Phone System Only',       sub: 'Keep existing broadband, migrate phone line', action: 'voip' },
+    ],
+  },
+  unknown: {
+    title: 'No Broadband Detected',
+    badge: '! Needs Assessment',
+    color: '#f94580',
+    desc: 'We couldn\'t detect broadband availability at this number. Our team will assess your premises and recommend the best migration path.',
+    paths: [
+      { label: 'Book a Free Assessment',       sub: 'We\'ll check your site and advise the best route', action: 'callback' },
+      { label: 'VoIP Phone System Only',       sub: 'If you already have broadband from another provider', action: 'voip' },
+    ],
+  },
+}
+
+function PSNTMigrationBuilder({ onBack, onSelectPath }: {
+  onBack: () => void
+  onSelectPath: (path: 'internet' | 'voip' | 'callback') => void
+}) {
+  const [phone, setPhone]       = useState('')
+  const [loading, setLoading]   = useState(false)
+  const [result, setResult]     = useState<CLIResult | null>(null)
+  const [error, setError]       = useState('')
+
+  async function handleLookup() {
+    const cli = phone.replace(/\s/g, '')
+    if (!cli || cli.length < 10) { setError('Enter a valid UK phone number'); return }
+    setLoading(true)
+    setError('')
+    setResult(null)
+    try {
+      const res = await fetch(`/api/zen/cli-lookup?cli=${encodeURIComponent(cli)}`)
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      setResult(data)
+    } catch (e) {
+      setError('Could not check this number. Please try again or book a callback.')
+    }
+    setLoading(false)
+  }
+
+  const path = result ? (MIGRATION_PATHS[result.lineType] || MIGRATION_PATHS.unknown) : null
+
+  return (
+    <div>
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold text-white/70 hover:text-white transition-colors mb-6 px-3 py-2 rounded-lg"
+        style={{ border: '1px solid hsl(252,50%,32%)', background: 'hsl(252,60%,16%)' }}>
+        ← Back
+      </button>
+
+      <h2 className="text-2xl font-bold text-white mb-1">PSTN Migration</h2>
+      <p className="text-white/45 text-sm mb-6">The UK analogue phone network switches off in 2027. Enter your current landline number and we'll show you the best migration path.</p>
+
+      {/* Deadline banner */}
+      <div className="rounded-lg px-3 py-2.5 mb-5 flex items-start gap-2" style={{ background: 'rgba(249,69,128,0.07)', border: '1px solid rgba(249,69,128,0.3)' }}>
+        <span className="text-[#f94580] text-xs mt-0.5 font-bold">!</span>
+        <p className="text-white/60 text-xs"><span className="text-white font-semibold">2027 Deadline</span> — BT is switching off all analogue PSTN & ISDN lines. All businesses must migrate to VoIP before then.</p>
+      </div>
+
+      {/* Phone input */}
+      <div className="rounded-xl p-4 mb-4" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
+        <p className="text-white font-semibold text-sm mb-3">Your current landline number</p>
+        <div className="flex gap-2">
+          <input
+            value={phone}
+            onChange={e => { setPhone(e.target.value); setError(''); setResult(null) }}
+            onKeyDown={e => e.key === 'Enter' && handleLookup()}
+            placeholder="e.g. 01274 952123"
+            className="flex-1 rounded-lg px-4 py-3 text-base text-white placeholder-purple-400 focus:outline-none"
+            style={{ background: 'hsl(252,60%,18%)', border: error ? '1px solid #f94580' : '1px solid hsl(252,50%,30%)', caretColor: 'white' }}
+          />
+          <button onClick={handleLookup} disabled={loading}
+            className="itc-gradient-btn px-5 py-3 rounded-lg font-semibold text-white text-sm disabled:opacity-50">
+            {loading ? '...' : 'Check →'}
+          </button>
+        </div>
+        {error && <p className="text-[#f94580] text-xs mt-2">{error}</p>}
+      </div>
+
+      {/* Results */}
+      {result && path && (
+        <div>
+          {/* Line type result */}
+          <div className="rounded-xl p-4 mb-4" style={{ background: 'hsl(252,60%,16%)', border: `1.5px solid ${path.color}40` }}>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-white font-bold text-sm">Line detected</p>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: `${path.color}20`, color: path.color, border: `1px solid ${path.color}50` }}>
+                {path.badge}
+              </span>
+            </div>
+            <p className="text-white/40 text-xs mb-2">{phone}</p>
+            <p className="text-white text-base font-semibold" style={{ color: path.color }}>{path.title}</p>
+            {result.bestAvailable && (
+              <p className="text-white/50 text-xs mt-1">Best available: {result.bestAvailable.name} ({result.bestAvailable.downloadMbps}/{result.bestAvailable.uploadMbps} Mbps)</p>
+            )}
+            <p className="text-white/55 text-xs mt-3 leading-relaxed">{path.desc}</p>
+          </div>
+
+          {/* Migration path options */}
+          <p className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-3">Choose your migration path</p>
+          <div className="grid grid-cols-1 gap-2 mb-5">
+            {path.paths.map((p, i) => (
+              <button key={i} onClick={() => onSelectPath(p.action)}
+                className="text-left p-4 rounded-xl transition-all"
+                style={{ border: '1px solid hsl(252,50%,32%)', background: 'hsl(252,60%,16%)' }}
+                onMouseOver={e => (e.currentTarget.style.borderColor = '#f94580')}
+                onMouseOut={e => (e.currentTarget.style.borderColor = 'hsl(252,50%,32%)')}>
+                <p className="text-white font-semibold text-sm">{p.label}</p>
+                <p className="text-white/40 text-xs mt-0.5">{p.sub}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function CallbackForm({ journey, onBack }: { journey: Journey; onBack: () => void }) {
   const labels: Record<Journey, { title: string; desc: string }> = {
     voip:     { title: 'VoIP Phone System', desc: 'Tell us about your setup and we\'ll build a quote for you.' },
@@ -2284,7 +2460,8 @@ export default function OrderPage() {
           {step === -1 && journey === 'internet' && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Availability Checker</h1>}
           {step === -1 && journey === 'voip' && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>VoIP Phone System</h1>}
           {step === -1 && journey === 'mobile' && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Mobile SIMs</h1>}
-          {step === -1 && journey && journey !== 'internet' && journey !== 'voip' && journey !== 'mobile' && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Book a Callback</h1>}
+          {step === -1 && journey === 'pstn' && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Landline Migration</h1>}
+          {step === -1 && journey && journey !== 'internet' && journey !== 'voip' && journey !== 'mobile' && journey !== 'pstn' && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Book a Callback</h1>}
           {step >= 0 && <h1 className="text-lg font-semibold text-white">Get Connected</h1>}
         </div>
 
@@ -2321,8 +2498,29 @@ export default function OrderPage() {
           </div>
         )}
 
-        {/* Non-internet callback form (pstn only now) */}
-        {step === -1 && journey && journey !== 'internet' && journey !== 'voip' && journey !== 'mobile' && (
+        {/* PSTN migration builder */}
+        {step === -1 && journey === 'pstn' && (
+          <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
+            <PSNTMigrationBuilder
+              onBack={() => setStep(-2)}
+              onSelectPath={(selectedPath) => {
+                if (selectedPath === 'internet') {
+                  setJourney('internet')
+                  setStep(-1)
+                } else if (selectedPath === 'voip') {
+                  setJourney('voip')
+                  setStep(-1)
+                } else {
+                  setJourney('pstn')
+                  // fall through to callback — handled below
+                }
+              }}
+            />
+          </div>
+        )}
+
+        {/* Non-internet callback form (pstn callback fallback + others) */}
+        {step === -1 && journey && journey !== 'internet' && journey !== 'voip' && journey !== 'mobile' && journey !== 'pstn' && (
           <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
             <CallbackForm journey={journey} onBack={() => setStep(-2)} />
           </div>
