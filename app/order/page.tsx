@@ -120,11 +120,11 @@ const MARGIN = 1.25 // 25% markup
 
 type Journey = 'internet' | 'voip' | 'mobile' | 'pstn'
 
-const JOURNEYS: { id: Journey; emoji: string; title: string; subtitle: string; badge?: string }[] = [
-  { id: 'internet',  emoji: '📡', title: 'Internet',           subtitle: 'Full fibre broadband for your business' },
-  { id: 'voip',      emoji: '📞', title: 'VoIP Phone System',  subtitle: 'Cloud phones from £7.99/seat' },
-  { id: 'mobile',    emoji: '📱', title: 'Mobile',             subtitle: 'O2, Vodafone, Three & EE for your team' },
-  { id: 'pstn',      emoji: '🔌', title: 'Landline Migration', subtitle: 'Switch before the 2027 PSTN deadline', badge: 'Deadline approaching' },
+const JOURNEYS: { id: Journey; icon: string; title: string; subtitle: string; badge?: string }[] = [
+  { id: 'internet',  icon: '/icons/icon-internet.svg',  title: 'Internet',           subtitle: 'Full fibre broadband for your business' },
+  { id: 'voip',      icon: '/icons/icon-voip.svg',      title: 'VoIP Phone System',  subtitle: 'Cloud phones from £7.99/seat' },
+  { id: 'mobile',    icon: '/icons/icon-mobile.svg',    title: 'Mobile',             subtitle: 'O2, Vodafone, Three & EE for your team' },
+  { id: 'pstn',      icon: '/icons/icon-landline.svg',  title: 'Landline Migration', subtitle: 'Switch before the 2027 PSTN deadline', badge: 'Deadline approaching' },
 ]
 
 function JourneySelector({ onSelect }: { onSelect: (j: Journey) => void }) {
@@ -147,7 +147,9 @@ function JourneySelector({ onSelect }: { onSelect: (j: Journey) => void }) {
                 {j.badge}
               </span>
             )}
-            <div className="text-3xl mb-3">{j.emoji}</div>
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3" style={{ background: 'rgba(249,69,128,0.12)' }}>
+              <img src={j.icon} alt={j.title} className="w-7 h-7" />
+            </div>
             <p className="text-white font-bold text-base mb-1">{j.title}</p>
             <p className="text-white/45 text-xs leading-relaxed">{j.subtitle}</p>
           </button>
