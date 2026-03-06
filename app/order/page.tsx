@@ -419,7 +419,7 @@ function Step0({ order, setOrder, onNext }: {
               onClick={onNext}
               className="itc-gradient-btn px-8 py-3 rounded-xl font-semibold text-white text-base"
             >
-              Start Your Order →
+              Explore Services →
             </button>
           </div>
         </div>
