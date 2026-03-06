@@ -360,32 +360,7 @@ function VoIPBuilder({ onBack, onComplete }: {
           className="w-4 h-4 accent-[#591bff]" />
       </label>
 
-      {/* SIM upsell */}
-      <div className="rounded-xl p-4 mb-3" style={{ background: 'hsl(252,60%,16%)', border: `1px solid ${sims > 0 ? '#591bff' : 'hsl(252,50%,28%)'}` }}>
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-0.5">
-              <p className="text-white font-semibold text-sm">Mobile SIMs</p>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: 'rgba(249,69,128,0.15)', color: '#f94580', border: '1px solid rgba(249,69,128,0.3)' }}>Upsell</span>
-            </div>
-            <p className="text-white/40 text-xs">Unlimited calls & data — £{VOIP_SIM_PRICE}/SIM/mo</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => setSims(s => Math.max(0, s - 1))}
-              className="w-8 h-8 rounded-full font-bold text-white flex items-center justify-center"
-              style={{ background: 'hsl(252,60%,24%)', border: '1px solid hsl(252,50%,35%)' }}>−</button>
-            <span className="text-white font-bold text-lg w-6 text-center">{sims}</span>
-            <button onClick={() => setSims(s => Math.min(100, s + 1))}
-              className="w-8 h-8 rounded-full font-bold text-white flex items-center justify-center"
-              style={{ background: 'hsl(252,60%,24%)', border: '1px solid hsl(252,50%,35%)' }}>+</button>
-          </div>
-        </div>
-        {sims > 0 && (
-          <p className="text-white/40 text-xs mt-2">
-            {sims} SIM{sims > 1 ? 's' : ''} × £{VOIP_SIM_PRICE}/mo = <span className="text-white/70 font-semibold">£{(sims * VOIP_SIM_PRICE).toFixed(2)}/mo</span>
-          </p>
-        )}
-      </div>
+
 
       {/* Installation */}
       <div className="rounded-xl p-4 mb-4" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
@@ -432,6 +407,36 @@ function VoIPBuilder({ onBack, onComplete }: {
       <div className="rounded-lg px-3 py-2.5 mb-5 flex items-start gap-2" style={{ background: 'rgba(249,69,128,0.07)', border: '1px solid rgba(249,69,128,0.25)' }}>
         <span className="text-[#f94580] text-xs mt-0.5">★</span>
         <p className="text-white/60 text-xs">VoIP works on any broadband but performs best on ITC's managed fibre — guaranteed QoS, no dropped calls.</p>
+      </div>
+
+      {/* SIM special offer */}
+      <div className="rounded-xl p-4 mb-5" style={{ background: 'linear-gradient(135deg, rgba(249,69,128,0.12) 0%, rgba(89,27,255,0.18) 100%)', border: '1.5px solid rgba(249,69,128,0.4)' }}>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(249,69,128,0.2)', color: '#f94580', border: '1px solid rgba(249,69,128,0.4)' }}>
+                🎁 VoIP Customer Offer
+              </span>
+            </div>
+            <p className="text-white font-bold text-sm mb-0.5">Add Mobile SIMs</p>
+            <p className="text-white/50 text-xs">Unlimited calls & data — exclusive rate when bundled with VoIP</p>
+            <p className="text-[#f94580] font-bold text-base mt-1">£{VOIP_SIM_PRICE}<span className="text-white/40 font-normal text-xs">/SIM/mo</span></p>
+          </div>
+          <div className="flex items-center gap-3 mt-1">
+            <button onClick={() => setSims(s => Math.max(0, s - 1))}
+              className="w-8 h-8 rounded-full font-bold text-white flex items-center justify-center"
+              style={{ background: 'rgba(249,69,128,0.2)', border: '1px solid rgba(249,69,128,0.4)' }}>−</button>
+            <span className="text-white font-bold text-lg w-6 text-center">{sims}</span>
+            <button onClick={() => setSims(s => Math.min(100, s + 1))}
+              className="w-8 h-8 rounded-full font-bold text-white flex items-center justify-center"
+              style={{ background: 'rgba(249,69,128,0.2)', border: '1px solid rgba(249,69,128,0.4)' }}>+</button>
+          </div>
+        </div>
+        {sims > 0 && (
+          <p className="text-white/50 text-xs mt-2 pt-2" style={{ borderTop: '1px solid rgba(249,69,128,0.2)' }}>
+            {sims} SIM{sims > 1 ? 's' : ''} × £{VOIP_SIM_PRICE}/mo = <span className="text-white font-semibold">£{(sims * VOIP_SIM_PRICE).toFixed(2)}/mo</span>
+          </p>
+        )}
       </div>
 
       {/* Price summary */}
