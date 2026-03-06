@@ -965,6 +965,7 @@ function SaveQuotePanel({ email, name, quoteRef, quoteSnapshot }: {
     setLoading(true)
     setError('')
     try {
+      // 1. Create account + save quote server-side
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -972,6 +973,16 @@ function SaveQuotePanel({ email, name, quoteRef, quoteSnapshot }: {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Signup failed')
+
+      // 2. Sign in client-side to establish session in browser
+      const { createClient } = await import('@supabase/supabase-js')
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      if (signInError) throw new Error('Account created but sign-in failed. Please go to /account and log in.')
+
       window.location.href = '/account'
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Something went wrong.')
