@@ -1047,41 +1047,7 @@ function Step4({ order, setOrder, onNext, onBack }: {
           {emailSent ? `✓ Quote sent to ${order.contactEmail}` : sending ? 'Sending...' : `📧 Email Quote to ${order.contactEmail}`}
         </button>
         <button
-          onClick={() => {
-            const rows = order.selectedProducts.map(p =>
-              `${p.name} x${p.quantity} — £${p.unitMonthly ? p.unitMonthly.toFixed(2) : 'POA'}/mo each — £${p.monthlyTotal ? p.monthlyTotal.toFixed(2) : 'POA'}/mo`
-            ).join('\n')
-            const text = [
-              'ITC TELECOMS — QUOTE',
-              '====================',
-              `Ref: ${quoteRef}`,
-              `Date: ${new Date().toLocaleDateString('en-GB')}`,
-              `Valid: 30 days`,
-              `Contract: ${term} months`,
-              '',
-              'Customer: ' + order.companyName,
-              'Contact: ' + order.contactName,
-              'Email: ' + order.contactEmail,
-              'Site: ' + [order.siteAddressLine1, order.siteCity, order.sitePostcode].filter(Boolean).join(', '),
-              '',
-              'PRODUCTS',
-              '--------',
-              rows,
-              '',
-              `Monthly Total: £${monthly.toFixed(2)}`,
-              `Annual Total: £${annual.toFixed(2)}`,
-              '',
-              'ITC Telecoms Ltd · 01274 952 123 · adminteam@clickitc.co.uk',
-            ].join('\n')
-            const blob = new Blob([text], { type: 'text/plain' })
-            const url = URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = `ITC-Quote-${quoteRef}.txt`
-            a.click()
-            URL.revokeObjectURL(url)
-            setSaveExpanded(v => !v)
-          }}
+          onClick={() => setSaveExpanded(v => !v)}
           className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all"
           style={{ border: saveExpanded ? '1.5px solid #591bff' : '1.5px solid hsl(252,50%,35%)', color: saveExpanded ? 'white' : '#c4b8f0', background: saveExpanded ? 'rgba(89,27,255,0.15)' : 'transparent' }}
         >
