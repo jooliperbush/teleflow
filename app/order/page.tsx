@@ -716,68 +716,59 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
   onBack: () => void
   onSelectPath: (path: 'internet' | 'voip' | 'callback') => void
 }) {
-  const [phone, setPhone]         = useState('')
+  const [postcode, setPostcode]   = useState('')
   const [loading, setLoading]     = useState(false)
-  const [result, setResult]       = useState<CLIResult | null>(null)
-  const [lookupFailed, setLookupFailed] = useState(false)
+  const [addresses, setAddresses] = useState<ZenAddress[]>([])
+  const [selectedAddr, setSelectedAddr] = useState<ZenAddress | null>(null)
+  const [products, setProducts]   = useState<Product[]>([])
+  const [checked, setChecked]     = useState(false)
   const [error, setError]         = useState('')
-  // Fallback callback form state
-  const [cbName, setCbName]       = useState('')
-  const [cbEmail, setCbEmail]     = useState('')
-  const [cbPhone, setCbPhone]     = useState(phone)
-  const [cbNotes, setCbNotes]     = useState('')
-  const [cbSending, setCbSending] = useState(false)
-  const [cbSent, setCbSent]       = useState(false)
 
-  async function handleLookup() {
-    const cli = phone.replace(/\s/g, '')
-    if (!cli || cli.length < 10) { setError('Enter a valid UK phone number'); return }
+  async function checkPostcode() {
+    const pc = postcode.trim().toUpperCase()
+    if (!pc) return
     setLoading(true)
     setError('')
-    setResult(null)
-    setLookupFailed(false)
+    setAddresses([])
+    setSelectedAddr(null)
+    setProducts([])
+    setChecked(false)
     try {
-      const res = await fetch(`/api/zen/cli-lookup?cli=${encodeURIComponent(cli)}`)
+      const res = await fetch(`/api/zen/address?postcode=${encodeURIComponent(pc)}`)
       const data = await res.json()
-      if (data.error) throw new Error(data.error)
-      if (!data.found) {
-        // Number not in Zen system — fall through to callback
-        setLookupFailed(true)
-        setCbPhone(phone)
-      } else {
-        setResult(data)
-      }
-    } catch {
-      setLookupFailed(true)
-      setCbPhone(phone) // pre-fill their number in the callback form
-    }
+      if (!data.addresses?.length) { setError('No addresses found for this postcode.'); setLoading(false); return }
+      setAddresses(data.addresses)
+      if (data.addresses.length === 1) selectAddress(data.addresses[0], pc)
+    } catch { setError('Could not look up postcode. Please try again.') }
     setLoading(false)
   }
 
-  async function handleCallbackSubmit() {
-    if (!cbName || !cbPhone) return
-    setCbSending(true)
+  async function selectAddress(addr: ZenAddress, pc?: string) {
+    setSelectedAddr(addr)
+    setLoading(true)
+    setProducts([])
+    setChecked(false)
     try {
-      await fetch('/api/connectwise/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'pstn-callback',
-          contactName: cbName,
-          contactEmail: cbEmail,
-          contactPhone: cbPhone,
-          notes: `PSTN Migration callback. Number checked: ${phone}. Notes: ${cbNotes}`,
-        }),
-      })
-      setCbSent(true)
-    } catch {
-      // silent — still show success to user
-      setCbSent(true)
-    }
-    setCbSending(false)
+      let uprn = addr.uprn
+      if (!uprn) {
+        const epcRes = await fetch(`/api/epc/uprn?postcode=${encodeURIComponent(pc || postcode)}&address=${encodeURIComponent(addr.displayAddress)}`)
+        const epcData = await epcRes.json()
+        uprn = epcData.uprn || ''
+      }
+      const availParam = uprn ? `uprn=${encodeURIComponent(uprn)}` : `goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}`
+      const res = await fetch(`/api/zen/availability?${availParam}`)
+      const data = await res.json()
+      setProducts(data.products || [])
+      setChecked(true)
+    } catch { setError('Could not check availability. Please try again.') }
+    setLoading(false)
   }
 
-  const path = result ? (MIGRATION_PATHS[result.lineType] || MIGRATION_PATHS.unknown) : null
+  // Determine best available tech for migration path
+  const types = [...new Set(products.map(p => p.type))]
+  const bestType = (['fttp','sogea','fttc','gfast','adsl'] as const).find(t => types.includes(t)) || 'unknown'
+  const path = checked ? (MIGRATION_PATHS[bestType] || MIGRATION_PATHS.unknown) : null
+  const bestProduct = products[0] || null
 
   return (
     <div>
@@ -790,7 +781,7 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
         <img src="/itc-logo-mark.png" alt="ITC" className="w-14 h-14 rounded-xl object-contain flex-shrink-0" />
         <div>
           <h2 className="text-2xl font-bold text-white leading-tight">Landline Migration</h2>
-          <p className="text-white/45 text-sm mt-0.5">Enter your number — we'll show your migration path.</p>
+          <p className="text-white/45 text-sm mt-0.5">Check what's available at your premises.</p>
         </div>
       </div>
 
@@ -800,80 +791,65 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
         <p className="text-white/60 text-xs"><span className="text-white font-semibold">2027 Deadline</span> — BT is switching off all analogue PSTN & ISDN lines. All businesses must migrate to VoIP before then.</p>
       </div>
 
-      {/* Phone input */}
-      <div className="rounded-xl p-4 mb-4" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
-        <p className="text-white font-semibold text-sm mb-3">Your current landline number</p>
-        <div className="flex gap-2">
-          <input
-            value={phone}
-            onChange={e => { setPhone(e.target.value); setError(''); setResult(null) }}
-            onKeyDown={e => e.key === 'Enter' && handleLookup()}
-            placeholder="e.g. 01274 952123"
-            className="flex-1 rounded-lg px-4 py-3 text-base text-white placeholder-purple-400 focus:outline-none"
-            style={{ background: 'hsl(252,60%,18%)', border: error ? '1px solid #f94580' : '1px solid hsl(252,50%,30%)', caretColor: 'white' }}
-          />
-          <button onClick={handleLookup} disabled={loading}
-            className="itc-gradient-btn px-5 py-3 rounded-lg font-semibold text-white text-sm disabled:opacity-50">
-            {loading ? '...' : 'Check →'}
-          </button>
-        </div>
-        {error && <p className="text-[#f94580] text-xs mt-2">{error}</p>}
-      </div>
-
-      {/* Lookup failed — inline callback form */}
-      {lookupFailed && !cbSent && (
-        <div className="rounded-xl p-5 mb-4" style={{ background: 'hsl(252,60%,14%)', border: '1.5px solid rgba(249,69,128,0.35)' }}>
-          <p className="text-white font-bold text-sm mb-1">We couldn't look up that number</p>
-          <p className="text-white/45 text-xs mb-4">No worries — leave your details and we'll call you back to discuss your migration options.</p>
-          <div className="grid grid-cols-1 gap-3">
-            <input value={cbName} onChange={e => setCbName(e.target.value)} placeholder="Your name *"
-              className="w-full rounded-lg px-4 py-3 text-sm text-white placeholder-purple-400 focus:outline-none"
-              style={{ background: 'hsl(252,60%,18%)', border: '1px solid hsl(252,50%,30%)', caretColor: 'white' }} />
-            <input value={cbEmail} onChange={e => setCbEmail(e.target.value)} placeholder="Email address" type="email"
-              className="w-full rounded-lg px-4 py-3 text-sm text-white placeholder-purple-400 focus:outline-none"
-              style={{ background: 'hsl(252,60%,18%)', border: '1px solid hsl(252,50%,30%)', caretColor: 'white' }} />
-            <input value={cbPhone} onChange={e => setCbPhone(e.target.value)} placeholder="Phone number *"
-              className="w-full rounded-lg px-4 py-3 text-sm text-white placeholder-purple-400 focus:outline-none"
-              style={{ background: 'hsl(252,60%,18%)', border: '1px solid hsl(252,50%,30%)', caretColor: 'white' }} />
-            <textarea value={cbNotes} onChange={e => setCbNotes(e.target.value)} placeholder="Anything else we should know? (optional)" rows={2}
-              className="w-full rounded-lg px-4 py-3 text-sm text-white placeholder-purple-400 focus:outline-none resize-none"
-              style={{ background: 'hsl(252,60%,18%)', border: '1px solid hsl(252,50%,30%)', caretColor: 'white' }} />
+      {/* Postcode input */}
+      {!checked && (
+        <div className="rounded-xl p-4 mb-4" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
+          <p className="text-white font-semibold text-sm mb-3">Your business postcode</p>
+          <div className="flex gap-2">
+            <input
+              value={postcode}
+              onChange={e => { setPostcode(e.target.value.toUpperCase()); setError(''); setAddresses([]) }}
+              onKeyDown={e => e.key === 'Enter' && checkPostcode()}
+              placeholder="e.g. BD1 1AA"
+              className="flex-1 rounded-lg px-4 py-3 text-base text-white placeholder-purple-400 focus:outline-none"
+              style={{ background: 'hsl(252,60%,18%)', border: error ? '1px solid #f94580' : '1px solid hsl(252,50%,30%)', caretColor: 'white' }}
+            />
+            <button onClick={checkPostcode} disabled={loading || !postcode.trim()}
+              className="itc-gradient-btn px-5 py-3 rounded-lg font-semibold text-white text-sm disabled:opacity-50">
+              {loading ? '...' : 'Check →'}
+            </button>
           </div>
-          <button onClick={handleCallbackSubmit} disabled={!cbName || !cbPhone || cbSending}
-            className="itc-gradient-btn w-full py-3 rounded-xl font-semibold text-white text-sm mt-3 disabled:opacity-40">
-            {cbSending ? 'Sending…' : 'Request Callback →'}
-          </button>
+          {error && <p className="text-[#f94580] text-xs mt-2">{error}</p>}
         </div>
       )}
 
-      {/* Callback sent confirmation */}
-      {cbSent && (
-        <div className="rounded-xl p-5 mb-4 text-center" style={{ background: 'rgba(34,197,94,0.08)', border: '1.5px solid rgba(34,197,94,0.35)' }}>
-          <p className="text-white font-bold mb-1">✓ Request received</p>
-          <p className="text-white/50 text-sm">We'll call you back shortly to discuss your migration options.</p>
+      {/* Address picker */}
+      {addresses.length > 1 && !selectedAddr && (
+        <div className="rounded-xl p-4 mb-4" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
+          <p className="text-white font-semibold text-sm mb-3">Select your address</p>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {addresses.map((a, i) => (
+              <button key={i} onClick={() => selectAddress(a)}
+                className="w-full text-left px-3 py-2.5 rounded-lg text-sm text-white/80 hover:text-white transition-colors"
+                style={{ background: 'hsl(252,60%,18%)', border: '1px solid hsl(252,50%,30%)' }}>
+                {a.displayAddress}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Results */}
-      {result && path && (
+      {/* Loading availability */}
+      {loading && selectedAddr && (
+        <div className="text-center py-6 text-white/50 text-sm">Checking availability…</div>
+      )}
+
+      {/* Results + migration path */}
+      {checked && path && (
         <div>
-          {/* Line type result */}
           <div className="rounded-xl p-4 mb-4" style={{ background: 'hsl(252,60%,16%)', border: `1.5px solid ${path.color}40` }}>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-white font-bold text-sm">Line detected</p>
+              <p className="text-white font-bold text-sm">Availability found</p>
               <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: `${path.color}20`, color: path.color, border: `1px solid ${path.color}50` }}>
                 {path.badge}
               </span>
             </div>
-            <p className="text-white/40 text-xs mb-2">{phone}</p>
-            <p className="text-white text-base font-semibold" style={{ color: path.color }}>{path.title}</p>
-            {result.bestAvailable && (
-              <p className="text-white/50 text-xs mt-1">Best available: {result.bestAvailable.name} ({result.bestAvailable.downloadMbps}/{result.bestAvailable.uploadMbps} Mbps)</p>
-            )}
+            <p className="text-xs text-white/40 mb-1">{selectedAddr?.displayAddress}</p>
+            <p className="font-semibold text-base" style={{ color: path.color }}>{path.title}</p>
+            {bestProduct && <p className="text-white/50 text-xs mt-1">Best available: {bestProduct.name} ({bestProduct.downloadMbps}/{bestProduct.uploadMbps} Mbps)</p>}
             <p className="text-white/55 text-xs mt-3 leading-relaxed">{path.desc}</p>
           </div>
 
-          {/* Migration path options */}
           <p className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-3">Choose your migration path</p>
           <div className="grid grid-cols-1 gap-2 mb-5">
             {path.paths.map((p, i) => (
@@ -887,6 +863,11 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
               </button>
             ))}
           </div>
+
+          <button onClick={() => { setChecked(false); setProducts([]); setSelectedAddr(null); setAddresses([]) }}
+            className="text-white/40 text-xs hover:text-white transition-colors">
+            ← Check a different postcode
+          </button>
         </div>
       )}
     </div>
