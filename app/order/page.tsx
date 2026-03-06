@@ -115,6 +115,152 @@ function generateQuoteRef(): string {
 
 const MARGIN = 1.25 // 25% markup
 
+// ─── Journey Selector ────────────────────────────────────────────────────────
+
+type Journey = 'internet' | 'voip' | 'mobile' | 'pstn'
+
+const JOURNEYS: { id: Journey; emoji: string; title: string; subtitle: string; badge?: string }[] = [
+  { id: 'internet',  emoji: '📡', title: 'Internet',           subtitle: 'Full fibre broadband for your business' },
+  { id: 'voip',      emoji: '📞', title: 'VoIP Phone System',  subtitle: 'Cloud phones from £7.99/seat' },
+  { id: 'mobile',    emoji: '📱', title: 'Mobile',             subtitle: 'O2, Vodafone, Three & EE for your team' },
+  { id: 'pstn',      emoji: '🔌', title: 'Landline Migration', subtitle: 'Switch before the 2027 PSTN deadline', badge: 'Deadline approaching' },
+]
+
+function JourneySelector({ onSelect }: { onSelect: (j: Journey) => void }) {
+  return (
+    <div>
+      <p className="text-white/50 text-sm mb-6 text-center">What are you looking for today?</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {JOURNEYS.map(j => (
+          <button
+            key={j.id}
+            onClick={() => onSelect(j.id)}
+            className="relative text-left rounded-2xl p-5 transition-all group"
+            style={{ background: 'hsl(252,60%,16%)', border: '1.5px solid hsl(252,50%,28%)' }}
+            onMouseOver={e => (e.currentTarget.style.borderColor = '#f94580')}
+            onMouseOut={e => (e.currentTarget.style.borderColor = 'hsl(252,50%,28%)')}
+          >
+            {j.badge && (
+              <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(249,69,128,0.15)', color: '#f94580', border: '1px solid rgba(249,69,128,0.3)' }}>
+                {j.badge}
+              </span>
+            )}
+            <div className="text-3xl mb-3">{j.emoji}</div>
+            <p className="text-white font-bold text-base mb-1">{j.title}</p>
+            <p className="text-white/45 text-xs leading-relaxed">{j.subtitle}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── Callback Form (for journeys not yet fully built) ─────────────────────────
+
+function CallbackForm({ journey, onBack }: { journey: Journey; onBack: () => void }) {
+  const labels: Record<Journey, { title: string; desc: string }> = {
+    voip:     { title: 'VoIP Phone System', desc: 'Tell us about your setup and we\'ll build a quote for you.' },
+    mobile:   { title: 'Mobile',            desc: 'Tell us what you need and we\'ll come back with options.' },
+    pstn:     { title: 'Landline Migration', desc: 'We\'ll help you migrate before the 2027 PSTN switch-off.' },
+    internet: { title: 'Internet',           desc: '' },
+  }
+  const { title, desc } = labels[journey]
+
+  const [name, setName]       = useState('')
+  const [email, setEmail]     = useState('')
+  const [phone, setPhone]     = useState('')
+  const [notes, setNotes]     = useState('')
+  const [sent, setSent]       = useState(false)
+  const [sending, setSending] = useState(false)
+
+  async function handleSubmit() {
+    if (!name || !email || !phone) return
+    setSending(true)
+    try {
+      await fetch('/api/connectwise/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order: {
+            contactName: name,
+            contactEmail: email,
+            contactPhone: phone,
+            companyName: name,
+            companyNumber: '',
+            sitePostcode: '',
+            siteAddressLine1: '',
+            siteCity: '',
+            selectedProducts: [],
+            monthlyTotal: 0,
+            annualTotal: 0,
+            term: 36,
+            notes: `[${title} enquiry] ${notes}`,
+          }
+        })
+      })
+    } catch {}
+    setSent(true)
+    setSending(false)
+  }
+
+  if (sent) {
+    return (
+      <div className="text-center py-8">
+        <div className="text-4xl mb-4">✅</div>
+        <p className="text-white font-bold text-lg mb-2">We'll be in touch soon</p>
+        <p className="text-white/50 text-sm mb-6">One of the ITC team will call you within 1 business day to discuss your {title.toLowerCase()} requirements.</p>
+        <button onClick={onBack} className="text-white/50 text-sm hover:text-white transition-colors">← Back to services</button>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <button onClick={onBack} className="text-white/40 text-sm hover:text-white transition-colors mb-5 flex items-center gap-1">
+        ← Back
+      </button>
+      <h2 className="text-xl font-bold text-white mb-1">{title}</h2>
+      <p className="text-white/45 text-sm mb-6">{desc}</p>
+
+      <div className="flex flex-col gap-3">
+        {[
+          { label: 'Your name',         val: name,  set: setName,  type: 'text',  ph: 'Full name' },
+          { label: 'Email address',      val: email, set: setEmail, type: 'email', ph: 'your@email.com' },
+          { label: 'Best phone number',  val: phone, set: setPhone, type: 'tel',   ph: '07700 000000' },
+        ].map(f => (
+          <div key={f.label}>
+            <label className="block text-xs text-white/50 mb-1">{f.label}</label>
+            <input
+              type={f.type} value={f.val} onChange={e => f.set(e.target.value)}
+              placeholder={f.ph}
+              className="w-full px-3 py-3 rounded-lg text-sm text-white"
+              style={{ background: 'hsl(252,60%,10%)', border: '1px solid hsl(252,50%,35%)', outline: 'none' }}
+            />
+          </div>
+        ))}
+        <div>
+          <label className="block text-xs text-white/50 mb-1">Anything specific? (optional)</label>
+          <textarea
+            value={notes} onChange={e => setNotes(e.target.value)} rows={3}
+            placeholder={journey === 'voip' ? 'e.g. 5 users, need handsets, currently on BT' : journey === 'mobile' ? 'e.g. 10 SIMs on O2, need data-heavy plan' : 'e.g. 2 analogue lines, want to keep our number'}
+            className="w-full px-3 py-2.5 rounded-lg text-sm text-white resize-none"
+            style={{ background: 'hsl(252,60%,10%)', border: '1px solid hsl(252,50%,35%)', outline: 'none' }}
+          />
+        </div>
+      </div>
+
+      <button
+        onClick={handleSubmit}
+        disabled={sending || !name || !email || !phone}
+        className="itc-gradient-btn w-full py-3 rounded-xl font-semibold text-white mt-4 disabled:opacity-40"
+      >
+        {sending ? 'Sending...' : 'Request a Callback →'}
+      </button>
+    </div>
+  )
+}
+
 // ─── Step Indicator ──────────────────────────────────────────────────────────
 
 const STEPS = ['Address', 'Company', 'Products', 'Quote', 'Sign', 'Payment', 'Confirm']
@@ -1544,7 +1690,8 @@ const defaultOrder: OrderState = {
 }
 
 export default function OrderPage() {
-  const [step, setStep] = useState(-1)
+  const [step, setStep] = useState(-2)
+  const [journey, setJourney] = useState<Journey | null>(null)
   const [order, setOrderState] = useState<OrderState>(defaultOrder)
 
   function setOrder(partial: Partial<OrderState>) {
@@ -1554,7 +1701,16 @@ export default function OrderPage() {
   function next() {
     setStep(s => Math.min(s + 1, 7))
   }
-  function back() { setStep(s => Math.max(s - 1, -1)) }
+  function back() { setStep(s => Math.max(s - 1, -2)) }
+
+  function selectJourney(j: Journey) {
+    setJourney(j)
+    if (j === 'internet') {
+      setStep(-1) // go to postcode checker
+    } else {
+      setStep(-1) // show callback form
+    }
+  }
 
   return (
     <div className="min-h-screen" style={{ background: "hsl(252, 92%, 10%)" }}>
@@ -1563,11 +1719,28 @@ export default function OrderPage() {
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          {step === -1 ? <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Availability Checker</h1> : <h1 className="text-lg font-semibold text-white">Get Connected</h1>}
+          {step === -2 && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>How can we help?</h1>}
+          {step === -1 && journey === 'internet' && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Availability Checker</h1>}
+          {step === -1 && journey !== 'internet' && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Book a Callback</h1>}
+          {step >= 0 && <h1 className="text-lg font-semibold text-white">Get Connected</h1>}
         </div>
 
-        {/* Postcode checker — pre-onboarding, no step bar */}
-        {step === -1 && (
+        {/* Journey selector */}
+        {step === -2 && (
+          <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
+            <JourneySelector onSelect={selectJourney} />
+          </div>
+        )}
+
+        {/* Non-internet callback form */}
+        {step === -1 && journey && journey !== 'internet' && (
+          <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
+            <CallbackForm journey={journey} onBack={() => setStep(-2)} />
+          </div>
+        )}
+
+        {/* Postcode checker — internet only */}
+        {step === -1 && journey === 'internet' && (
           <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
             <Step0 order={order} setOrder={setOrder} onNext={next} />
           </div>
