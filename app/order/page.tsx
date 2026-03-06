@@ -437,10 +437,11 @@ function TierCards({ products }: { products: Product[] }) {
 
 // ─── Step 0: Availability Checker ────────────────────────────────────────────
 
-function Step0({ order, setOrder, onNext }: {
+function Step0({ order, setOrder, onNext, onBack }: {
   order: OrderState
   setOrder: (o: Partial<OrderState>) => void
   onNext: () => void
+  onBack: () => void
 }) {
   const [postcode, setPostcode] = useState(order.sitePostcode || '')
   const [addresses, setAddresses] = useState<ZenAddress[]>([])
@@ -506,6 +507,9 @@ function Step0({ order, setOrder, onNext }: {
 
   return (
     <div>
+      <button onClick={onBack} className="text-white/40 text-sm hover:text-white transition-colors mb-5 flex items-center gap-1">
+        ← Back
+      </button>
       <div className="text-center mb-6">
         <p className="text-base font-semibold text-white/75">Enter the postcode you want to check, to see if ITC services are available to you!</p>
       </div>
@@ -1803,7 +1807,7 @@ export default function OrderPage() {
         {/* Postcode checker — internet only */}
         {step === -1 && journey === 'internet' && (
           <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
-            <Step0 order={order} setOrder={setOrder} onNext={next} />
+            <Step0 order={order} setOrder={setOrder} onNext={next} onBack={() => setStep(-2)} />
           </div>
         )}
 
