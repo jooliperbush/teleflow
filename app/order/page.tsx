@@ -507,7 +507,8 @@ function Step0({ order, setOrder, onNext, onBack }: {
 
   return (
     <div>
-      <button onClick={onBack} className="text-white/40 text-sm hover:text-white transition-colors mb-5 flex items-center gap-1">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold text-white/70 hover:text-white transition-colors mb-6 px-3 py-2 rounded-lg"
+        style={{ border: '1px solid hsl(252,50%,32%)', background: 'hsl(252,60%,16%)' }}>
         ← Back
       </button>
       <div className="text-center mb-6">
