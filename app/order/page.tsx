@@ -988,10 +988,17 @@ function Step1({ order, setOrder, onNext, onBack }: {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{contactFields.map(renderField)}</div>
       </div>
 
-      <button onClick={onNext} disabled={!canContinue}
-        className="itc-gradient-btn w-full py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40">
-        Continue →
-      </button>
+      <div className="flex gap-3">
+        <button onClick={onBack}
+          className="px-6 py-4 rounded-xl font-semibold text-white/60 text-base hover:text-white transition-colors"
+          style={{ border: '1px solid hsl(252, 50%, 30%)' }}>
+          ← Back
+        </button>
+        <button onClick={onNext} disabled={!canContinue}
+          className="itc-gradient-btn flex-1 py-4 rounded-xl font-semibold text-white text-base disabled:opacity-40">
+          Continue →
+        </button>
+      </div>
     </div>
   )
 }
