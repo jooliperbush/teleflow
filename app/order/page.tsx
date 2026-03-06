@@ -674,6 +674,7 @@ function Step3({ order, setOrder, onNext, onBack }: {
       }
       const uprnParam = resolvedUprn ? `uprn=${encodeURIComponent(resolvedUprn)}` : `goldAddressKey=${encodeURIComponent(addr.goldAddressKey)}`
       const res = await fetch(`/api/zen/availability?${uprnParam}`)
+      if (!res.ok) throw new Error(`Availability API returned ${res.status}`)
       const data = await res.json()
       const zenProducts: Product[] = data.products || []
       const broadband = zenProducts.filter((p: Product) => ['fttp','fttc','sogea','gfast','adsl'].includes(p.type))
@@ -709,7 +710,10 @@ function Step3({ order, setOrder, onNext, onBack }: {
       setAvailRef(data.availabilityReference || null)
       setLoading(false)
     }
-    loadProducts().catch(() => setLoading(false))
+    loadProducts().catch(() => {
+      setProducts([{ type: 'lease_line', name: '__unresolvable__', monthlyCost: null, setupFee: null, available: false, requiresCallback: true }])
+      setLoading(false)
+    })
   }, [order.selectedAddress])
 
 
