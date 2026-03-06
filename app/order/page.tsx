@@ -941,6 +941,67 @@ function Step3({ order, setOrder, onNext, onBack }: {
 
 }
 
+// ─── Save Quote Panel ─────────────────────────────────────────────────────────
+
+function SaveQuotePanel({ email, name, quoteRef, quoteSnapshot }: {
+  email: string
+  name: string
+  quoteRef: string
+  quoteSnapshot: Record<string, unknown>
+}) {
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSave() {
+    if (!password || password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name, password, quoteRef, quoteSnapshot }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Signup failed')
+      window.location.href = '/account'
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Something went wrong.')
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="rounded-xl p-4 mt-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+      <p className="text-sm font-semibold text-white mb-1">Create a password to save your quote</p>
+      <p className="text-xs text-white/55 leading-relaxed mb-3">
+        We&apos;ll use <strong className="text-white/80">{email}</strong> as your login — just set a password.
+      </p>
+      <input
+        type="password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+        onKeyDown={e => e.key === 'Enter' && handleSave()}
+        placeholder="Create a password (min. 8 characters)"
+        className="w-full px-3 py-2.5 rounded-lg text-sm text-white mb-3"
+        style={{ background: 'hsl(252, 60%, 10%)', border: '1px solid hsl(252, 50%, 35%)', outline: 'none' }}
+      />
+      {error && <p className="text-xs text-red-400 mb-2">{error}</p>}
+      <button
+        onClick={handleSave}
+        disabled={loading}
+        className="itc-gradient-btn w-full py-2.5 rounded-lg font-semibold text-white text-sm disabled:opacity-50"
+      >
+        {loading ? 'Saving...' : 'Save Quote & Create Account →'}
+      </button>
+    </div>
+  )
+}
+
 // ─── Step 4: Quote ────────────────────────────────────────────────────────────
 
 function Step4({ order, setOrder, onNext, onBack }: {
@@ -1055,18 +1116,21 @@ function Step4({ order, setOrder, onNext, onBack }: {
         </button>
 
         {saveExpanded && (
-          <div className="rounded-xl p-4 mt-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
-            <p className="text-sm font-semibold text-white mb-1">Your quote is saved when you create an account.</p>
-            <p className="text-xs text-white/55 leading-relaxed mb-3">
-              We&apos;ll use the email and details you already provided — <strong className="text-white/80">{order.contactEmail}</strong> — so all you need to do is create a password.
-            </p>
-            <button
-              className="itc-gradient-btn w-full py-2.5 rounded-lg font-semibold text-white text-sm"
-              onClick={onNext}
-            >
-              Create Account &amp; Save Quote →
-            </button>
-          </div>
+          <SaveQuotePanel
+            email={order.contactEmail}
+            name={order.contactName}
+            quoteRef={quoteRef}
+            quoteSnapshot={{
+              selectedProducts: order.selectedProducts,
+              monthly,
+              annual,
+              term,
+              companyName: order.companyName,
+              siteAddressLine1: order.siteAddressLine1,
+              siteCity: order.siteCity,
+              sitePostcode: order.sitePostcode,
+            }}
+          />
         )}
       </div>
 
