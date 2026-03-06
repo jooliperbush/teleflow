@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
+import MarketingNavbar from '@/app/components/marketing/MarketingNavbar'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -67,17 +68,17 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'hsl(252,92%,10%)', fontFamily: 'Poppins, sans-serif' }}>
-      <header className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'hsl(252,50%,22%)' }}>
-        <Link href="/" className="text-white font-bold text-lg tracking-tight">ITC Telecoms</Link>
-        <button onClick={handleSignOut} className="text-sm text-white/50 hover:text-white transition-colors">
-          Sign out
-        </button>
-      </header>
+      <MarketingNavbar />
 
-      <main className="max-w-3xl mx-auto px-4 py-12">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white">Your Quotes</h1>
-          {email && <p className="text-sm text-white/50 mt-1">{email}</p>}
+      <main className="max-w-3xl mx-auto px-4 pt-28 pb-12">
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Your Quotes</h1>
+            {email && <p className="text-sm text-white/50 mt-1">{email}</p>}
+          </div>
+          <button onClick={handleSignOut} className="text-sm text-white/40 hover:text-white transition-colors mt-1">
+            Sign out
+          </button>
         </div>
 
         {loading && <div className="text-white/40 text-sm">Loading your quotes...</div>}

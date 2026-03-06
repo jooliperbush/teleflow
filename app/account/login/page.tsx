@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
+import MarketingNavbar from '@/app/components/marketing/MarketingNavbar'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,11 +30,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'hsl(252,92%,10%)', fontFamily: 'Poppins, sans-serif' }}>
+    <div className="min-h-screen" style={{ background: 'hsl(252,92%,10%)', fontFamily: 'Poppins, sans-serif' }}>
+      <MarketingNavbar />
+      <div className="flex items-center justify-center px-4 pt-28 pb-12">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Link href="/" className="text-white font-bold text-xl tracking-tight">ITC Telecoms</Link>
-          <p className="text-white/40 text-sm mt-2">Sign in to view your saved quotes</p>
+          <p className="text-white font-bold text-xl tracking-tight">Sign In</p>
+          <p className="text-white/40 text-sm mt-2">View your saved quotes</p>
         </div>
 
         <div className="rounded-2xl p-6" style={{ background: 'hsl(252,60%,14%)', border: '1px solid hsl(252,50%,28%)' }}>
@@ -77,6 +80,7 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+      </div>
       </div>
     </div>
   )
