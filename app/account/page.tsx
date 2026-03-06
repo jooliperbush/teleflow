@@ -86,9 +86,11 @@ export default function AccountPage() {
           <div className="rounded-xl p-4" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(0,60%,40%)' }}>
             <p className="text-red-400 text-sm">{error}</p>
             {error === 'Not logged in.' && (
-              <p className="text-white/40 text-xs mt-2">
-                Go back and save a quote to create an account, or email <span className="text-white/60">adminteam@clickitc.co.uk</span>
-              </p>
+              <div className="mt-3">
+                <Link href="/account/login" className="itc-gradient-btn px-4 py-2 rounded-lg font-semibold text-white text-sm inline-block">
+                  Sign In →
+                </Link>
+              </div>
             )}
           </div>
         )}
