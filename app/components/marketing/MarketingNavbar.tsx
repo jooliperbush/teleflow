@@ -3,7 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X, UserCircle } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 const navItems = [
   { label: "Services", href: "#services" },
@@ -17,10 +23,12 @@ const navItems = [
 export default function MarketingNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", handleScroll, { passive: true });
+    supabase.auth.getSession().then(({ data: { session } }) => setLoggedIn(!!session));
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -61,6 +69,13 @@ export default function MarketingNavbar() {
           01274 952 123
         </a>
 
+        {/* Account icon */}
+        <Link href={loggedIn ? "/account" : "/account/login"}
+          title={loggedIn ? "My Account" : "Sign In"}
+          className={`hidden md:flex items-center justify-center w-9 h-9 rounded-full transition-colors ${scrolled ? "hover:bg-black/5 text-gray-600 hover:text-gray-900" : "text-white/50 hover:text-white hover:bg-white/10"}`}>
+          <UserCircle className="w-5 h-5" />
+        </Link>
+
         {/* Apple-style pill button */}
         <motion.div className="hidden md:block" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
           transition={{ type: "spring", stiffness: 400, damping: 20 }}>
@@ -98,11 +113,17 @@ export default function MarketingNavbar() {
                 <motion.a {...motionProps} href={item.href} onClick={() => setMobileOpen(false)} className={cls} style={st}>{item.label}</motion.a>
               );
             })}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="flex flex-col gap-3 mt-8">
               <Link href="/order" onClick={() => setMobileOpen(false)}
-                className="mt-8 flex items-center justify-center gap-2 py-4 rounded-full font-bold text-lg text-white"
+                className="flex items-center justify-center gap-2 py-4 rounded-full font-bold text-lg text-white"
                 style={{ background: "linear-gradient(135deg, #f94580, #591bff)", boxShadow: "0 0 30px rgba(249,69,128,0.3)" }}>
                 Get a Free Quote <ArrowRight className="w-5 h-5" />
+              </Link>
+              <Link href={loggedIn ? "/account" : "/account/login"} onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-center gap-2 py-3 rounded-full font-semibold text-base text-white/70"
+                style={{ border: "1px solid rgba(255,255,255,0.15)" }}>
+                <UserCircle className="w-4 h-4" />
+                {loggedIn ? "My Account" : "Sign In"}
               </Link>
             </motion.div>
           </motion.div>
