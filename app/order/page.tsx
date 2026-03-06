@@ -54,6 +54,7 @@ interface ZenAddress {
 interface OrderState {
   id?: string
   // Step 1
+  businessType: 'ltd' | 'sole_trader' | 'partnership'
   companyName: string
   companyNumber: string
   companyReference: string
@@ -658,10 +659,23 @@ function Step2({ order, setOrder, onNext, onBack }: {
   onNext: () => void
   onBack: () => void
 }) {
+  const bizType = order.businessType || 'ltd'
   const [query, setQuery] = useState(order.companyName || '')
   const [suggestion, setSuggestion] = useState<CompanyResult | null>(null)
   const [searching, setSearching] = useState(false)
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const BIZ_TYPES = [
+    { id: 'ltd',          label: 'Limited Company' },
+    { id: 'sole_trader',  label: 'Sole Trader' },
+    { id: 'partnership',  label: 'Partnership' },
+  ] as const
+
+  function switchType(t: typeof bizType) {
+    setOrder({ businessType: t, companyName: '', companyNumber: '', companyStatus: '', authorisedToSign: false })
+    setQuery('')
+    setSuggestion(null)
+  }
 
   async function fetchSuggestion(q: string) {
     if (q.length < 2) { setSuggestion(null); return }
@@ -678,9 +692,13 @@ function Step2({ order, setOrder, onNext, onBack }: {
     const val = e.target.value
     setQuery(val)
     setSuggestion(null)
-    setOrder({ companyName: '', companyNumber: '', companyStatus: '', authorisedToSign: false })
-    if (searchTimer.current) clearTimeout(searchTimer.current)
-    searchTimer.current = setTimeout(() => fetchSuggestion(val), 300)
+    if (bizType === 'ltd') {
+      setOrder({ companyName: '', companyNumber: '', companyStatus: '', authorisedToSign: false })
+      if (searchTimer.current) clearTimeout(searchTimer.current)
+      searchTimer.current = setTimeout(() => fetchSuggestion(val), 300)
+    } else {
+      setOrder({ companyName: val })
+    }
   }
 
   async function acceptSuggestion(s: CompanyResult) {
@@ -709,54 +727,91 @@ function Step2({ order, setOrder, onNext, onBack }: {
     if (e.key === 'Escape') setSuggestion(null)
   }
 
-  const ghostText = suggestion && suggestion.title.toLowerCase().startsWith(query.toLowerCase())
+  const ghostText = bizType === 'ltd' && suggestion && suggestion.title.toLowerCase().startsWith(query.toLowerCase())
     ? suggestion.title.slice(query.length) : ''
 
-  const canContinue = order.companyName && order.companyNumber && order.companyStatus === 'active' && order.authorisedToSign
+  const canContinue = bizType === 'ltd'
+    ? order.companyName && order.companyNumber && order.companyStatus === 'active' && order.authorisedToSign
+    : order.companyName && order.authorisedToSign
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-2">Company Details</h2>
-      <p className="text-white/55 text-sm mb-6">Search for your company to verify it against Companies House.</p>
+      <h2 className="text-2xl font-bold mb-2">Business Details</h2>
+      <p className="text-white/55 text-sm mb-5">Tell us about your business so we can set up your account correctly.</p>
 
-      <div className="mb-4">
-        <label className="block text-sm font-semibold text-white/75 mb-1">Company Name</label>
-        <div className="relative">
-          <input
-            value={query}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            onBlur={() => { if (suggestion && !order.companyName) acceptSuggestion(suggestion) }}
-            placeholder="e.g. ITC Telecoms Ltd"
-            autoComplete="off"
-            className="w-full rounded-lg px-4 py-3 text-base text-white placeholder-purple-400 focus:outline-none relative z-10"
-            style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 30%)', caretColor: 'white' }}
-          />
-          <div aria-hidden="true" className="absolute inset-0 px-4 py-3 text-base pointer-events-none flex items-center overflow-hidden rounded-lg z-20" style={{ fontFamily: 'inherit' }}>
-            <span className="invisible whitespace-pre">{query}</span>
-            <span style={{ color: 'rgba(192,132,252,0.7)' }}>{ghostText}</span>
+      {/* Business type toggle */}
+      <div className="flex gap-2 mb-6">
+        {BIZ_TYPES.map(t => (
+          <button key={t.id} onClick={() => switchType(t.id)}
+            className="flex-1 py-2 rounded-lg text-xs font-semibold transition-all"
+            style={bizType === t.id
+              ? { background: 'rgba(89,27,255,0.25)', border: '1.5px solid #591bff', color: 'white' }
+              : { background: 'transparent', border: '1px solid hsl(252,50%,30%)', color: 'rgba(255,255,255,0.45)' }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Ltd — Companies House search */}
+      {bizType === 'ltd' && (
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-white/75 mb-1">Company Name</label>
+          <div className="relative">
+            <input
+              value={query}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              onBlur={() => { if (suggestion && !order.companyName) acceptSuggestion(suggestion) }}
+              placeholder="e.g. ITC Telecoms Ltd"
+              autoComplete="off"
+              className="w-full rounded-lg px-4 py-3 text-base text-white placeholder-purple-400 focus:outline-none relative z-10"
+              style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 30%)', caretColor: 'white' }}
+            />
+            <div aria-hidden="true" className="absolute inset-0 px-4 py-3 text-base pointer-events-none flex items-center overflow-hidden rounded-lg z-20" style={{ fontFamily: 'inherit' }}>
+              <span className="invisible whitespace-pre">{query}</span>
+              <span style={{ color: 'rgba(192,132,252,0.7)' }}>{ghostText}</span>
+            </div>
+            {searching && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20">
+                <div className="w-3 h-3 rounded-full border-2 animate-spin" style={{ borderColor: 'rgba(255,255,255,0.2)', borderTopColor: 'rgba(255,255,255,0.6)' }} />
+              </div>
+            )}
           </div>
-          {searching && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20">
-              <div className="w-3 h-3 rounded-full border-2 animate-spin" style={{ borderColor: 'rgba(255,255,255,0.2)', borderTopColor: 'rgba(255,255,255,0.6)' }} />
+          {suggestion && !order.companyName && (
+            <p className="text-xs mt-1.5 pl-1" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              Tab to accept · {suggestion.company_number} · {suggestion.registered_office_address?.postal_code}
+            </p>
+          )}
+          {order.companyName && (
+            <div className="rounded-lg p-3 mt-2 text-xs flex items-center gap-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
+              <span className="text-green-400 text-sm">✓</span>
+              <span className="text-white/75">{order.companyName} · {order.companyNumber} · <span className={order.companyStatus === 'active' ? 'text-green-400' : 'text-red-400'}>{order.companyStatus?.toUpperCase()}</span></span>
             </div>
           )}
         </div>
-        {suggestion && !order.companyName && (
-          <p className="text-xs mt-1.5 pl-1" style={{ color: 'rgba(255,255,255,0.35)' }}>
-            Tab to accept · {suggestion.company_number} · {suggestion.registered_office_address?.postal_code}
-          </p>
-        )}
-      </div>
+      )}
 
-      {order.companyName && (
-        <div className="rounded-lg p-3 mb-5 text-xs flex items-center gap-2" style={{ background: 'hsl(252, 60%, 16%)', border: '1px solid hsl(252, 50%, 28%)' }}>
-          <span className="text-green-400 text-sm">✓</span>
-          <span className="text-white/75">{order.companyName} · {order.companyNumber} · <span className={order.companyStatus === 'active' ? 'text-green-400' : 'text-red-400'}>{order.companyStatus?.toUpperCase()}</span></span>
+      {/* Sole trader / Partnership — free text */}
+      {bizType !== 'ltd' && (
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-white/75 mb-1">
+            {bizType === 'sole_trader' ? 'Your Trading Name' : 'Partnership Name'}
+          </label>
+          <input
+            value={query}
+            onChange={handleChange}
+            placeholder={bizType === 'sole_trader' ? 'e.g. J Smith Plumbing' : 'e.g. Smith & Jones Consulting'}
+            className="w-full rounded-lg px-4 py-3 text-base text-white placeholder-purple-400 focus:outline-none"
+            style={{ background: 'hsl(252, 60%, 18%)', border: '1px solid hsl(252, 50%, 30%)', caretColor: 'white' }}
+          />
+          {bizType === 'sole_trader' && (
+            <p className="text-xs mt-1.5 pl-1 text-white/35">Sole traders are not verified against Companies House</p>
+          )}
         </div>
       )}
 
-      {order.companyName && order.companyStatus === 'active' && (
+      {/* Declaration */}
+      {((bizType === 'ltd' && order.companyName && order.companyStatus === 'active') || (bizType !== 'ltd' && order.companyName)) && (
         <label className="flex items-start gap-3 cursor-pointer rounded-xl p-4 mb-6"
           style={{ background: 'hsl(252, 60%, 16%)', border: `1px solid ${order.authorisedToSign ? 'rgba(89,27,255,0.6)' : 'hsl(252, 50%, 28%)'}` }}>
           <input
@@ -766,7 +821,10 @@ function Step2({ order, setOrder, onNext, onBack }: {
             className="mt-0.5 w-4 h-4 flex-shrink-0 accent-[#591bff]"
           />
           <span className="text-sm text-white/75 leading-relaxed">
-            I confirm that I am <strong className="text-white">authorised to sign</strong> on behalf of <strong className="text-white">{order.companyName}</strong> and that the information provided is accurate.
+            {bizType === 'ltd'
+              ? <>I confirm that I am <strong className="text-white">authorised to sign</strong> on behalf of <strong className="text-white">{order.companyName}</strong> and that the information provided is accurate.</>
+              : <>I confirm that I am the <strong className="text-white">owner or authorised representative</strong> of <strong className="text-white">{order.companyName}</strong> and that the information provided is accurate.</>
+            }
           </span>
         </label>
       )}
@@ -1681,6 +1739,7 @@ function Step7({ order }: { order: OrderState }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 const defaultOrder: OrderState = {
+  businessType: 'ltd',
   companyName: '', companyNumber: '', companyReference: '', registeredAddress: undefined,
   incorporatedDate: '', companyStatus: '', contactName: '', contactEmail: '', contactPhone: '',
   siteAddressLine1: '', siteAddressLine2: '', siteCity: '', sitePostcode: '', selectedProducts: [], requiresCallback: false, quoteReference: '',
