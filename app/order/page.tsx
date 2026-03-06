@@ -161,6 +161,197 @@ function JourneySelector({ onSelect }: { onSelect: (j: Journey) => void }) {
 
 // ─── Callback Form (for journeys not yet fully built) ─────────────────────────
 
+// ─── VoIP Builder ────────────────────────────────────────────────────────────
+
+const VOIP_HARDWARE = [
+  { id: 'none',    label: 'App / Softphone only', price: 0,    note: 'Desktop & mobile app' },
+  { id: 't54w',    label: 'Yealink T54W',          price: 4.99, note: 'Mid-range desk phone' },
+  { id: 't57w',    label: 'Yealink T57W',          price: 7.99, note: 'Premium desk phone' },
+  { id: 'w76p',    label: 'Yealink W76P',          price: 4.99, note: 'DECT wireless handset' },
+]
+
+const VOIP_SEAT_PRICE    = 7.99
+const VOIP_ANALYTICS     = 2.99
+const VOIP_INSTALL_PRICE = 149 // one-off per installation
+
+function VoIPBuilder({ onBack, onComplete }: {
+  onBack: () => void
+  onComplete: (products: Product[], term: number) => void
+}) {
+  const [seats, setSeats]           = useState(5)
+  const [hardware, setHardware]     = useState('none')
+  const [analytics, setAnalytics]   = useState(false)
+  const [install, setInstall]       = useState(false)
+  const [term, setTerm]             = useState(36)
+
+  const hw = VOIP_HARDWARE.find(h => h.id === hardware)!
+  const monthlyPerSeat = VOIP_SEAT_PRICE + hw.price + (analytics ? VOIP_ANALYTICS : 0)
+  const monthlyTotal   = monthlyPerSeat * seats
+  const upfront12      = monthlyTotal * 12 + (install ? VOIP_INSTALL_PRICE : 0)
+  const needsPoE       = hardware !== 'none'
+
+  function handleContinue() {
+    const products: Product[] = [
+      {
+        type: 'voip',
+        name: `VoIP Seat${analytics ? ' + Analytics' : ''}${hardware !== 'none' ? ` + ${hw.label}` : ''}`,
+        monthlyCost: monthlyPerSeat,
+        setupFee: 0,
+        available: true,
+        downloadMbps: 0,
+        uploadMbps: 0,
+        quantity: seats,
+        monthlyTotal,
+      } as unknown as Product,
+    ]
+    if (install) {
+      products.push({
+        type: 'voip',
+        name: 'Professional Installation (one-off)',
+        monthlyCost: 0,
+        setupFee: VOIP_INSTALL_PRICE,
+        available: true,
+        downloadMbps: 0,
+        uploadMbps: 0,
+        quantity: 1,
+        monthlyTotal: 0,
+      } as unknown as Product)
+    }
+    onComplete(products, term)
+  }
+
+  return (
+    <div>
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold text-white/70 hover:text-white transition-colors mb-6 px-3 py-2 rounded-lg"
+        style={{ border: '1px solid hsl(252,50%,32%)', background: 'hsl(252,60%,16%)' }}>
+        ← Back
+      </button>
+
+      <h2 className="text-2xl font-bold text-white mb-1">Build Your VoIP System</h2>
+      <p className="text-white/45 text-sm mb-6">Customise your package — pricing updates as you go.</p>
+
+      {/* Seats */}
+      <div className="rounded-xl p-4 mb-3" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-white font-semibold text-sm">Number of seats</p>
+            <p className="text-white/40 text-xs">£{VOIP_SEAT_PRICE}/seat/mo — app + unlimited UK calls</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSeats(s => Math.max(1, s - 1))}
+              className="w-8 h-8 rounded-full font-bold text-white flex items-center justify-center"
+              style={{ background: 'hsl(252,60%,24%)', border: '1px solid hsl(252,50%,35%)' }}>−</button>
+            <span className="text-white font-bold text-lg w-6 text-center">{seats}</span>
+            <button onClick={() => setSeats(s => Math.min(100, s + 1))}
+              className="w-8 h-8 rounded-full font-bold text-white flex items-center justify-center"
+              style={{ background: 'hsl(252,60%,24%)', border: '1px solid hsl(252,50%,35%)' }}>+</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Hardware */}
+      <div className="rounded-xl p-4 mb-3" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
+        <p className="text-white font-semibold text-sm mb-3">Hardware per seat</p>
+        <div className="grid grid-cols-2 gap-2">
+          {VOIP_HARDWARE.map(h => (
+            <button key={h.id} onClick={() => setHardware(h.id)}
+              className="text-left p-3 rounded-lg transition-all"
+              style={hardware === h.id
+                ? { border: '1.5px solid #591bff', background: 'rgba(89,27,255,0.15)' }
+                : { border: '1px solid hsl(252,50%,32%)', background: 'transparent' }}>
+              <p className="text-white text-xs font-semibold">{h.label}</p>
+              <p className="text-white/40 text-[10px]">{h.price > 0 ? `+£${h.price.toFixed(2)}/seat/mo` : 'Included'}</p>
+              <p className="text-white/30 text-[10px]">{h.note}</p>
+            </button>
+          ))}
+        </div>
+        {needsPoE && (
+          <div className="mt-3 rounded-lg px-3 py-2 flex items-start gap-2" style={{ background: 'rgba(123,231,255,0.07)', border: '1px solid rgba(123,231,255,0.2)' }}>
+            <span className="text-[#7be7ff] text-xs">ℹ</span>
+            <p className="text-[#7be7ff] text-xs">Hardware phones require a PoE switch. Ask us to include one in your quote.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Analytics add-on */}
+      <label className="rounded-xl p-4 mb-3 flex items-center justify-between cursor-pointer"
+        style={{ background: 'hsl(252,60%,16%)', border: `1px solid ${analytics ? '#591bff' : 'hsl(252,50%,28%)'}` }}>
+        <div>
+          <p className="text-white font-semibold text-sm">Call Analytics</p>
+          <p className="text-white/40 text-xs">Call recording, reporting & hunt groups — +£{VOIP_ANALYTICS.toFixed(2)}/seat/mo</p>
+        </div>
+        <input type="checkbox" checked={analytics} onChange={e => setAnalytics(e.target.checked)}
+          className="w-4 h-4 accent-[#591bff]" />
+      </label>
+
+      {/* Professional install */}
+      <label className="rounded-xl p-4 mb-4 flex items-center justify-between cursor-pointer"
+        style={{ background: 'hsl(252,60%,16%)', border: `1px solid ${install ? '#591bff' : 'hsl(252,50%,28%)'}` }}>
+        <div>
+          <p className="text-white font-semibold text-sm">Professional Installation</p>
+          <p className="text-white/40 text-xs">Engineer on-site setup & testing — £{VOIP_INSTALL_PRICE} one-off</p>
+        </div>
+        <input type="checkbox" checked={install} onChange={e => setInstall(e.target.checked)}
+          className="w-4 h-4 accent-[#591bff]" />
+      </label>
+
+      {/* Contract term */}
+      <div className="rounded-xl p-4 mb-5" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
+        <p className="text-white font-semibold text-sm mb-3">Contract length</p>
+        <div className="grid grid-cols-2 gap-2">
+          {[{ val: 36, label: '36 months', sub: 'Best value' }, { val: 12, label: '12 months', sub: 'Billed upfront' }].map(t => (
+            <button key={t.val} onClick={() => setTerm(t.val)}
+              className="p-3 rounded-lg text-left transition-all"
+              style={term === t.val
+                ? { border: '1.5px solid #591bff', background: 'rgba(89,27,255,0.15)' }
+                : { border: '1px solid hsl(252,50%,32%)', background: 'transparent' }}>
+              <p className="text-white text-xs font-semibold">{t.label}</p>
+              <p className="text-white/40 text-[10px]">{t.sub}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ITC internet notice */}
+      <div className="rounded-lg px-3 py-2.5 mb-5 flex items-start gap-2" style={{ background: 'rgba(249,69,128,0.07)', border: '1px solid rgba(249,69,128,0.25)' }}>
+        <span className="text-[#f94580] text-xs mt-0.5">★</span>
+        <p className="text-white/60 text-xs">VoIP works on any broadband but performs best on ITC's managed fibre — guaranteed QoS, no dropped calls.</p>
+      </div>
+
+      {/* Price summary */}
+      <div className="rounded-xl p-4 mb-5" style={{ background: 'rgba(89,27,255,0.12)', border: '1px solid rgba(89,27,255,0.4)' }}>
+        <div className="flex justify-between text-sm mb-1">
+          <span className="text-white/60">{seats} seat{seats > 1 ? 's' : ''} × £{monthlyPerSeat.toFixed(2)}/mo</span>
+          <span className="text-white font-semibold">£{monthlyTotal.toFixed(2)}/mo</span>
+        </div>
+        {install && (
+          <div className="flex justify-between text-sm mb-1">
+            <span className="text-white/60">Installation (one-off)</span>
+            <span className="text-white font-semibold">£{VOIP_INSTALL_PRICE}</span>
+          </div>
+        )}
+        {term === 12 && (
+          <div className="flex justify-between text-sm pt-2 mt-1" style={{ borderTop: '1px solid rgba(89,27,255,0.3)' }}>
+            <span className="text-white/80 font-semibold">12-month total (upfront)</span>
+            <span className="text-white font-bold">£{upfront12.toFixed(2)}</span>
+          </div>
+        )}
+        {term === 36 && (
+          <div className="flex justify-between text-sm pt-2 mt-1" style={{ borderTop: '1px solid rgba(89,27,255,0.3)' }}>
+            <span className="text-white/80 font-semibold">Monthly total</span>
+            <span className="text-white font-bold">£{monthlyTotal.toFixed(2)}/mo</span>
+          </div>
+        )}
+        <p className="text-white/35 text-[10px] mt-2">All prices ex. VAT · {term}-month contract</p>
+      </div>
+
+      <button onClick={handleContinue} className="itc-gradient-btn w-full py-3.5 rounded-xl font-semibold text-white text-base">
+        Continue →
+      </button>
+    </div>
+  )
+}
+
 function CallbackForm({ journey, onBack }: { journey: Journey; onBack: () => void }) {
   const labels: Record<Journey, { title: string; desc: string }> = {
     voip:     { title: 'VoIP Phone System', desc: 'Tell us about your setup and we\'ll build a quote for you.' },
@@ -1787,7 +1978,8 @@ export default function OrderPage() {
         <div className="text-center mb-8">
           {step === -2 && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>How can we help?</h1>}
           {step === -1 && journey === 'internet' && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Availability Checker</h1>}
-          {step === -1 && journey !== 'internet' && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Book a Callback</h1>}
+          {step === -1 && journey === 'voip' && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>VoIP Phone System</h1>}
+          {step === -1 && journey && journey !== 'internet' && journey !== 'voip' && <h1 className="text-2xl font-black text-white mt-2" style={{ fontFamily: "'Visby CF', 'Poppins', sans-serif" }}>Book a Callback</h1>}
           {step >= 0 && <h1 className="text-lg font-semibold text-white">Get Connected</h1>}
         </div>
 
@@ -1798,8 +1990,21 @@ export default function OrderPage() {
           </div>
         )}
 
-        {/* Non-internet callback form */}
-        {step === -1 && journey && journey !== 'internet' && (
+        {/* VoIP builder */}
+        {step === -1 && journey === 'voip' && (
+          <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
+            <VoIPBuilder
+              onBack={() => setStep(-2)}
+              onComplete={(products, voipTerm) => {
+                setOrder({ selectedProducts: products.map(p => ({ ...p, quantity: (p as unknown as {quantity?: number}).quantity ?? 1, unitMonthly: (p as unknown as {monthlyCost?: number}).monthlyCost ?? 0, monthlyTotal: (p as unknown as {monthlyTotal?: number}).monthlyTotal ?? 0 })), leaseLine: { bandwidth: 0, term: voipTerm, monthlyPrice: 0, setupFee: 0 } })
+                next()
+              }}
+            />
+          </div>
+        )}
+
+        {/* Non-internet callback form (mobile + pstn) */}
+        {step === -1 && journey && journey !== 'internet' && journey !== 'voip' && (
           <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
             <CallbackForm journey={journey} onBack={() => setStep(-2)} />
           </div>
