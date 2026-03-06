@@ -164,31 +164,61 @@ function JourneySelector({ onSelect }: { onSelect: (j: Journey) => void }) {
 // ─── VoIP Builder ────────────────────────────────────────────────────────────
 
 const VOIP_HARDWARE = [
-  { id: 'none',    label: 'App / Softphone only', price: 0,    note: 'Desktop & mobile app' },
-  { id: 't54w',    label: 'Yealink T54W',          price: 4.99, note: 'Mid-range desk phone' },
-  { id: 't57w',    label: 'Yealink T57W',          price: 7.99, note: 'Premium desk phone' },
-  { id: 'w76p',    label: 'Yealink W76P',          price: 4.99, note: 'DECT wireless handset' },
+  { id: 'none', label: 'App / Softphone only', price: 0,    note: 'Desktop & mobile app' },
+  { id: 't54w', label: 'Yealink T54W',          price: 4.99, note: 'Mid-range desk phone' },
+  { id: 't57w', label: 'Yealink T57W',          price: 7.99, note: 'Premium desk phone' },
+  { id: 'w76p', label: 'Yealink W76P',          price: 4.99, note: 'DECT wireless handset' },
 ]
+
+// Power / switching options — all gigabit capable, one-off cost
+const POE_OPTIONS = [
+  { id: 'none',   label: 'No switch needed',          price: 0,   note: 'App only — no hardware' },
+  { id: 'psu',    label: 'Power Supply (1 phone)',     price: 15,  note: 'Single desk phone power' },
+  { id: 'poe4',   label: '4-port Gigabit PoE',         price: 50,  note: 'Up to 4 phones' },
+  { id: 'poe8',   label: '8-port Gigabit PoE',         price: 100, note: 'Up to 8 phones' },
+  { id: 'poe24',  label: '24-port Gigabit PoE',        price: 295, note: 'Up to 24 phones' },
+]
+
+function suggestPoE(seats: number): string {
+  if (seats === 1) return 'psu'
+  if (seats <= 4)  return 'poe4'
+  if (seats <= 8)  return 'poe8'
+  return 'poe24'
+}
 
 const VOIP_SEAT_PRICE    = 7.99
 const VOIP_ANALYTICS     = 2.99
-const VOIP_INSTALL_PRICE = 149 // one-off per installation
+const VOIP_INSTALL_PRICE = 195 // professional on-site install, one-off
 
 function VoIPBuilder({ onBack, onComplete }: {
   onBack: () => void
   onComplete: (products: Product[], term: number) => void
 }) {
-  const [seats, setSeats]           = useState(5)
-  const [hardware, setHardware]     = useState('none')
-  const [analytics, setAnalytics]   = useState(false)
-  const [install, setInstall]       = useState(false)
-  const [term, setTerm]             = useState(36)
+  const [seats, setSeats]         = useState(5)
+  const [hardware, setHardware]   = useState('none')
+  const [poe, setPoe]             = useState('none')
+  const [analytics, setAnalytics] = useState(false)
+  const [install, setInstall]     = useState(false)
+  const [term, setTerm]           = useState(36)
 
-  const hw = VOIP_HARDWARE.find(h => h.id === hardware)!
-  const monthlyPerSeat = VOIP_SEAT_PRICE + hw.price + (analytics ? VOIP_ANALYTICS : 0)
-  const monthlyTotal   = monthlyPerSeat * seats
-  const upfront12      = monthlyTotal * 12 + (install ? VOIP_INSTALL_PRICE : 0)
-  const needsPoE       = hardware !== 'none'
+  // Auto-suggest PoE when hardware changes
+  function handleHardwareChange(id: string) {
+    setHardware(id)
+    setPoe(id === 'none' ? 'none' : suggestPoE(seats))
+  }
+
+  // Re-suggest PoE when seat count changes (only if hardware already selected)
+  function handleSeatsChange(n: number) {
+    setSeats(n)
+    if (hardware !== 'none') setPoe(suggestPoE(n))
+  }
+
+  const hw              = VOIP_HARDWARE.find(h => h.id === hardware)!
+  const poeOption       = POE_OPTIONS.find(p => p.id === poe)!
+  const monthlyPerSeat  = VOIP_SEAT_PRICE + hw.price + (analytics ? VOIP_ANALYTICS : 0)
+  const monthlyTotal    = monthlyPerSeat * seats
+  const oneOffTotal     = poeOption.price + (install ? VOIP_INSTALL_PRICE : 0)
+  const upfront12       = monthlyTotal * 12 + oneOffTotal
 
   function handleContinue() {
     const products: Product[] = [
@@ -204,6 +234,19 @@ function VoIPBuilder({ onBack, onComplete }: {
         monthlyTotal,
       } as unknown as Product,
     ]
+    if (poeOption.price > 0) {
+      products.push({
+        type: 'voip',
+        name: `${poeOption.label} (one-off)`,
+        monthlyCost: 0,
+        setupFee: poeOption.price,
+        available: true,
+        downloadMbps: 0,
+        uploadMbps: 0,
+        quantity: 1,
+        monthlyTotal: 0,
+      } as unknown as Product)
+    }
     if (install) {
       products.push({
         type: 'voip',
@@ -238,11 +281,11 @@ function VoIPBuilder({ onBack, onComplete }: {
             <p className="text-white/40 text-xs">£{VOIP_SEAT_PRICE}/seat/mo — app + unlimited UK calls</p>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => setSeats(s => Math.max(1, s - 1))}
+            <button onClick={() => handleSeatsChange(Math.max(1, seats - 1))}
               className="w-8 h-8 rounded-full font-bold text-white flex items-center justify-center"
               style={{ background: 'hsl(252,60%,24%)', border: '1px solid hsl(252,50%,35%)' }}>−</button>
             <span className="text-white font-bold text-lg w-6 text-center">{seats}</span>
-            <button onClick={() => setSeats(s => Math.min(100, s + 1))}
+            <button onClick={() => handleSeatsChange(Math.min(100, seats + 1))}
               className="w-8 h-8 rounded-full font-bold text-white flex items-center justify-center"
               style={{ background: 'hsl(252,60%,24%)', border: '1px solid hsl(252,50%,35%)' }}>+</button>
           </div>
@@ -254,7 +297,7 @@ function VoIPBuilder({ onBack, onComplete }: {
         <p className="text-white font-semibold text-sm mb-3">Hardware per seat</p>
         <div className="grid grid-cols-2 gap-2">
           {VOIP_HARDWARE.map(h => (
-            <button key={h.id} onClick={() => setHardware(h.id)}
+            <button key={h.id} onClick={() => handleHardwareChange(h.id)}
               className="text-left p-3 rounded-lg transition-all"
               style={hardware === h.id
                 ? { border: '1.5px solid #591bff', background: 'rgba(89,27,255,0.15)' }
@@ -265,13 +308,31 @@ function VoIPBuilder({ onBack, onComplete }: {
             </button>
           ))}
         </div>
-        {needsPoE && (
-          <div className="mt-3 rounded-lg px-3 py-2 flex items-start gap-2" style={{ background: 'rgba(123,231,255,0.07)', border: '1px solid rgba(123,231,255,0.2)' }}>
-            <span className="text-[#7be7ff] text-xs">ℹ</span>
-            <p className="text-[#7be7ff] text-xs">Hardware phones require a PoE switch. Ask us to include one in your quote.</p>
-          </div>
-        )}
       </div>
+
+      {/* PoE / Power switch — only shown when hardware selected */}
+      {hardware !== 'none' && (
+        <div className="rounded-xl p-4 mb-3" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-white font-semibold text-sm">Power / Switching</p>
+            <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(123,231,255,0.1)', color: '#7be7ff', border: '1px solid rgba(123,231,255,0.25)' }}>All Gigabit</span>
+          </div>
+          <p className="text-white/40 text-xs mb-3">One-off hardware cost — auto-suggested for your seat count</p>
+          <div className="grid grid-cols-2 gap-2">
+            {POE_OPTIONS.filter(p => p.id !== 'none').map(p => (
+              <button key={p.id} onClick={() => setPoe(p.id)}
+                className="text-left p-3 rounded-lg transition-all"
+                style={poe === p.id
+                  ? { border: '1.5px solid #591bff', background: 'rgba(89,27,255,0.15)' }
+                  : { border: '1px solid hsl(252,50%,32%)', background: 'transparent' }}>
+                <p className="text-white text-xs font-semibold">{p.label}</p>
+                <p className="text-white/40 text-[10px]">£{p.price} one-off</p>
+                <p className="text-white/30 text-[10px]">{p.note}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Analytics add-on */}
       <label className="rounded-xl p-4 mb-3 flex items-center justify-between cursor-pointer"
@@ -284,16 +345,29 @@ function VoIPBuilder({ onBack, onComplete }: {
           className="w-4 h-4 accent-[#591bff]" />
       </label>
 
-      {/* Professional install */}
-      <label className="rounded-xl p-4 mb-4 flex items-center justify-between cursor-pointer"
-        style={{ background: 'hsl(252,60%,16%)', border: `1px solid ${install ? '#591bff' : 'hsl(252,50%,28%)'}` }}>
-        <div>
-          <p className="text-white font-semibold text-sm">Professional Installation</p>
-          <p className="text-white/40 text-xs">Engineer on-site setup & testing — £{VOIP_INSTALL_PRICE} one-off</p>
+      {/* Installation */}
+      <div className="rounded-xl p-4 mb-4" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
+        <p className="text-white font-semibold text-sm mb-3">Installation</p>
+        <div className="grid grid-cols-2 gap-2">
+          <button onClick={() => setInstall(false)}
+            className="text-left p-3 rounded-lg transition-all"
+            style={!install
+              ? { border: '1.5px solid #591bff', background: 'rgba(89,27,255,0.15)' }
+              : { border: '1px solid hsl(252,50%,32%)', background: 'transparent' }}>
+            <p className="text-white text-xs font-semibold">Self Install</p>
+            <p className="text-white/40 text-[10px]">Free of charge</p>
+          </button>
+          <button onClick={() => setInstall(true)}
+            className="text-left p-3 rounded-lg transition-all"
+            style={install
+              ? { border: '1.5px solid #591bff', background: 'rgba(89,27,255,0.15)' }
+              : { border: '1px solid hsl(252,50%,32%)', background: 'transparent' }}>
+            <p className="text-white text-xs font-semibold">Professional Install</p>
+            <p className="text-white/40 text-[10px]">£{VOIP_INSTALL_PRICE} one-off</p>
+            <p className="text-white/30 text-[10px]">Engineer on-site setup</p>
+          </button>
         </div>
-        <input type="checkbox" checked={install} onChange={e => setInstall(e.target.checked)}
-          className="w-4 h-4 accent-[#591bff]" />
-      </label>
+      </div>
 
       {/* Contract term */}
       <div className="rounded-xl p-4 mb-5" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
@@ -324,19 +398,30 @@ function VoIPBuilder({ onBack, onComplete }: {
           <span className="text-white/60">{seats} seat{seats > 1 ? 's' : ''} × £{monthlyPerSeat.toFixed(2)}/mo</span>
           <span className="text-white font-semibold">£{monthlyTotal.toFixed(2)}/mo</span>
         </div>
+        {poeOption.price > 0 && (
+          <div className="flex justify-between text-sm mb-1">
+            <span className="text-white/60">{poeOption.label}</span>
+            <span className="text-white font-semibold">£{poeOption.price}</span>
+          </div>
+        )}
         {install && (
           <div className="flex justify-between text-sm mb-1">
-            <span className="text-white/60">Installation (one-off)</span>
+            <span className="text-white/60">Professional Installation</span>
             <span className="text-white font-semibold">£{VOIP_INSTALL_PRICE}</span>
           </div>
         )}
-        {term === 12 && (
+        {oneOffTotal > 0 && (
+          <div className="flex justify-between text-xs mb-1 pt-1" style={{ borderTop: '1px solid rgba(89,27,255,0.2)' }}>
+            <span className="text-white/50">One-off total</span>
+            <span className="text-white/70">£{oneOffTotal}</span>
+          </div>
+        )}
+        {term === 12 ? (
           <div className="flex justify-between text-sm pt-2 mt-1" style={{ borderTop: '1px solid rgba(89,27,255,0.3)' }}>
             <span className="text-white/80 font-semibold">12-month total (upfront)</span>
             <span className="text-white font-bold">£{upfront12.toFixed(2)}</span>
           </div>
-        )}
-        {term === 36 && (
+        ) : (
           <div className="flex justify-between text-sm pt-2 mt-1" style={{ borderTop: '1px solid rgba(89,27,255,0.3)' }}>
             <span className="text-white/80 font-semibold">Monthly total</span>
             <span className="text-white font-bold">£{monthlyTotal.toFixed(2)}/mo</span>
