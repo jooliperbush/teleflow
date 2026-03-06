@@ -217,7 +217,7 @@ export async function checkAvailability(
   const body: Record<string, string> = {}
   if (uprn) body.uprn = uprn
   if (goldAddressKey) body.goldAddressKey = goldAddressKey
-  if (cli) body.cli = cli
+  if (cli) body.phoneNumber = cli   // Zen API uses phoneNumber, not cli
 
   const data = await zenPost<RawAvailabilityResponse>(
     '/api/availability/check',

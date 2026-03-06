@@ -740,7 +740,13 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
       const res = await fetch(`/api/zen/cli-lookup?cli=${encodeURIComponent(cli)}`)
       const data = await res.json()
       if (data.error) throw new Error(data.error)
-      setResult(data)
+      if (!data.found) {
+        // Number not in Zen system — fall through to callback
+        setLookupFailed(true)
+        setCbPhone(phone)
+      } else {
+        setResult(data)
+      }
     } catch {
       setLookupFailed(true)
       setCbPhone(phone) // pre-fill their number in the callback form
