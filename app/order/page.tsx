@@ -285,8 +285,13 @@ function VoIPBuilder({ onBack, onComplete }: {
         ← Back
       </button>
 
-      <h2 className="text-2xl font-bold text-white mb-1">Build Your VoIP System</h2>
-      <p className="text-white/45 text-sm mb-6">Customise your package — pricing updates as you go.</p>
+      <div className="flex items-center gap-4 mb-6">
+        <img src="/itc-logo-mark.png" alt="ITC" className="w-14 h-14 rounded-xl object-contain flex-shrink-0" />
+        <div>
+          <h2 className="text-2xl font-bold text-white leading-tight">Build Your VoIP System</h2>
+          <p className="text-white/45 text-sm mt-0.5">Customise your package — pricing updates as you go.</p>
+        </div>
+      </div>
 
       {/* Seats */}
       <div className="rounded-xl p-4 mb-3" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
@@ -537,8 +542,13 @@ function MobileBuilder({ onBack, onComplete }: {
         ← Back
       </button>
 
-      <h2 className="text-2xl font-bold text-white mb-1">Mobile SIMs</h2>
-      <p className="text-white/45 text-sm mb-6">How many SIMs do you need?</p>
+      <div className="flex items-center gap-4 mb-6">
+        <img src="/itc-logo-mark.png" alt="ITC" className="w-14 h-14 rounded-xl object-contain flex-shrink-0" />
+        <div>
+          <h2 className="text-2xl font-bold text-white leading-tight">Mobile SIMs</h2>
+          <p className="text-white/45 text-sm mt-0.5">How many SIMs do you need?</p>
+        </div>
+      </div>
 
       {/* SIM count */}
       <div className="rounded-xl p-4 mb-3" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
@@ -737,8 +747,13 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
         ← Back
       </button>
 
-      <h2 className="text-2xl font-bold text-white mb-1">PSTN Migration</h2>
-      <p className="text-white/45 text-sm mb-6">The UK analogue phone network switches off in 2027. Enter your current landline number and we'll show you the best migration path.</p>
+      <div className="flex items-center gap-4 mb-6">
+        <img src="/itc-logo-mark.png" alt="ITC" className="w-14 h-14 rounded-xl object-contain flex-shrink-0" />
+        <div>
+          <h2 className="text-2xl font-bold text-white leading-tight">Landline Migration</h2>
+          <p className="text-white/45 text-sm mt-0.5">Enter your number — we'll show your migration path.</p>
+        </div>
+      </div>
 
       {/* Deadline banner */}
       <div className="rounded-lg px-3 py-2.5 mb-5 flex items-start gap-2" style={{ background: 'rgba(249,69,128,0.07)', border: '1px solid rgba(249,69,128,0.3)' }}>
