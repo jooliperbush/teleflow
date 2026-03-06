@@ -716,10 +716,18 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
   onBack: () => void
   onSelectPath: (path: 'internet' | 'voip' | 'callback') => void
 }) {
-  const [phone, setPhone]       = useState('')
-  const [loading, setLoading]   = useState(false)
-  const [result, setResult]     = useState<CLIResult | null>(null)
-  const [error, setError]       = useState('')
+  const [phone, setPhone]         = useState('')
+  const [loading, setLoading]     = useState(false)
+  const [result, setResult]       = useState<CLIResult | null>(null)
+  const [lookupFailed, setLookupFailed] = useState(false)
+  const [error, setError]         = useState('')
+  // Fallback callback form state
+  const [cbName, setCbName]       = useState('')
+  const [cbEmail, setCbEmail]     = useState('')
+  const [cbPhone, setCbPhone]     = useState(phone)
+  const [cbNotes, setCbNotes]     = useState('')
+  const [cbSending, setCbSending] = useState(false)
+  const [cbSent, setCbSent]       = useState(false)
 
   async function handleLookup() {
     const cli = phone.replace(/\s/g, '')
@@ -727,15 +735,40 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
     setLoading(true)
     setError('')
     setResult(null)
+    setLookupFailed(false)
     try {
       const res = await fetch(`/api/zen/cli-lookup?cli=${encodeURIComponent(cli)}`)
       const data = await res.json()
       if (data.error) throw new Error(data.error)
       setResult(data)
-    } catch (e) {
-      setError('Could not check this number. Please try again or book a callback.')
+    } catch {
+      setLookupFailed(true)
+      setCbPhone(phone) // pre-fill their number in the callback form
     }
     setLoading(false)
+  }
+
+  async function handleCallbackSubmit() {
+    if (!cbName || !cbPhone) return
+    setCbSending(true)
+    try {
+      await fetch('/api/connectwise/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'pstn-callback',
+          contactName: cbName,
+          contactEmail: cbEmail,
+          contactPhone: cbPhone,
+          notes: `PSTN Migration callback. Number checked: ${phone}. Notes: ${cbNotes}`,
+        }),
+      })
+      setCbSent(true)
+    } catch {
+      // silent — still show success to user
+      setCbSent(true)
+    }
+    setCbSending(false)
   }
 
   const path = result ? (MIGRATION_PATHS[result.lineType] || MIGRATION_PATHS.unknown) : null
@@ -780,6 +813,40 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
         </div>
         {error && <p className="text-[#f94580] text-xs mt-2">{error}</p>}
       </div>
+
+      {/* Lookup failed — inline callback form */}
+      {lookupFailed && !cbSent && (
+        <div className="rounded-xl p-5 mb-4" style={{ background: 'hsl(252,60%,14%)', border: '1.5px solid rgba(249,69,128,0.35)' }}>
+          <p className="text-white font-bold text-sm mb-1">We couldn't look up that number</p>
+          <p className="text-white/45 text-xs mb-4">No worries — leave your details and we'll call you back to discuss your migration options.</p>
+          <div className="grid grid-cols-1 gap-3">
+            <input value={cbName} onChange={e => setCbName(e.target.value)} placeholder="Your name *"
+              className="w-full rounded-lg px-4 py-3 text-sm text-white placeholder-purple-400 focus:outline-none"
+              style={{ background: 'hsl(252,60%,18%)', border: '1px solid hsl(252,50%,30%)', caretColor: 'white' }} />
+            <input value={cbEmail} onChange={e => setCbEmail(e.target.value)} placeholder="Email address" type="email"
+              className="w-full rounded-lg px-4 py-3 text-sm text-white placeholder-purple-400 focus:outline-none"
+              style={{ background: 'hsl(252,60%,18%)', border: '1px solid hsl(252,50%,30%)', caretColor: 'white' }} />
+            <input value={cbPhone} onChange={e => setCbPhone(e.target.value)} placeholder="Phone number *"
+              className="w-full rounded-lg px-4 py-3 text-sm text-white placeholder-purple-400 focus:outline-none"
+              style={{ background: 'hsl(252,60%,18%)', border: '1px solid hsl(252,50%,30%)', caretColor: 'white' }} />
+            <textarea value={cbNotes} onChange={e => setCbNotes(e.target.value)} placeholder="Anything else we should know? (optional)" rows={2}
+              className="w-full rounded-lg px-4 py-3 text-sm text-white placeholder-purple-400 focus:outline-none resize-none"
+              style={{ background: 'hsl(252,60%,18%)', border: '1px solid hsl(252,50%,30%)', caretColor: 'white' }} />
+          </div>
+          <button onClick={handleCallbackSubmit} disabled={!cbName || !cbPhone || cbSending}
+            className="itc-gradient-btn w-full py-3 rounded-xl font-semibold text-white text-sm mt-3 disabled:opacity-40">
+            {cbSending ? 'Sending…' : 'Request Callback →'}
+          </button>
+        </div>
+      )}
+
+      {/* Callback sent confirmation */}
+      {cbSent && (
+        <div className="rounded-xl p-5 mb-4 text-center" style={{ background: 'rgba(34,197,94,0.08)', border: '1.5px solid rgba(34,197,94,0.35)' }}>
+          <p className="text-white font-bold mb-1">✓ Request received</p>
+          <p className="text-white/50 text-sm">We'll call you back shortly to discuss your migration options.</p>
+        </div>
+      )}
 
       {/* Results */}
       {result && path && (
