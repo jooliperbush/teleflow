@@ -5,7 +5,7 @@ const WHATSAPP_NUMBER = '447367297484';
 export default function WhatsAppButton() {
   return (
     <a
-      href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi, I'd like to find out more about ITC Telecoms broadband services.")}`}
+      href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi, I'd like to find out more about ITC Telecoms services.")}`}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"
