@@ -188,6 +188,7 @@ function suggestPoE(seats: number): string {
 
 const VOIP_SEAT_PRICE    = 7.99
 const VOIP_ANALYTICS     = 2.99
+const VOIP_SIM_PRICE     = 20 // unlimited SIM, per month
 const VOIP_INSTALL_PRICE = 195 // professional on-site install, one-off
 
 function VoIPBuilder({ onBack, onComplete }: {
@@ -198,6 +199,7 @@ function VoIPBuilder({ onBack, onComplete }: {
   const [hardware, setHardware]   = useState('none')
   const [poe, setPoe]             = useState('none')
   const [analytics, setAnalytics] = useState(false)
+  const [sims, setSims]           = useState(0)
   const [install, setInstall]     = useState(false)
   const [term, setTerm]           = useState(36)
 
@@ -216,7 +218,7 @@ function VoIPBuilder({ onBack, onComplete }: {
   const hw              = VOIP_HARDWARE.find(h => h.id === hardware)!
   const poeOption       = POE_OPTIONS.find(p => p.id === poe)!
   const monthlyPerSeat  = VOIP_SEAT_PRICE + hw.price + (analytics ? VOIP_ANALYTICS : 0)
-  const monthlyTotal    = monthlyPerSeat * seats
+  const monthlyTotal    = monthlyPerSeat * seats + sims * VOIP_SIM_PRICE
   const oneOffTotal     = poeOption.price + (install ? VOIP_INSTALL_PRICE : 0)
   const upfront12       = monthlyTotal * 12 + oneOffTotal
 
@@ -234,6 +236,19 @@ function VoIPBuilder({ onBack, onComplete }: {
         monthlyTotal,
       } as unknown as Product,
     ]
+    if (sims > 0) {
+      products.push({
+        type: 'voip',
+        name: 'Unlimited SIM',
+        monthlyCost: VOIP_SIM_PRICE,
+        setupFee: 0,
+        available: true,
+        downloadMbps: 0,
+        uploadMbps: 0,
+        quantity: sims,
+        monthlyTotal: sims * VOIP_SIM_PRICE,
+      } as unknown as Product)
+    }
     if (poeOption.price > 0) {
       products.push({
         type: 'voip',
@@ -345,6 +360,33 @@ function VoIPBuilder({ onBack, onComplete }: {
           className="w-4 h-4 accent-[#591bff]" />
       </label>
 
+      {/* SIM upsell */}
+      <div className="rounded-xl p-4 mb-3" style={{ background: 'hsl(252,60%,16%)', border: `1px solid ${sims > 0 ? '#591bff' : 'hsl(252,50%,28%)'}` }}>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <p className="text-white font-semibold text-sm">Mobile SIMs</p>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: 'rgba(249,69,128,0.15)', color: '#f94580', border: '1px solid rgba(249,69,128,0.3)' }}>Upsell</span>
+            </div>
+            <p className="text-white/40 text-xs">Unlimited calls & data — £{VOIP_SIM_PRICE}/SIM/mo</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSims(s => Math.max(0, s - 1))}
+              className="w-8 h-8 rounded-full font-bold text-white flex items-center justify-center"
+              style={{ background: 'hsl(252,60%,24%)', border: '1px solid hsl(252,50%,35%)' }}>−</button>
+            <span className="text-white font-bold text-lg w-6 text-center">{sims}</span>
+            <button onClick={() => setSims(s => Math.min(100, s + 1))}
+              className="w-8 h-8 rounded-full font-bold text-white flex items-center justify-center"
+              style={{ background: 'hsl(252,60%,24%)', border: '1px solid hsl(252,50%,35%)' }}>+</button>
+          </div>
+        </div>
+        {sims > 0 && (
+          <p className="text-white/40 text-xs mt-2">
+            {sims} SIM{sims > 1 ? 's' : ''} × £{VOIP_SIM_PRICE}/mo = <span className="text-white/70 font-semibold">£{(sims * VOIP_SIM_PRICE).toFixed(2)}/mo</span>
+          </p>
+        )}
+      </div>
+
       {/* Installation */}
       <div className="rounded-xl p-4 mb-4" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
         <p className="text-white font-semibold text-sm mb-3">Installation</p>
@@ -396,8 +438,14 @@ function VoIPBuilder({ onBack, onComplete }: {
       <div className="rounded-xl p-4 mb-5" style={{ background: 'rgba(89,27,255,0.12)', border: '1px solid rgba(89,27,255,0.4)' }}>
         <div className="flex justify-between text-sm mb-1">
           <span className="text-white/60">{seats} seat{seats > 1 ? 's' : ''} × £{monthlyPerSeat.toFixed(2)}/mo</span>
-          <span className="text-white font-semibold">£{monthlyTotal.toFixed(2)}/mo</span>
+          <span className="text-white font-semibold">£{(monthlyPerSeat * seats).toFixed(2)}/mo</span>
         </div>
+        {sims > 0 && (
+          <div className="flex justify-between text-sm mb-1">
+            <span className="text-white/60">{sims} SIM{sims > 1 ? 's' : ''} × £{VOIP_SIM_PRICE}/mo</span>
+            <span className="text-white font-semibold">£{(sims * VOIP_SIM_PRICE).toFixed(2)}/mo</span>
+          </div>
+        )}
         {poeOption.price > 0 && (
           <div className="flex justify-between text-sm mb-1">
             <span className="text-white/60">{poeOption.label}</span>
