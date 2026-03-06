@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 70" fill="none">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="g-internet" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#f9256a"/>
       <stop offset="100%" stop-color="#f9256a" stop-opacity="0.12"/>
     </linearGradient>
   </defs>
-  <path d="M4 28 Q40 3 76 28" stroke="url(#g)" stroke-width="6.5" stroke-linecap="round" fill="none"/>
-  <path d="M14 41 Q40 22 66 41" stroke="url(#g)" stroke-width="6.5" stroke-linecap="round" fill="none"/>
-  <path d="M26 54 Q40 43 54 54" stroke="url(#g)" stroke-width="6.5" stroke-linecap="round" fill="none"/>
+  <path d="M4 28 Q40 3 76 28" stroke="url(#g-internet)" stroke-width="6.5" stroke-linecap="round" fill="none"/>
+  <path d="M14 41 Q40 22 66 41" stroke="url(#g-internet)" stroke-width="6.5" stroke-linecap="round" fill="none"/>
+  <path d="M26 54 Q40 43 54 54" stroke="url(#g-internet)" stroke-width="6.5" stroke-linecap="round" fill="none"/>
   <circle cx="40" cy="65" r="4.5" fill="#f9256a"/>
 </svg>
