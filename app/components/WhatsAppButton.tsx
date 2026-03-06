@@ -1,6 +1,6 @@
 "use client";
 
-const WHATSAPP_NUMBER = 'PLACEHOLDER'; // replace with e.g. 447700000000
+const WHATSAPP_NUMBER = '447367297484';
 
 export default function WhatsAppButton() {
   return (
