@@ -457,14 +457,23 @@ function CallbackForm({ journey, onBack }: { journey: Journey; onBack: () => voi
 
 // ─── Step Indicator ──────────────────────────────────────────────────────────
 
-const STEPS = ['Address', 'Company', 'Products', 'Quote', 'Sign', 'Payment', 'Confirm']
+const STEPS         = ['Address', 'Company', 'Products', 'Quote', 'Sign', 'Payment', 'Confirm']
+const STEPS_VOIP    = ['Contact', 'Company', 'Quote', 'Sign', 'Payment', 'Confirm']
 
-function StepIndicator({ current }: { current: number }) {
+// Maps VoIP display index → real step index (skips step 2)
+const VOIP_STEP_MAP = [0, 1, 3, 4, 5, 6]
+
+function StepIndicator({ current, journey }: { current: number; journey: Journey | null }) {
+  const isVoIP  = journey === 'voip'
+  const steps   = isVoIP ? STEPS_VOIP : STEPS
+  // For VoIP, map real step to display index
+  const display = isVoIP ? VOIP_STEP_MAP.indexOf(current) : current
+
   return (
     <div className="flex items-center justify-center gap-0 mb-6 sm:mb-10 overflow-x-auto">
-      {STEPS.map((label, i) => {
-        const isActive = i === current
-        const isDone = i < current
+      {steps.map((label, i) => {
+        const isActive = i === display
+        const isDone   = i < display
         return (
           <div key={i} className="flex items-center">
             <div className="flex flex-col items-center">
@@ -482,8 +491,8 @@ function StepIndicator({ current }: { current: number }) {
                 {label}
               </span>
             </div>
-            {i < STEPS.length - 1 && (
-              <div className="w-10 sm:w-16 h-0.5 mx-1 mb-5" style={{ background: i < current ? "#f94580" : "hsl(252, 50%, 28%)" }} />
+            {i < steps.length - 1 && (
+              <div className="w-10 sm:w-16 h-0.5 mx-1 mb-5" style={{ background: i < display ? "#f94580" : "hsl(252, 50%, 28%)" }} />
             )}
           </div>
         )
@@ -1956,9 +1965,21 @@ export default function OrderPage() {
   }
 
   function next() {
-    setStep(s => Math.min(s + 1, 7))
+    setStep(s => {
+      const n = s + 1
+      // VoIP: skip step 2 (products selector — already configured in builder)
+      if (journey === 'voip' && n === 2) return 3
+      return Math.min(n, 7)
+    })
   }
-  function back() { setStep(s => Math.max(s - 1, -2)) }
+  function back() {
+    setStep(s => {
+      const n = s - 1
+      // VoIP: skip step 2 when going back from quote
+      if (journey === 'voip' && n === 2) return 1
+      return Math.max(n, -2)
+    })
+  }
 
   function selectJourney(j: Journey) {
     setJourney(j)
@@ -2020,7 +2041,7 @@ export default function OrderPage() {
         {/* Onboarding wizard — step bar + steps */}
         {step >= 0 && (
           <>
-            <StepIndicator current={step} />
+            <StepIndicator current={step} journey={journey} />
             <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
               {step === 0 && <Step1 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
               {step === 1 && <Step2 order={order} setOrder={setOrder} onNext={next} onBack={back} />}
