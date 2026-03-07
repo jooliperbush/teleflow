@@ -545,8 +545,8 @@ function MobileBuilder({ onBack, onComplete }: {
       <div className="flex items-center gap-4 mb-6">
         <img src="/itc-logo-mark.png" alt="ITC" className="w-14 h-14 rounded-xl object-contain flex-shrink-0" />
         <div>
-          <h2 className="text-2xl font-bold text-white leading-tight">Mobile SIMs</h2>
-          <p className="text-white/45 text-sm mt-0.5">How many SIMs do you need?</p>
+          <h2 className="text-2xl font-bold leading-tight" style={{ color: '#0f0a2e' }}>Mobile SIMs</h2>
+          <p className="text-sm mt-0.5" style={{ color: '#6b7280' }}>How many SIMs do you need?</p>
         </div>
       </div>
 
@@ -613,23 +613,23 @@ function MobileBuilder({ onBack, onComplete }: {
       </div>
 
       {/* Price summary */}
-      <div className="rounded-xl p-4 mb-5" style={{ background: 'rgba(89,27,255,0.12)', border: '1px solid rgba(89,27,255,0.4)' }}>
+      <div className="rounded-xl p-4 mb-5" style={{ background: '#f5f3ff', border: '1px solid #c4b5fd' }}>
         <div className="flex justify-between text-sm mb-1">
-          <span className="text-white/60">{sims} SIM{sims > 1 ? 's' : ''} × £{MOBILE_SIM_PRICE}/mo</span>
-          <span className="text-white font-semibold">£{monthlyTotal.toFixed(2)}/mo</span>
+          <span style={{ color: '#6b7280' }}>{sims} SIM{sims > 1 ? 's' : ''} × £{MOBILE_SIM_PRICE}/mo</span>
+          <span className="font-semibold" style={{ color: '#111827' }}>£{monthlyTotal.toFixed(2)}/mo</span>
         </div>
         {term === 12 ? (
-          <div className="flex justify-between text-sm pt-2 mt-1" style={{ borderTop: '1px solid rgba(89,27,255,0.3)' }}>
-            <span className="text-white/80 font-semibold">12-month total (upfront)</span>
-            <span className="text-white font-bold">£{upfront12.toFixed(2)}</span>
+          <div className="flex justify-between text-sm pt-2 mt-1" style={{ borderTop: '1px solid #c4b5fd' }}>
+            <span className="font-semibold" style={{ color: '#374151' }}>12-month total (upfront)</span>
+            <span className="font-bold" style={{ color: '#111827' }}>£{upfront12.toFixed(2)}</span>
           </div>
         ) : (
-          <div className="flex justify-between text-sm pt-2 mt-1" style={{ borderTop: '1px solid rgba(89,27,255,0.3)' }}>
-            <span className="text-white/80 font-semibold">Monthly total</span>
-            <span className="text-white font-bold">£{monthlyTotal.toFixed(2)}/mo</span>
+          <div className="flex justify-between text-sm pt-2 mt-1" style={{ borderTop: '1px solid #c4b5fd' }}>
+            <span className="font-semibold" style={{ color: '#374151' }}>Monthly total</span>
+            <span className="font-bold" style={{ color: '#111827' }}>£{monthlyTotal.toFixed(2)}/mo</span>
           </div>
         )}
-        <p className="text-white/35 text-[10px] mt-2">All prices ex. VAT · {term}-month contract</p>
+        <p className="text-[10px] mt-2" style={{ color: '#9ca3af' }}>All prices ex. VAT · {term}-month contract</p>
       </div>
 
       <button onClick={handleContinue} className="itc-gradient-btn w-full py-3.5 rounded-xl font-semibold text-white text-base">
@@ -2560,7 +2560,9 @@ export default function OrderPage() {
 
         {/* Mobile builder */}
         {step === -1 && journey === 'mobile' && (
-          <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
+          <div className="rounded-2xl p-6 sm:p-8 relative overflow-hidden" style={{ background: "white", border: "1px solid #e5e7eb", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+            <div className="absolute pointer-events-none" style={{ top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '9999px', background: 'rgba(249,69,128,0.08)', filter: 'blur(120px)', zIndex: 0 }} />
+            <div className="relative" style={{ zIndex: 1 }}>
             <MobileBuilder
               onBack={() => setStep(-2)}
               onComplete={(products, mobileTerm) => {
@@ -2568,6 +2570,7 @@ export default function OrderPage() {
                 next()
               }}
             />
+            </div>
           </div>
         )}
 
