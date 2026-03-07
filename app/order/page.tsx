@@ -2271,7 +2271,7 @@ function Step6({ order, setOrder, onNext, onBack }: {
   onNext: () => void
   onBack: () => void
 }) {
-  const [accountHolder, setAccountHolder] = useState(order.ddAccountHolder || order.contactName || '')
+  const [accountHolder, setAccountHolder] = useState(order.ddAccountHolder || order.companyName || order.contactName || '')
   const [sortCode, setSortCode] = useState(order.ddSortCode || '')
   const [accountNumber, setAccountNumber] = useState('')
   const [authorised, setAuthorised] = useState(false)
