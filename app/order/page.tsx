@@ -587,11 +587,11 @@ function MobileBuilder({ onBack, onComplete }: {
       </div>
 
       {/* ITC special deal banner */}
-      <div className="rounded-xl p-4 mb-4 flex items-start gap-3" style={{ background: 'linear-gradient(135deg, rgba(89,27,255,0.18) 0%, rgba(249,69,128,0.12) 100%)', border: '1.5px solid rgba(89,27,255,0.4)' }}>
+      <div className="rounded-xl p-4 mb-4 flex items-start gap-3" style={{ background: 'linear-gradient(135deg, rgba(89,27,255,0.10) 0%, rgba(249,69,128,0.08) 100%)', border: '1.5px solid rgba(89,27,255,0.25)' }}>
         <img src="/itc-logo-mark.png" alt="ITC" className="w-10 h-10 rounded-lg flex-shrink-0 object-contain" />
         <div>
-          <p className="text-white font-bold text-sm mb-0.5">ITC Unlimited Data Deal</p>
-          <p className="text-white/60 text-xs">Every SIM comes with unlimited calls, texts & data — no throttling, no fair use caps. Exclusive rates through ITC's network agreements.</p>
+          <p className="font-bold text-sm mb-0.5" style={{ color: '#111827' }}>ITC Unlimited Data Deal</p>
+          <p className="text-xs" style={{ color: '#4b5563' }}>Every SIM comes with unlimited calls, texts & data — no throttling, no fair use caps. Exclusive rates through ITC's network agreements.</p>
         </div>
       </div>
 
