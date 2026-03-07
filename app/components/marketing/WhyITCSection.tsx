@@ -55,8 +55,8 @@ export default function WhyITCSection() {
                 <div key={item.title} className="flex items-start gap-4">
                   <img src="/trophy-icon.svg" alt="" className="w-8 h-8 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold text-base mb-1 text-white">{item.title}</p>
-                    <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
+                    <p className="font-bold text-lg mb-1.5 text-white">{item.title}</p>
+                    <p className="text-base text-white/55 leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
               ))}
