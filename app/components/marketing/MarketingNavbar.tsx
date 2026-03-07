@@ -101,6 +101,12 @@ export default function MarketingNavbar() {
             transition={{ duration: 0.25, ease: "easeOut" }}
             className="fixed inset-0 z-40 pt-20 px-6 flex flex-col gap-1 md:hidden"
             style={{ background: "rgba(10,5,30,0.96)", backdropFilter: "blur(24px)" }}>
+            {/* Close button */}
+            <button onClick={() => setMobileOpen(false)}
+              className="absolute top-5 right-6 w-9 h-9 flex items-center justify-center rounded-xl text-white"
+              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}>
+              <X className="w-5 h-5" />
+            </button>
             {navItems.map((item, i) => {
               const motionProps = { key: item.label, initial: { opacity: 0, x: -16 }, animate: { opacity: 1, x: 0 }, transition: { delay: i * 0.05 } };
               const cls = "text-2xl font-bold py-4 border-b text-white block";
