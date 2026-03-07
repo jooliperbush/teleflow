@@ -118,7 +118,7 @@ const MARGIN = 1.25 // 25% markup
 
 // ─── Journey Selector ────────────────────────────────────────────────────────
 
-type Journey = 'internet' | 'voip' | 'mobile' | 'pstn'
+type Journey = 'internet' | 'voip' | 'mobile' | 'pstn' | 'callback'
 
 const JOURNEYS: { id: Journey; icon: string; title: string; subtitle: string; badge?: string }[] = [
   { id: 'internet',  icon: '/icons/icon-internet.svg',  title: 'Internet',           subtitle: 'Full fibre broadband for your business' },
@@ -880,6 +880,7 @@ function CallbackForm({ journey, onBack }: { journey: Journey; onBack: () => voi
     mobile:   { title: 'Mobile',            desc: 'Tell us what you need and we\'ll come back with options.' },
     pstn:     { title: 'Landline Migration', desc: 'We\'ll help you migrate before the 2027 PSTN switch-off.' },
     internet: { title: 'Internet',           desc: '' },
+    callback: { title: 'Book a Free Assessment', desc: 'We\'ll check your site and advise the best migration path.' },
   }
   const { title, desc } = labels[journey]
 
@@ -2589,8 +2590,8 @@ export default function OrderPage() {
                   setJourney('voip')
                   setStep(-1)
                 } else {
-                  setJourney('pstn')
-                  // fall through to callback — handled below
+                  setJourney('callback')
+                  setStep(-1)
                 }
               }}
             />
@@ -2599,9 +2600,19 @@ export default function OrderPage() {
         )}
 
         {/* Non-internet callback form (pstn callback fallback + others) */}
-        {step === -1 && journey && journey !== 'internet' && journey !== 'voip' && journey !== 'mobile' && journey !== 'pstn' && (
+        {step === -1 && journey && journey !== 'internet' && journey !== 'voip' && journey !== 'mobile' && journey !== 'pstn' && journey !== 'callback' && (
           <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
             <CallbackForm journey={journey} onBack={() => setStep(-2)} />
+          </div>
+        )}
+
+        {/* Book a Free Assessment — callback form */}
+        {step === -1 && journey === 'callback' && (
+          <div className="rounded-2xl p-6 sm:p-8 relative overflow-hidden" style={{ background: "white", border: "1px solid #e5e7eb", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+            <div className="absolute pointer-events-none" style={{ top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '9999px', background: 'rgba(249,69,128,0.08)', filter: 'blur(120px)', zIndex: 0 }} />
+            <div className="relative" style={{ zIndex: 1 }}>
+              <CallbackForm journey="pstn" onBack={() => setStep(-2)} />
+            </div>
           </div>
         )}
 
