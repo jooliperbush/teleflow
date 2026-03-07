@@ -2543,7 +2543,10 @@ export default function OrderPage() {
 
         {/* VoIP builder */}
         {step === -1 && journey === 'voip' && (
-          <div className="rounded-2xl p-6 sm:p-8" style={{ background: "white", border: "1px solid #e5e7eb", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+          <div className="rounded-2xl p-6 sm:p-8 relative overflow-hidden" style={{ background: "white", border: "1px solid #e5e7eb", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+            {/* Soft pink glow — matches homepage white sections */}
+            <div className="absolute pointer-events-none" style={{ top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '9999px', background: 'rgba(249,69,128,0.08)', filter: 'blur(120px)', zIndex: 0 }} />
+            <div className="relative" style={{ zIndex: 1 }}>
             <VoIPBuilder
               onBack={() => setStep(-2)}
               onComplete={(products, voipTerm) => {
@@ -2551,6 +2554,7 @@ export default function OrderPage() {
                 next()
               }}
             />
+            </div>
           </div>
         )}
 
