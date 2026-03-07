@@ -288,8 +288,8 @@ function VoIPBuilder({ onBack, onComplete }: {
       <div className="flex items-center gap-4 mb-6">
         <img src="/itc-logo-mark.png" alt="ITC" className="w-14 h-14 rounded-xl object-contain flex-shrink-0" />
         <div>
-          <h2 className="text-2xl font-bold text-white leading-tight">Build Your VoIP System</h2>
-          <p className="text-white/45 text-sm mt-0.5">Customise your package — pricing updates as you go.</p>
+          <h2 className="text-2xl font-bold leading-tight" style={{ color: '#0f0a2e' }}>Build Your VoIP System</h2>
+          <p className="text-sm mt-0.5" style={{ color: '#6b7280' }}>Customise your package — pricing updates as you go.</p>
         </div>
       </div>
 
@@ -409,9 +409,9 @@ function VoIPBuilder({ onBack, onComplete }: {
       </div>
 
       {/* ITC internet notice */}
-      <div className="rounded-lg px-3 py-2.5 mb-5 flex items-start gap-2" style={{ background: 'rgba(249,69,128,0.07)', border: '1px solid rgba(249,69,128,0.25)' }}>
+      <div className="rounded-lg px-3 py-2.5 mb-5 flex items-start gap-2" style={{ background: 'rgba(249,69,128,0.08)', border: '1px solid rgba(249,69,128,0.35)' }}>
         <span className="text-[#f94580] text-xs mt-0.5">★</span>
-        <p className="text-white/60 text-xs">VoIP works on any broadband but performs best on ITC's managed fibre — guaranteed QoS, no dropped calls.</p>
+        <p className="text-xs" style={{ color: '#6b7280' }}>VoIP works on any broadband but performs best on ITC's managed fibre — guaranteed QoS, no dropped calls.</p>
       </div>
 
       {/* SIM special offer */}
@@ -419,13 +419,13 @@ function VoIPBuilder({ onBack, onComplete }: {
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(249,69,128,0.2)', color: '#f94580', border: '1px solid rgba(249,69,128,0.4)' }}>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(249,69,128,0.15)', color: '#f94580', border: '1px solid rgba(249,69,128,0.4)' }}>
                 🎁 VoIP Customer Offer
               </span>
             </div>
-            <p className="text-white font-bold text-sm mb-0.5">Add Mobile SIMs</p>
-            <p className="text-white/50 text-xs">Unlimited calls & data — exclusive rate when bundled with VoIP</p>
-            <p className="text-[#f94580] font-bold text-base mt-1">£{VOIP_SIM_PRICE}<span className="text-white/40 font-normal text-xs">/SIM/mo</span></p>
+            <p className="font-bold text-sm mb-0.5" style={{ color: '#111827' }}>Add Mobile SIMs</p>
+            <p className="text-xs" style={{ color: '#6b7280' }}>Unlimited calls & data — exclusive rate when bundled with VoIP</p>
+            <p className="text-[#f94580] font-bold text-base mt-1">£{VOIP_SIM_PRICE}<span className="font-normal text-xs" style={{ color: '#9ca3af' }}>/SIM/mo</span></p>
           </div>
           <div className="flex items-center gap-3 mt-1">
             <button onClick={() => setSims(s => Math.max(0, s - 1))}
@@ -438,54 +438,54 @@ function VoIPBuilder({ onBack, onComplete }: {
           </div>
         </div>
         {sims > 0 && (
-          <p className="text-white/50 text-xs mt-2 pt-2" style={{ borderTop: '1px solid rgba(249,69,128,0.2)' }}>
-            {sims} SIM{sims > 1 ? 's' : ''} × £{VOIP_SIM_PRICE}/mo = <span className="text-white font-semibold">£{(sims * VOIP_SIM_PRICE).toFixed(2)}/mo</span>
+          <p className="text-xs mt-2 pt-2" style={{ borderTop: '1px solid rgba(249,69,128,0.2)', color: '#6b7280' }}>
+            {sims} SIM{sims > 1 ? 's' : ''} × £{VOIP_SIM_PRICE}/mo = <span className="font-semibold" style={{ color: '#111827' }}>£{(sims * VOIP_SIM_PRICE).toFixed(2)}/mo</span>
           </p>
         )}
       </div>
 
       {/* Price summary */}
-      <div className="rounded-xl p-4 mb-5" style={{ background: 'rgba(89,27,255,0.12)', border: '1px solid rgba(89,27,255,0.4)' }}>
+      <div className="rounded-xl p-4 mb-5" style={{ background: '#f5f3ff', border: '1px solid #c4b5fd' }}>
         <div className="flex justify-between text-sm mb-1">
-          <span className="text-white/60">{seats} seat{seats > 1 ? 's' : ''} × £{monthlyPerSeat.toFixed(2)}/mo</span>
-          <span className="text-white font-semibold">£{(monthlyPerSeat * seats).toFixed(2)}/mo</span>
+          <span style={{ color: '#6b7280' }}>{seats} seat{seats > 1 ? 's' : ''} × £{monthlyPerSeat.toFixed(2)}/mo</span>
+          <span className="font-semibold" style={{ color: '#111827' }}>£{(monthlyPerSeat * seats).toFixed(2)}/mo</span>
         </div>
         {sims > 0 && (
           <div className="flex justify-between text-sm mb-1">
-            <span className="text-white/60">{sims} SIM{sims > 1 ? 's' : ''} × £{VOIP_SIM_PRICE}/mo</span>
-            <span className="text-white font-semibold">£{(sims * VOIP_SIM_PRICE).toFixed(2)}/mo</span>
+            <span style={{ color: '#6b7280' }}>{sims} SIM{sims > 1 ? 's' : ''} × £{VOIP_SIM_PRICE}/mo</span>
+            <span className="font-semibold" style={{ color: '#111827' }}>£{(sims * VOIP_SIM_PRICE).toFixed(2)}/mo</span>
           </div>
         )}
         {poeOption.price > 0 && (
           <div className="flex justify-between text-sm mb-1">
-            <span className="text-white/60">{poeOption.label}</span>
-            <span className="text-white font-semibold">£{poeOption.price}</span>
+            <span style={{ color: '#6b7280' }}>{poeOption.label}</span>
+            <span className="font-semibold" style={{ color: '#111827' }}>£{poeOption.price}</span>
           </div>
         )}
         {install && (
           <div className="flex justify-between text-sm mb-1">
-            <span className="text-white/60">Professional Installation</span>
-            <span className="text-white font-semibold">£{VOIP_INSTALL_PRICE}</span>
+            <span style={{ color: '#6b7280' }}>Professional Installation</span>
+            <span className="font-semibold" style={{ color: '#111827' }}>£{VOIP_INSTALL_PRICE}</span>
           </div>
         )}
         {oneOffTotal > 0 && (
-          <div className="flex justify-between text-xs mb-1 pt-1" style={{ borderTop: '1px solid rgba(89,27,255,0.2)' }}>
-            <span className="text-white/50">One-off total</span>
-            <span className="text-white/70">£{oneOffTotal}</span>
+          <div className="flex justify-between text-xs mb-1 pt-1" style={{ borderTop: '1px solid #ddd6fe' }}>
+            <span style={{ color: '#9ca3af' }}>One-off total</span>
+            <span style={{ color: '#4b5563' }}>£{oneOffTotal}</span>
           </div>
         )}
         {term === 12 ? (
-          <div className="flex justify-between text-sm pt-2 mt-1" style={{ borderTop: '1px solid rgba(89,27,255,0.3)' }}>
-            <span className="text-white/80 font-semibold">12-month total (upfront)</span>
-            <span className="text-white font-bold">£{upfront12.toFixed(2)}</span>
+          <div className="flex justify-between text-sm pt-2 mt-1" style={{ borderTop: '1px solid #c4b5fd' }}>
+            <span className="font-semibold" style={{ color: '#374151' }}>12-month total (upfront)</span>
+            <span className="font-bold" style={{ color: '#111827' }}>£{upfront12.toFixed(2)}</span>
           </div>
         ) : (
-          <div className="flex justify-between text-sm pt-2 mt-1" style={{ borderTop: '1px solid rgba(89,27,255,0.3)' }}>
-            <span className="text-white/80 font-semibold">Monthly total</span>
-            <span className="text-white font-bold">£{monthlyTotal.toFixed(2)}/mo</span>
+          <div className="flex justify-between text-sm pt-2 mt-1" style={{ borderTop: '1px solid #c4b5fd' }}>
+            <span className="font-semibold" style={{ color: '#374151' }}>Monthly total</span>
+            <span className="font-bold" style={{ color: '#111827' }}>£{monthlyTotal.toFixed(2)}/mo</span>
           </div>
         )}
-        <p className="text-white/35 text-[10px] mt-2">All prices ex. VAT · {term}-month contract</p>
+        <p className="text-[10px] mt-2" style={{ color: '#9ca3af' }}>All prices ex. VAT · {term}-month contract</p>
       </div>
 
       <button onClick={handleContinue} className="itc-gradient-btn w-full py-3.5 rounded-xl font-semibold text-white text-base">
@@ -2543,7 +2543,7 @@ export default function OrderPage() {
 
         {/* VoIP builder */}
         {step === -1 && journey === 'voip' && (
-          <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
+          <div className="rounded-2xl p-6 sm:p-8" style={{ background: "white", border: "1px solid #e5e7eb", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
             <VoIPBuilder
               onBack={() => setStep(-2)}
               onComplete={(products, voipTerm) => {
