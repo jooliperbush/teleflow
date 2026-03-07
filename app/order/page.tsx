@@ -298,7 +298,7 @@ function VoIPBuilder({ onBack, onComplete }: {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-white font-semibold text-sm">Number of seats</p>
-            <p className="text-white/40 text-xs">£{VOIP_SEAT_PRICE}/seat/mo — app + unlimited UK calls</p>
+            <p className="text-white/40 text-xs font-medium">£{VOIP_SEAT_PRICE}/seat/mo — app + unlimited UK calls</p>
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => handleSeatsChange(Math.max(1, seats - 1))}
@@ -323,8 +323,8 @@ function VoIPBuilder({ onBack, onComplete }: {
                 ? { border: '1.5px solid #591bff', background: 'rgba(89,27,255,0.15)' }
                 : { border: '1px solid hsl(252,50%,32%)', background: 'transparent' }}>
               <p className="text-white text-xs font-semibold">{h.label}</p>
-              <p className="text-white/40 text-[10px]">{h.price > 0 ? `+£${h.price.toFixed(2)}/seat/mo` : 'Included'}</p>
-              <p className="text-white/30 text-[10px]">{h.note}</p>
+              <p className="text-white/40 text-xs font-medium">{h.price > 0 ? `+£${h.price.toFixed(2)}/seat/mo` : 'Included'}</p>
+              <p className="text-white/30 text-xs font-medium">{h.note}</p>
             </button>
           ))}
         </div>
@@ -335,9 +335,9 @@ function VoIPBuilder({ onBack, onComplete }: {
         <div className="rounded-xl p-4 mb-3" style={{ background: 'hsl(252,60%,16%)', border: '1px solid hsl(252,50%,28%)' }}>
           <div className="flex items-center justify-between mb-1">
             <p className="text-white font-semibold text-sm">Power / Switching</p>
-            <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(123,231,255,0.1)', color: '#7be7ff', border: '1px solid rgba(123,231,255,0.25)' }}>All Gigabit</span>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(123,231,255,0.1)', color: '#7be7ff', border: '1px solid rgba(123,231,255,0.25)' }}>All Gigabit</span>
           </div>
-          <p className="text-white/40 text-xs mb-3">One-off hardware cost — auto-suggested for your seat count</p>
+          <p className="text-white/40 text-xs font-medium mb-3">One-off hardware cost — auto-suggested for your seat count</p>
           <div className="grid grid-cols-2 gap-2">
             {POE_OPTIONS.filter(p => p.id !== 'none').map(p => (
               <button key={p.id} onClick={() => setPoe(p.id)}
@@ -346,8 +346,8 @@ function VoIPBuilder({ onBack, onComplete }: {
                   ? { border: '1.5px solid #591bff', background: 'rgba(89,27,255,0.15)' }
                   : { border: '1px solid hsl(252,50%,32%)', background: 'transparent' }}>
                 <p className="text-white text-xs font-semibold">{p.label}</p>
-                <p className="text-white/40 text-[10px]">£{p.price} one-off</p>
-                <p className="text-white/30 text-[10px]">{p.note}</p>
+                <p className="text-white/40 text-xs font-medium">£{p.price} one-off</p>
+                <p className="text-white/30 text-xs font-medium">{p.note}</p>
               </button>
             ))}
           </div>
@@ -359,7 +359,7 @@ function VoIPBuilder({ onBack, onComplete }: {
         style={{ background: 'hsl(252,60%,16%)', border: `1px solid ${analytics ? '#591bff' : 'hsl(252,50%,28%)'}` }}>
         <div>
           <p className="text-white font-semibold text-sm">Call Analytics</p>
-          <p className="text-white/40 text-xs">Call recording, reporting & hunt groups — +£{VOIP_ANALYTICS.toFixed(2)}/seat/mo</p>
+          <p className="text-white/40 text-xs font-medium">Call recording, reporting & hunt groups — +£{VOIP_ANALYTICS.toFixed(2)}/seat/mo</p>
         </div>
         <input type="checkbox" checked={analytics} onChange={e => setAnalytics(e.target.checked)}
           className="w-4 h-4 accent-[#591bff]" />
@@ -377,7 +377,7 @@ function VoIPBuilder({ onBack, onComplete }: {
               ? { border: '1.5px solid #591bff', background: 'rgba(89,27,255,0.15)' }
               : { border: '1px solid hsl(252,50%,32%)', background: 'transparent' }}>
             <p className="text-white text-xs font-semibold">Self Install</p>
-            <p className="text-white/40 text-[10px]">Free of charge</p>
+            <p className="text-white/40 text-xs font-medium">Free of charge</p>
           </button>
           <button onClick={() => setInstall(true)}
             className="text-left p-3 rounded-lg transition-all"
@@ -385,8 +385,8 @@ function VoIPBuilder({ onBack, onComplete }: {
               ? { border: '1.5px solid #591bff', background: 'rgba(89,27,255,0.15)' }
               : { border: '1px solid hsl(252,50%,32%)', background: 'transparent' }}>
             <p className="text-white text-xs font-semibold">Professional Install</p>
-            <p className="text-white/40 text-[10px]">£{VOIP_INSTALL_PRICE} one-off</p>
-            <p className="text-white/30 text-[10px]">Engineer on-site setup</p>
+            <p className="text-white/40 text-xs font-medium">£{VOIP_INSTALL_PRICE} one-off</p>
+            <p className="text-white/30 text-xs font-medium">Engineer on-site setup</p>
           </button>
         </div>
       </div>
@@ -402,7 +402,7 @@ function VoIPBuilder({ onBack, onComplete }: {
                 ? { border: '1.5px solid #591bff', background: 'rgba(89,27,255,0.15)' }
                 : { border: '1px solid hsl(252,50%,32%)', background: 'transparent' }}>
               <p className="text-white text-xs font-semibold">{t.label}</p>
-              <p className="text-white/40 text-[10px]">{t.sub}</p>
+              <p className="text-white/40 text-xs font-medium">{t.sub}</p>
             </button>
           ))}
         </div>
@@ -485,7 +485,7 @@ function VoIPBuilder({ onBack, onComplete }: {
             <span className="font-bold" style={{ color: '#111827' }}>£{monthlyTotal.toFixed(2)}/mo</span>
           </div>
         )}
-        <p className="text-[10px] mt-2" style={{ color: '#9ca3af' }}>All prices ex. VAT · {term}-month contract</p>
+        <p className="text-xs font-medium mt-2" style={{ color: '#9ca3af' }}>All prices ex. VAT · {term}-month contract</p>
       </div>
 
       <button onClick={handleContinue} className="itc-gradient-btn w-full py-3.5 rounded-xl font-semibold text-white text-base">
@@ -555,7 +555,7 @@ function MobileBuilder({ onBack, onComplete }: {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-white font-semibold text-sm">{sims === 1 ? 'Single SIM' : `${sims} SIMs`}</p>
-            <p className="text-white/40 text-xs">£{MOBILE_SIM_PRICE}/SIM/mo — unlimited calls & data</p>
+            <p className="text-white/40 text-xs font-medium">£{MOBILE_SIM_PRICE}/SIM/mo — unlimited calls & data</p>
           </div>
           <div className="flex items-center gap-3">
             <button onClick={() => setSims(s => Math.max(1, s - 1))}
@@ -606,7 +606,7 @@ function MobileBuilder({ onBack, onComplete }: {
                 ? { border: '1.5px solid #591bff', background: 'rgba(89,27,255,0.15)' }
                 : { border: '1px solid hsl(252,50%,32%)', background: 'transparent' }}>
               <p className="text-white text-xs font-semibold">{t.label}</p>
-              <p className="text-white/40 text-[10px]">{t.sub}</p>
+              <p className="text-white/40 text-xs font-medium">{t.sub}</p>
             </button>
           ))}
         </div>
@@ -629,7 +629,7 @@ function MobileBuilder({ onBack, onComplete }: {
             <span className="font-bold" style={{ color: '#111827' }}>£{monthlyTotal.toFixed(2)}/mo</span>
           </div>
         )}
-        <p className="text-[10px] mt-2" style={{ color: '#9ca3af' }}>All prices ex. VAT · {term}-month contract</p>
+        <p className="text-xs font-medium mt-2" style={{ color: '#9ca3af' }}>All prices ex. VAT · {term}-month contract</p>
       </div>
 
       <button onClick={handleContinue} className="itc-gradient-btn w-full py-3.5 rounded-xl font-semibold text-white text-base">
