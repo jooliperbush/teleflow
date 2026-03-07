@@ -780,15 +780,15 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
       <div className="flex items-center gap-4 mb-6">
         <img src="/itc-logo-mark.png" alt="ITC" className="w-14 h-14 rounded-xl object-contain flex-shrink-0" />
         <div>
-          <h2 className="text-2xl font-bold text-white leading-tight">Landline Migration</h2>
-          <p className="text-white/45 text-sm mt-0.5">Check what's available at your premises.</p>
+          <h2 className="text-2xl font-bold leading-tight" style={{ color: '#0f0a2e' }}>Landline Migration</h2>
+          <p className="text-sm mt-0.5" style={{ color: '#6b7280' }}>Check what's available at your premises.</p>
         </div>
       </div>
 
       {/* Deadline banner */}
-      <div className="rounded-lg px-3 py-2.5 mb-5 flex items-start gap-2" style={{ background: 'rgba(249,69,128,0.07)', border: '1px solid rgba(249,69,128,0.3)' }}>
+      <div className="rounded-lg px-3 py-2.5 mb-5 flex items-start gap-2" style={{ background: 'rgba(249,69,128,0.08)', border: '1px solid rgba(249,69,128,0.35)' }}>
         <span className="text-[#f94580] text-xs mt-0.5 font-bold">!</span>
-        <p className="text-white/60 text-xs"><span className="text-white font-semibold">2027 Deadline</span> — BT is switching off all analogue PSTN & ISDN lines. All businesses must migrate to VoIP before then.</p>
+        <p className="text-xs" style={{ color: '#6b7280' }}><span className="font-semibold" style={{ color: '#111827' }}>2027 Deadline</span> — BT is switching off all analogue PSTN & ISDN lines. All businesses must migrate to VoIP before then.</p>
       </div>
 
       {/* Postcode input */}
@@ -831,7 +831,7 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
 
       {/* Loading availability */}
       {loading && selectedAddr && (
-        <div className="text-center py-6 text-white/50 text-sm">Checking availability…</div>
+        <div className="text-center py-6 text-sm" style={{ color: '#9ca3af' }}>Checking availability…</div>
       )}
 
       {/* Results + migration path */}
@@ -850,7 +850,7 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
             <p className="text-white/55 text-xs mt-3 leading-relaxed">{path.desc}</p>
           </div>
 
-          <p className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-3">Choose your migration path</p>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#9ca3af' }}>Choose your migration path</p>
           <div className="grid grid-cols-1 gap-2 mb-5">
             {path.paths.map((p, i) => (
               <button key={i} onClick={() => onSelectPath(p.action)}
@@ -865,7 +865,7 @@ function PSNTMigrationBuilder({ onBack, onSelectPath }: {
           </div>
 
           <button onClick={() => { setChecked(false); setProducts([]); setSelectedAddr(null); setAddresses([]) }}
-            className="text-white/40 text-xs hover:text-white transition-colors">
+            className="text-xs transition-colors hover:text-[#f94580]" style={{ color: '#9ca3af' }}>
             ← Check a different postcode
           </button>
         </div>
@@ -2576,7 +2576,9 @@ export default function OrderPage() {
 
         {/* PSTN migration builder */}
         {step === -1 && journey === 'pstn' && (
-          <div className="rounded-2xl p-6 sm:p-8" style={{ background: "hsl(252, 92%, 13%)", border: "1px solid hsl(252, 50%, 25%)" }}>
+          <div className="rounded-2xl p-6 sm:p-8 relative overflow-hidden" style={{ background: "white", border: "1px solid #e5e7eb", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+            <div className="absolute pointer-events-none" style={{ top: '-20%', left: '-10%', width: '500px', height: '500px', borderRadius: '9999px', background: 'rgba(249,69,128,0.08)', filter: 'blur(120px)', zIndex: 0 }} />
+            <div className="relative" style={{ zIndex: 1 }}>
             <PSNTMigrationBuilder
               onBack={() => setStep(-2)}
               onSelectPath={(selectedPath) => {
@@ -2592,6 +2594,7 @@ export default function OrderPage() {
                 }
               }}
             />
+            </div>
           </div>
         )}
 
